@@ -75,7 +75,8 @@ class Map {
 	private function tick() {
 		echo $this;
 
-		$this->updateRain();
+		$this->updateSkyRain();
+		//$this->updateDirt();
 	}
 
 	private function initializeMap() {
@@ -98,17 +99,19 @@ class Map {
 		}	
 	}
 
-	private function getRainCoords() {
+	private function getSkyRainCoords() {
 		$ret = array();
 
 		// scan the skies for existing rain
 		for ($x = 0; $x < count($this->map); $x++) {
 			for ($y = 0; $y < count($this->map[0]); $y++) {
-				if ($this->map[$x][$y] instanceof Sky || $this->map[$x][$y] instanceof Dirt) {
-					$con = $this->map[$x][$y]->getContains();
+				if ($this->map[$x][$y] instanceof Sky) {
+					$containedObjs = $this->map[$x][$y]->getContains();
 
-					if ($con instanceof Rain) {
-						$ret[] = [$x, $y];
+					foreach ($containedObjs as $containedObj) {
+						if ($containedObj instanceof Rain) {
+							$ret[] = [$x, $y];
+						}
 					}
 				}
 			}
@@ -118,7 +121,7 @@ class Map {
 	}
 
 	private function addRain() {
-		$existingRain = $this->getRainCoords();
+		$existingRain = $this->getSkyRainCoords();
 		$ys = array();
 
 		if (count($existingRain) >= $this->maxRain) {
@@ -135,24 +138,80 @@ class Map {
 			$rainY = rand(0, count($this->map[0]) - 1);
 		} while (in_array($rainY, $ys));
 
-		$this->map[0][$rainY]->setContains(new Rain());
+		$this->map[0][$rainY]->addContains(new Rain());
 	}
 
-	private function updateRain() {
-		$raindrops = $this->getRainCoords();
+	private function updateSkyRain() {
+		$raindrops = $this->getSkyRainCoords();
 
 		foreach ($raindrops as $raindrop) {
 			// if the next space down is still air, move
 			$newX = $raindrop[0] + 1;
 			$newY = $raindrop[1];
 
-			if ($newX < $this->mapHeight) {
-				// move the rain one down 
-				$this->map[$newX][$newY]->setContains($this->map[$raindrop[0]][$raindrop[1]]->getContains());
-				$this->map[$raindrop[0]][$raindrop[1]]->setContains(null);
-			} else {
-				$this->map[$raindrop[0]][$raindrop[1]]->setContains(null);
+			// move all the rains one down
+			$newContains = array();
+
+			foreach ($this->map[$raindrop[0]][$raindrop[1]]->getContains() as $containedObj) {
+				if ($containedObj instanceof Rain && $newX < $this->mapHeight) {
+					$this->map[$newX][$newY]->addContains($containedObj);
+				} else {
+					$newContains[] = $containedObj;
+				}
 			}
+
+			$this->map[$raindrop[0]][$raindrop[1]]->setContains($newContains);
+		} 
+	}
+
+	private function getDirtRainCoords() {
+		$ret = array();
+
+		// scan the skies for existing rain
+		for ($x = 0; $x < count($this->map); $x++) {
+			for ($y = 0; $y < count($this->map[0]); $y++) {
+				if ($this->map[$x][$y] instanceof Dirt) {
+					$containedObjs = $this->map[$x][$y]->getContains();
+
+					$wetness = 0;
+					foreach ($containedObjs as $containedObj) {
+						if ($containedObj instanceof Rain) {
+							$ret[] = [$x, $y];
+						}
+
+						break;
+					}
+				}
+			}
+		}
+
+		return $ret;
+		
+	}
+
+	private function updateDirt() {
+		$wetness = $this->getDirtRainCoords();
+
+		// decrease 1 from the rain, and pass it on to the next guy
+		foreach ($wetness as $wetness) {
+			$d = $this->map[$wetness[0]][$wetness[1]];
+
+			$newContains = array();
+			foreach ($d->getContains() as $containedObj) {
+				if ($containedObj instanceof Rain) {
+					$containedObj->decrSize();
+
+					if ($containedObj->getSize() > 0) {
+						// if the tile below us is a dirt,
+						// move the water there
+						$this->map[$wetness[0] + 1][$wetness[1]]->addContains();
+					}
+				} else {
+					$newContains[] = $containedObj;
+				}
+			}		
+
+			$this->map[$wetness[0]][$wetness[1]]->setContains($newContains);
 		}
 	}
 
@@ -199,6 +258,14 @@ class Rain {
 		$this->size = $size;	
 	}
 
+	public function decrSize() {
+		$this->size = $this->size--;
+	}
+
+	public function getSize() {
+		return $this->size;
+	}
+
 	public function __toString() {
 		return "|";
 	}
@@ -208,11 +275,15 @@ class Dirt {
 	public $contains;
 
 	public function __construct() {
-		$contains = null;
+		$this->contains = array();
 	}
 
 	public function getContains() {
 		return $this->contains;
+	}
+
+	public function addContains($obj) {
+		$this->contains[] = $obj;
 	}
 
 	public function setContains($obj) {
@@ -220,8 +291,22 @@ class Dirt {
 	}
 
 	public function __toString() {
-		if (!is_null($this->contains)) {
-			return $this->contains->__toString();
+		if (count($this->contains)) {
+			$wetness = 0;
+
+			foreach ($this->contains as $containedObj) {
+				if ($containedObj instanceof Rain) {
+					echo "We have a rain inside!\n";
+					$wetness += $containedObj->getSize();
+				}
+			}
+
+			if ($wetness > 0) {
+				return "$wetness";
+			}
+
+			// hack 
+			return $this->contains[0]->__toString();
 		}
 
 		return ".";
@@ -233,7 +318,7 @@ class Sky {
 	public $contains;
 
 	public function __construct() {
-		$contains = null;
+		$this->contains = array();
 	}
 
 	// return 
@@ -245,9 +330,20 @@ class Sky {
 		$this->contains = $obj;
 	}
 
+	public function addContains($obj) {
+		$this->contains[] = $obj;
+	}
+
 	public function __toString() {
-		if (!is_null($this->contains)) {
-			return $this->contains->__toString();
+		if (count($this->contains)) {
+			foreach ($this->contains as $containedObj) {
+				// we return immediately, but eventually want to add code
+				// to set precedent to the different contained objects
+				// and print accordingly
+				echo "Trying to printt a sky\n";
+				var_dump($containedObj);
+				return $containedObj->__toString();
+			}
 		}
 
 		return "~";
