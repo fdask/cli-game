@@ -104,7 +104,7 @@ class Map {
 		// scan the skies for existing rain
 		for ($x = 0; $x < count($this->map); $x++) {
 			for ($y = 0; $y < count($this->map[0]); $y++) {
-				if ($this->map[$x][$y] instanceof Sky) {
+				if ($this->map[$x][$y] instanceof Sky || $this->map[$x][$y] instanceof Dirt) {
 					$con = $this->map[$x][$y]->getContains();
 
 					if ($con instanceof Rain) {
@@ -146,13 +146,13 @@ class Map {
 			$newX = $raindrop[0] + 1;
 			$newY = $raindrop[1];
 
-			echo "Testing if the new rain x is less than mapheight ($newX < " . $this->mapHeight . ")\n";
 			if ($newX < $this->mapHeight) {
 				// move the rain one down 
 				$this->map[$newX][$newY]->setContains($this->map[$raindrop[0]][$raindrop[1]]->getContains());
-			} 
-
-			$this->map[$raindrop[0]][$raindrop[1]]->setContains(null);
+				$this->map[$raindrop[0]][$raindrop[1]]->setContains(null);
+			} else {
+				$this->map[$raindrop[0]][$raindrop[1]]->setContains(null);
+			}
 		}
 	}
 
