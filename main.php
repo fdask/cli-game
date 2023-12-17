@@ -75,8 +75,10 @@ class Map {
 	private function tick() {
 		echo $this;
 
+		// we do this backwardes, otherwise stuff that moves into dirt from the sky,
+		// will move twice in this tick
+		$this->updateDirt();
 		$this->updateSkyRain();
-		//$this->updateDirt();
 	}
 
 	private function initializeMap() {
@@ -201,10 +203,10 @@ class Map {
 				if ($containedObj instanceof Rain) {
 					$containedObj->decrSize();
 
-					if ($containedObj->getSize() > 0) {
+					if ($containedObj->getSize() > 0 && ($wetness[0] + 1 < $this->mapHeight)) {
 						// if the tile below us is a dirt,
 						// move the water there
-						$this->map[$wetness[0] + 1][$wetness[1]]->addContains();
+						$this->map[$wetness[0] + 1][$wetness[1]]->addContains($containedObj);
 					}
 				} else {
 					$newContains[] = $containedObj;
