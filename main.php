@@ -1,8 +1,8 @@
 #!/usr/bin/php
 <?php
 // define some system variables
-$skyHeight = 2;
-$groundHeight = 2;
+$skyHeight = 5;
+$groundHeight = 5;
 $mapWidth = 10;
 $maxRain = 3;
 
@@ -140,7 +140,7 @@ class Map {
 			$rainY = rand(0, count($this->map[0]) - 1);
 		} while (in_array($rainY, $ys));
 
-		$this->map[0][$rainY]->addContains(new Rain());
+		$this->map[0][$rainY]->addContains(new Rain(rand(1, 3)));
 	}
 
 	private function updateSkyRain() {
@@ -261,7 +261,7 @@ class Rain {
 	}
 
 	public function decrSize() {
-		$this->size = $this->size--;
+		$this->size--;
 	}
 
 	public function getSize() {
@@ -342,8 +342,6 @@ class Sky {
 				// we return immediately, but eventually want to add code
 				// to set precedent to the different contained objects
 				// and print accordingly
-				echo "Trying to printt a sky\n";
-				var_dump($containedObj);
 				return $containedObj->__toString();
 			}
 		}
