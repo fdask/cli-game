@@ -3,10 +3,10 @@
 // define some system variables
 $skyHeight = 5;
 $groundHeight = 5;
-$mapWidth = 10;
+$vpWidth = 10;
 $maxRain = 3;
 
-$map = new Map($skyHeight, $groundHeight, $mapWidth, $maxRain);
+$map = new Map($skyHeight, $groundHeight, $vpWidth, $maxRain);
 echo $map;
 
 class Map {
@@ -20,7 +20,7 @@ class Map {
 	public $groundHeight;
 
 	// how wide is the map
-	public $mapWidth;
+	public $vpWidth;
 
 	// how high is the map
 	public $mapHeight;
@@ -28,21 +28,21 @@ class Map {
 	// how many raindrops allowed on the map at once
 	public $maxRain;
 
-	public function __construct($skyHeight, $groundHeight, $mapWidth, $maxRain) {
+	public function __construct($skyHeight, $groundHeight, $vpWidth, $maxRain) {
 		$this->skyHeight = $skyHeight;
 		$this->groundHeight = $groundHeight;
 		$this->mapHeight = $groundHeight + $skyHeight;
-		$this->mapWidth = $mapWidth;
+		$this->vpWidth = $vpWidth;
 		$this->maxRain = $maxRain;
 
 		// initialize the map array
 		$this->initializeMap();
 
 		// fill in the sky
-		$this->fillMap(0, 0, $this->skyHeight, $this->mapWidth, "Sky");
+		$this->fillMap(0, 0, $this->skyHeight, $this->vpWidth, "Sky");
 
 		// fill in the dirt
-		$this->fillMap($this->skyHeight, 0, $this->mapHeight, $this->mapWidth, "Dirt");
+		$this->fillMap($this->skyHeight, 0, $this->mapHeight, $this->vpWidth, "Dirt");
 		
 		$this->gameLoop();
 	}
@@ -86,7 +86,7 @@ class Map {
 		$this->map = array();
 
 		for ($x = 0; $x < ($this->skyHeight + $this->groundHeight); $x++) {
-			for ($y = 0; $y < $this->mapWidth; $y++) {
+			for ($y = 0; $y < $this->vpWidth; $y++) {
 				$this->map[$x][$y] = false;
 			}
 		}
@@ -298,7 +298,6 @@ class Dirt {
 
 			foreach ($this->contains as $containedObj) {
 				if ($containedObj instanceof Rain) {
-					echo "We have a rain inside!\n";
 					$wetness += $containedObj->getSize();
 				}
 			}
