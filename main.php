@@ -6,8 +6,9 @@ $groundHeight = 5;
 $vpWidth = 10;
 $mapWidth = 30;
 $maxRain = 3;
+$maxMinerals = 15;
 
-$map = new Map($skyHeight, $groundHeight, $vpWidth, $mapWidth, $maxRain);
+$map = new Map($skyHeight, $groundHeight, $vpWidth, $mapWidth, $maxRain, $maxMinerals);
 echo $map;
 
 class Map {
@@ -32,17 +33,29 @@ class Map {
 	// how high is the map
 	public $mapHeight;
 
+	// which view we want to show the user
+	// 1 - shows the rain/wetness
+	// 2 - mineral view
+	public $viewType;
+
 	// how many raindrops allowed on the map at once
 	public $maxRain;
 
-	public function __construct($skyHeight, $groundHeight, $vpWidth, $mapWidth, $maxRain) {
+	// how many mineral spaces to allow on the map at once
+	public $maxMinerals;
+
+	public function __construct($skyHeight, $groundHeight, $vpWidth, $mapWidth, $maxRain, $maxMinerals) {
 		$this->skyHeight = $skyHeight;
 		$this->groundHeight = $groundHeight;
 		$this->mapHeight = $groundHeight + $skyHeight;
 		$this->vpWidth = $vpWidth;
 		$this->mapWidth = $mapWidth;
 		$this->maxRain = $maxRain;
+		$this->maxMinerals = $maxMinerals;
 		$this->vpY = 0;
+
+		// default to the rain view
+		$this->viewType = 1;
 
 		// initialize the map array
 		$this->initializeMap();
@@ -64,15 +77,20 @@ class Map {
 
 		// keypress handler
 		while ($c = fread(STDIN, 1)) {
-			switch ($c) {
-				case 'q':
-					// quit the game
-					system("stty $this->term");
+			$tick = true;
 
-					exit;
-				case 'r':
-					$this->addRain();
-			
+			switch ($c) {
+				case '1':
+					// switch to wetness view
+					$this->viewType = 1;
+					$tick = false;
+	
+					break;
+				case '2':
+					// switch to the mineral view
+					$this->viewType = 2;
+					$tick = false;
+
 					break;
 				case 'a':
 					// move viewport to the left
@@ -92,21 +110,43 @@ class Map {
 					}
 
 					break;
+				case 'm':
+					// add a mineral
+					$this->addMineral();
+					$tick = false;
+
+					break;
+				case 'q':
+					// quit the game
+					system("stty $this->term");
+
+					exit;
+				case 'r':
+					// add a raindrop up to maxRain
+					$this->addRain();
+					$tick = false;
+			
+					break;
 				default:
 					// do nothing here
 			}
 
-			$this->tick();
+			if ($tick) {
+				$this->tick();
+			} else {
+				// redraw the screen
+				echo $this;
+			}
 		}
 	}
 
 	private function tick() {
-		echo $this;
-
 		// we do this backwardes, otherwise stuff that moves into dirt from the sky,
 		// will move twice in this tick
 		$this->updateDirt();
 		$this->updateSkyRain();
+
+		echo $this;
 	}
 
 	private function initializeMap() {
@@ -154,6 +194,7 @@ class Map {
 		$existingRain = $this->getSkyRainCoords();
 		$ys = array();
 
+		// only allow rain up to maxRain
 		if (count($existingRain) >= $this->maxRain) {
 			return false;
 		}
@@ -171,6 +212,24 @@ class Map {
 		$this->map[0][$rainY]->addContains(new Rain(rand(1, 3)));
 	}
 
+	private function addMineral() {
+		$existingMs = $this->getDirtMineralCoords();
+	
+		// only allow up to maxMinerals
+		if (count($existingMs) >= $this->maxMinerals) {
+			return false;
+		}
+
+		// find a random unoccupied x,y value
+		do {
+			$mX = rand($this->skyHeight, $this->skyHeight + $this->groundHeight);
+			$mY = rand(0, $this->mapWidth);
+		} while (in_array([$mX, $mY], $existingMs));
+
+		$this->map[$mX][$mY]->addContains(new Mineral(rand(1, 5)));
+	}
+
+	// moves all the rain down a square in the skies (or ignores i)
 	private function updateSkyRain() {
 		$raindrops = $this->getSkyRainCoords();
 
@@ -203,7 +262,6 @@ class Map {
 				if ($this->map[$x][$y] instanceof Dirt) {
 					$containedObjs = $this->map[$x][$y]->getContains();
 
-					$wetness = 0;
 					foreach ($containedObjs as $containedObj) {
 						if ($containedObj instanceof Rain) {
 							$ret[] = [$x, $y];
@@ -217,6 +275,29 @@ class Map {
 
 		return $ret;
 		
+	}
+
+	private function getDirtMineralCoords() {
+		$ret = array();
+
+		// scan the dirt for existing minerals
+		for ($x = 0; $x < count($this->map); $x++) {
+			for ($y = 0; $y < count($this->map[0]); $y++) {
+				if ($this->map[$x][$y] instanceof Dirt) {
+					$containedObjs = $this->map[$x][$y]->getContains();
+
+					foreach ($containedObjs as $containedObj) {
+						if ($containedObj instanceof Mineral) {
+							$ret[] = [$x, $y];
+						}
+
+						break;
+					}
+				}
+			}
+		}
+
+		return $ret;	
 	}
 
 	private function updateDirt() {
@@ -247,7 +328,7 @@ class Map {
 
 	public function __toString() {
 		// main display subroutine
-		$ret = "Mapwidth: {$this->mapWidth} Viewport Width: {$this->vpWidth}  Viewport Y: {$this->vpY}\n";
+		$ret = "Mapwidth: {$this->mapWidth} Viewport Width: {$this->vpWidth} Viewport Y: {$this->vpY} ViewType: {$this->viewType}\n";
 
 		// top left corner
 		$ret .= json_decode('"\u250c"');
@@ -267,7 +348,6 @@ class Map {
 
 			// iterate the width of the viewport
 			// starting at vpX and going $vpWidth characters
-			echo "Setting y position to print out to {$this->vpY} and going until " . ($this->vpY + ($this->vpWidth - 1)) . "\n";
 			// when vpy hits 30, it should be 0
 			for ($y = 0; $y < $this->vpWidth; $y++) {
 				$ypos = $this->vpY + $y;
@@ -276,7 +356,11 @@ class Map {
 					$ypos = $ypos - $this->mapWidth;
 				}
 
-				$ret .= $this->map[$x][$ypos];
+				if ($this->map[$x][$ypos] instanceof Dirt) {
+					$ret .= $this->map[$x][$ypos]->getView($this->viewType);
+				} else {
+					$ret .= $this->map[$x][$ypos];
+				}
 			}
 
 			// vertical right line
@@ -318,6 +402,22 @@ class Rain {
 	}
 }
 
+class Mineral {
+	public $size;
+
+	public function __construct($size = 1) {
+		$this->size = $size;	
+	}
+	
+	public function getSize() {
+		return $this->size;
+	}
+
+	public function __toString() {
+		return "M";
+	}
+}
+
 class Dirt {
 	public $contains;
 
@@ -337,25 +437,48 @@ class Dirt {
 		$this->contains = $obj;
 	}
 
-	public function __toString() {
-		if (count($this->contains)) {
-			$wetness = 0;
+	public function getView($viewType = 1) {
+		// wetness view
+		if ($viewType == 1) {
+			if (count($this->contains)) {
+				$wetness = 0;
 
-			foreach ($this->contains as $containedObj) {
-				if ($containedObj instanceof Rain) {
-					$wetness += $containedObj->getSize();
+				foreach ($this->contains as $containedObj) {
+					if ($containedObj instanceof Rain) {
+						$wetness += $containedObj->getSize();
+					}
+				}
+
+				if ($wetness > 0) {
+					return "$wetness";
+				}
+
+				// hack 
+				return $this->contains[0]->__toString();
+			}
+
+			return ".";
+		} else if ($viewType == 2) {
+			// mineral view
+			if (count($this->contains)) {
+				$concentration = 0;
+
+				foreach ($this->contains as $containedObj) {
+					if ($containedObj instanceof Mineral) {
+						$concentration += $containedObj->getSize();
+					}
+				}
+
+				if ($concentration > 0) {
+					return "$concentration";
 				}
 			}
 
-			if ($wetness > 0) {
-				return "$wetness";
-			}
-
-			// hack 
-			return $this->contains[0]->__toString();
+			return ".";
 		}
-
-		return ".";
+	}
+	public function __toString() {
+		return $this->getView(1);
 	}
 }
 
