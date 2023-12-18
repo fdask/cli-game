@@ -4,9 +4,10 @@
 $skyHeight = 5;
 $groundHeight = 5;
 $vpWidth = 10;
+$mapWidth = 30;
 $maxRain = 3;
 
-$map = new Map($skyHeight, $groundHeight, $vpWidth, $maxRain);
+$map = new Map($skyHeight, $groundHeight, $vpWidth, $mapWidth, $maxRain);
 echo $map;
 
 class Map {
@@ -19,8 +20,14 @@ class Map {
 	// how deep is the dirt
 	public $groundHeight;
 
-	// how wide is the map
+	// how wide is the viewport
 	public $vpWidth;
+
+	// the starting y position of the viewport
+	public $vpY;
+
+	// how wide is the total map	
+	public $mapWidth;
 
 	// how high is the map
 	public $mapHeight;
@@ -28,21 +35,23 @@ class Map {
 	// how many raindrops allowed on the map at once
 	public $maxRain;
 
-	public function __construct($skyHeight, $groundHeight, $vpWidth, $maxRain) {
+	public function __construct($skyHeight, $groundHeight, $vpWidth, $mapWidth, $maxRain) {
 		$this->skyHeight = $skyHeight;
 		$this->groundHeight = $groundHeight;
 		$this->mapHeight = $groundHeight + $skyHeight;
 		$this->vpWidth = $vpWidth;
+		$this->mapWidth = $mapWidth;
 		$this->maxRain = $maxRain;
+		$this->vpY = 0;
 
 		// initialize the map array
 		$this->initializeMap();
 
 		// fill in the sky
-		$this->fillMap(0, 0, $this->skyHeight, $this->vpWidth, "Sky");
+		$this->fillMap(0, 0, $this->skyHeight, $this->mapWidth, "Sky");
 
 		// fill in the dirt
-		$this->fillMap($this->skyHeight, 0, $this->mapHeight, $this->vpWidth, "Dirt");
+		$this->fillMap($this->skyHeight, 0, $this->mapHeight, $this->mapWidth, "Dirt");
 		
 		$this->gameLoop();
 	}
@@ -53,6 +62,7 @@ class Map {
 
 		$this->tick();
 
+		// keypress handler
 		while ($c = fread(STDIN, 1)) {
 			switch ($c) {
 				case 'q':
@@ -63,6 +73,24 @@ class Map {
 				case 'r':
 					$this->addRain();
 			
+					break;
+				case 'a':
+					// move viewport to the left
+					if ($this->vpY - 1 < 0) {
+						$this->vpY = $this->mapWidth - 1;
+					} else {
+						$this->vpY--;
+					}
+
+					break;
+				case 'd':
+					// move viewport to the right
+					if ($this->vpY + 1 >= $this->mapWidth) {
+						$this->vpY = 0;
+					} else {
+						$this->vpY++;
+					}
+
 					break;
 				default:
 					// do nothing here
@@ -86,14 +114,14 @@ class Map {
 		$this->map = array();
 
 		for ($x = 0; $x < ($this->skyHeight + $this->groundHeight); $x++) {
-			for ($y = 0; $y < $this->vpWidth; $y++) {
+			for ($y = 0; $y < $this->mapWidth; $y++) {
 				$this->map[$x][$y] = false;
 			}
 		}
 	}
 
 	private function fillMap($x1, $y1, $x2, $y2, $fillObj) {
-		echo "Filling rectangle ($x1, $y1) to ($x2, $y2) with $fillObj\n";
+		//echo "Filling rectangle ($x1, $y1) to ($x2, $y2) with $fillObj\n";
 		for ($x = $x1; $x < $x2; $x++) {
 			for ($y = $y1; $y < $y2; $y++) {
 				$this->map[$x][$y] = new $fillObj;
@@ -218,30 +246,47 @@ class Map {
 	}
 
 	public function __toString() {
-		$ret = "";
+		// main display subroutine
+		$ret = "Mapwidth: {$this->mapWidth} Viewport Width: {$this->vpWidth}  Viewport Y: {$this->vpY}\n";
 
+		// top left corner
 		$ret .= json_decode('"\u250c"');
 
-		for ($x = 0; $x < count($this->map[0]); $x++) {
+		// horitonztal top line
+		for ($x = 0; $x < $this->vpWidth; $x++) {
 			$ret .= json_decode('"\u2501"');
 		}
 
+		// top right corner
 		$ret .= json_decode('"\u2510"') . "\n";
 
+		// iterate the height of the map
 		for ($x = 0; $x < count($this->map); $x++) {
+			// vertical left line
 			$ret .= json_decode('"\u2502"');
 
-			for ($y = 0; $y < count($this->map[0]); $y++) {
-				$ret .= $this->map[$x][$y];
+			// iterate the width of the viewport
+			// starting at vpX and going $vpWidth characters
+			echo "Setting y position to print out to {$this->vpY} and going until " . ($this->vpY + ($this->vpWidth - 1)) . "\n";
+			// when vpy hits 30, it should be 0
+			for ($y = 0; $y < $this->vpWidth; $y++) {
+				$ypos = $this->vpY + $y;
+
+				if ($ypos >= $this->mapWidth) {
+					$ypos = $ypos - $this->mapWidth;
+				}
+
+				$ret .= $this->map[$x][$ypos];
 			}
 
+			// vertical right line
 			$ret .= json_decode('"\u2502"');
 			$ret .= "\n";
 		}
 
 		$ret .= json_decode('"\u2514"');
 
-		for ($x = 0; $x < count($this->map[0]); $x++) {
+		for ($x = 0; $x < $this->vpWidth; $x++) {
 			$ret .= json_decode('"\u2501"');
 		}
 
