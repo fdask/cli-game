@@ -100,6 +100,8 @@ class Map {
 						$this->vpY--;
 					}
 
+					$tick = false;
+
 					break;
 				case 'd':
 					// move viewport to the right
@@ -108,6 +110,8 @@ class Map {
 					} else {
 						$this->vpY++;
 					}
+
+					$tick = false;
 
 					break;
 				case 'm':
@@ -222,10 +226,11 @@ class Map {
 
 		// find a random unoccupied x,y value
 		do {
-			$mX = rand($this->skyHeight, $this->skyHeight + $this->groundHeight);
-			$mY = rand(0, $this->mapWidth);
+			$mX = rand($this->skyHeight, $this->skyHeight + $this->groundHeight - 1);
+			$mY = rand(0, $this->mapWidth - 1);
 		} while (in_array([$mX, $mY], $existingMs));
 
+		echo "Adding a mineral to $mX,$mY\n";
 		$this->map[$mX][$mY]->addContains(new Mineral(rand(1, 5)));
 	}
 
@@ -419,10 +424,13 @@ class Mineral {
 }
 
 class Dirt {
+	public $defaultChar;
+
 	public $contains;
 
 	public function __construct() {
 		$this->contains = array();
+		$this->defaultChar = ".";
 	}
 
 	public function getContains() {
@@ -453,11 +461,10 @@ class Dirt {
 					return "$wetness";
 				}
 
-				// hack 
-				return $this->contains[0]->__toString();
+				return $this->defaultChar;
 			}
 
-			return ".";
+			return $this->defaultChar;	
 		} else if ($viewType == 2) {
 			// mineral view
 			if (count($this->contains)) {
@@ -472,9 +479,11 @@ class Dirt {
 				if ($concentration > 0) {
 					return "$concentration";
 				}
+
+				return $this->defaultChar;
 			}
 
-			return ".";
+			return $this->defaultChar;	
 		}
 	}
 	public function __toString() {
