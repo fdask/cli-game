@@ -304,33 +304,7 @@ class Map {
 		}
 	}
 
-	// moves all the rain down a square in the skies (or ignores i)
-	private function updateSkyRain() {
-		$raindrops = $this->getSkyRainCoords();
-
-		foreach ($raindrops as $raindrop) {
-			// if the next space down is still air, move
-			$x = $raindrop[0];
-			$y = $raindrop[1];
-
-			$newX = $x + 1;
-			$newY = $y;
-
-			// move all the rains one down
-			$newContains = array();
-
-			foreach ($this->map[$x][$y]->getContains() as $containedObj) {
-				if ($containedObj instanceof Rain && $newX < $this->mapHeight) {
-					$this->map[$newX][$newY]->addContains($containedObj);
-				} else {
-					$newContains[] = $containedObj;
-				}
-			}
-
-			$this->map[$x][$y]->setContains($newContains);
-		} 
-	}
-
+	/*
 	private function getDirtRainCoords() {
 		$ret = array();
 
@@ -351,11 +325,9 @@ class Map {
 			}
 		}
 
-		echo "getDirtRainCoords:\n";
-		var_dump($ret);
 		return $ret;
-		
 	}
+	*/
 
 	private function getDirtMineralCoords() {
 		$ret = array();
@@ -399,7 +371,7 @@ class Map {
 		return $ret;
 	}
 
-	// every tick
+	/* every tick
 	private function updateDirt() {
 		echo "in the updateDirt() method\n";
 		// we go through and move anything that needs moving
@@ -445,6 +417,7 @@ class Map {
 
 		echo "Outside the wetness loop\n";
 	}
+	*/
 
 	public function __toString() {
 		// main display subroutine
