@@ -1,10 +1,10 @@
 #!/usr/bin/php
 <?php
 // define some system variables
-$skyHeight = 5;
-$groundHeight = 5;
-$vpWidth = 1;
-$mapWidth = 1;
+$skyHeight = 10;
+$groundHeight = 15;
+$vpWidth = 40;
+$mapWidth = 50;
 $maxRain = 3;
 $maxMinerals = 15;
 
@@ -44,6 +44,9 @@ class Map {
 	// how many mineral spaces to allow on the map at once
 	public $maxMinerals;
 
+	// how many plants to allow on the map at once
+	public $maxPlants;
+
 	public function __construct($skyHeight, $groundHeight, $vpWidth, $mapWidth, $maxRain, $maxMinerals) {
 		$this->skyHeight = $skyHeight;
 		$this->groundHeight = $groundHeight;
@@ -53,6 +56,9 @@ class Map {
 		$this->maxRain = $maxRain;
 		$this->maxMinerals = $maxMinerals;
 		$this->vpY = 0;
+
+		// magic number
+		$this->maxPlants = 5;
 
 		// default to the rain view
 		$this->viewType = 1;
@@ -89,6 +95,12 @@ class Map {
 				case '2':
 					// switch to the mineral view
 					$this->viewType = 2;
+					$tick = false;
+
+					break;
+				case '3':
+					// switch to plant view
+					$this->viewType = 3;
 					$tick = false;
 
 					break;
@@ -136,6 +148,12 @@ class Map {
 					$this->fillMap($this->skyHeight, 0, $this->mapHeight, $this->mapWidth, "Dirt");
 			
 					break;		
+				case 'p':
+					// add a new plant
+					$this->addPlant();
+					$tick = false;
+					
+					break;
 				case 'q':
 					// quit the game
 					system("stty $this->term");
@@ -256,6 +274,28 @@ class Map {
 		$this->map[$mX][$mY]->concentration = rand(1, 5);
 	}
 
+	private function addPlant() {
+		// which dirt coords already have plants?
+		$plantCoords = $this->getPlantCoords();
+
+		if (count($plantCoords) >= $this->maxPlants) {
+			return false;
+		}
+
+		foreach ($plantCoords as $plant) {
+			$ys[] = $plant[1];
+		}
+
+		do {
+			$newY = rand(0, $this->mapWidth);
+		} while (in_array($newY, $ys));
+
+		// create the new plan
+		$plant = new Plant();
+
+		$this->map[$this->skyHeight][$newY]->addPlant($plant);
+	}
+
 	private function updateRain() {
 		$raindrops = $this->getRainCoords();
 
@@ -282,31 +322,6 @@ class Map {
 			} 
 		}
 	}
-
-	/*
-	private function getDirtRainCoords() {
-		$ret = array();
-
-		// scan the skies for existing rain
-		for ($x = 0; $x < count($this->map); $x++) {
-			for ($y = 0; $y < count($this->map[0]); $y++) {
-				if ($this->map[$x][$y] instanceof Dirt) {
-					$containedObjs = $this->map[$x][$y]->getContains();
-
-					foreach ($containedObjs as $containedObj) {
-						if ($containedObj instanceof Rain) {
-							$ret[] = [$x, $y];
-						}
-
-						break;
-					}
-				}
-			}
-		}
-
-		return $ret;
-	}
-	*/
 
 	private function getMineralCoords() {
 		$ret = array();
@@ -337,54 +352,19 @@ class Map {
 		return $ret;
 	}
 
-	/* every tick
-	private function updateDirt() {
-		echo "in the updateDirt() method\n";
-		// we go through and move anything that needs moving
+	private function getPlantCoords() {
+		$ret = array();
 
-		// water loses 1, and trickles down
-		// if a water happens, the mineral leaves 1, and takes the rest down
-		$wetnesses = $this->getDirtRainCoords();
-
-		// decrease 1 from the rain, and pass it on to the next guy
-		echo "We found " . count($wetnesses) . " wet squares (i.e. dirt containing water)\n";
-
-		foreach ($wetnesses as $wetness) {
-			$x = $wetness[0];
-			$y = $wetness[1];
-			echo "found wetness at $x, $y\n";
-			$d = $this->map[$x][$y];
-
-			var_dump($d->getContains());
-			// everything we want to keep is here
-			$newContains = array();
-
-			foreach ($d->getContains() as $containedObj) {
-				echo "in the contains loop\n";
-				if ($containedObj instanceof Rain) {
-					$containedObj->decrSize();
-
-					if ($containedObj->getSize() > 0 && ($wetness[0] + 1 < $this->mapHeight)) {
-						// if the tile below us is a dirt,
-						// move the water there
-						echo "Moving water down 1\n";
-						$this->map[$wetness[0] + 1][$wetness[1]]->addContains($containedObj);
-					}
-				} else {
-					echo "Object is not rain.\n";
-					var_dump($containedObj);
-					// add the non rain object back to the contains
-					$newContains[] = $containedObj;
+		for ($x = 0; $x < count($this->map); $x++) {
+			for ($y = 0; $y < count($this->map[0]); $y++) {
+				if ($this->map[$x][$y] instanceof Dirt && $this->map[$x][$y]->hasPlant()) {
+					$ret[] = [$x, $y];
 				}
-			}		
-
-			$this->map[$wetness[0]][$wetness[1]]->setContains($newContains);
+			}
 		}
 
-		echo "Outside the wetness loop\n";
+		return $ret;
 	}
-	*/
-
 	public function __toString() {
 		// main display subroutine
 		$ret = "Mapwidth: {$this->mapWidth} Viewport Width: {$this->vpWidth} Viewport Y: {$this->vpY} ViewType: {$this->viewType}\n";
@@ -450,12 +430,37 @@ class Dirt {
 	// the single ascii character dirt shows up on the map as
 	public $defaultChar;
 
+	// if we are topsoil and have a plant, here it is
+	public $plant;
+
 	public function __construct() {
 		$this->wetness = 0;
 		$this->concentration = 0;
 		$this->defaultChar = ".";
+		$this->plant = null;
 	}
 
+	public function addPlant($plant) {
+		if (empty($this->plant)) {
+			$this->plant = $plant;
+
+			return true;
+		}
+
+		return false;
+	}
+
+	public function removePlant() {
+		$this->plant = null;
+	}
+
+	public function hasPlant() {
+		if (!empty($this->plant)) {
+			return true;
+		}
+
+		return false;
+	}
 	public function hasRain() {
 		return $this->wetness > 0;
 	}
@@ -487,6 +492,15 @@ class Dirt {
 			} else {
 				return $this->defaultChar;
 			}
+		} else if ($viewType == 3) {
+			// plant matter view
+			if (!empty($this->plant)) {
+				$plant_stage = $this->plant->stage;
+
+				return "$plant_stage";
+			} else {
+				return $this->defaultChar;
+			}
 		}
 	}
 
@@ -512,5 +526,45 @@ class Sky {
 		} else {
 			return "~";	
 		}
+	}
+}
+
+class Plant {
+	/**
+	 * 	the lifecycle of a plant goes from
+	 *  2 - plant
+	 *  4 - dead plant
+	 */
+	public $stage;
+
+	// turns without water we can live
+	public $life;
+	public $maxLife;
+
+	public function __construct() {
+		$this->life = rand(5, 10);
+		$this->maxLife = $this->life;
+		$this->stage = 2;
+	}
+
+	public function updatePlant($water) {
+		// this is a plant internal tick()
+		// check if we've had water recently
+		if (is_null($water)) {
+			$this->life = $this->life - 1;
+
+			if ($this->life <= 0) {
+				// character is dead
+				$this->stage = 4;
+			} 
+		}
+	}
+
+	public function getStage() {
+		return $this->stage;
+	}
+
+	public function getLife() {
+		return $this->life;
 	}
 }
