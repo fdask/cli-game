@@ -120,6 +120,22 @@ class Map {
 					$tick = false;
 
 					break;
+				case 'n':
+					// new.  re-initializes the map
+
+					// default to the rain view
+					$this->viewType = 1;
+
+					// initialize the map array
+					$this->initializeMap();
+
+					// fill in the sky
+					$this->fillMap(0, 0, $this->skyHeight, $this->mapWidth, "Sky");
+
+					// fill in the dirt
+					$this->fillMap($this->skyHeight, 0, $this->mapHeight, $this->mapWidth, "Dirt");
+			
+					break;		
 				case 'q':
 					// quit the game
 					system("stty $this->term");
@@ -274,10 +290,10 @@ class Map {
 					$size = $containedObj->getSize();
 
 					if ($size > 1) {
-						$containedObj->setSize(1);
+						$containedObj->setSize($size - 1);
 						$newContains[] = $containedObj;
 
-						$this->map[$newX][$newY]->addContains(new Mineral($size - 1));
+						$this->map[$newX][$newY]->addContains(new Mineral(1));
 					}
 				} else {
 					$newContains[] = $containedObj;
