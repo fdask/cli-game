@@ -171,6 +171,11 @@ class Map {
 
 					system("stty echo");
 					$x = readline("X: ");
+
+					if (is_null($x)) {
+						break;
+					}
+
 					$y = readline("Y: ");
 
 					system("stty -echo");
@@ -195,6 +200,8 @@ class Map {
 		// we do this backwardes, otherwise stuff that moves into dirt from the sky,
 		// will move twice in this tick
 		$this->updateRain();
+		echo "Calling updatePlants from tick\n";
+		$this->updatePlants();
 
 		echo $this;
 	}
@@ -282,6 +289,8 @@ class Map {
 			return false;
 		}
 
+		$ys = array();
+
 		foreach ($plantCoords as $plant) {
 			$ys[] = $plant[1];
 		}
@@ -320,6 +329,24 @@ class Map {
 					$this->map[$newX][$newY]->concentration++;
 				} 
 			} 
+		}
+	}
+
+	private function updatePlants() {
+		echo "in the updatePlants in same class (map)";
+		// for every plant that doesn't currently have rain,
+		// it loses 1 life.
+		$plants = $this->getPlantCoords();
+
+		// otherwise it replenishes to full
+		foreach ($plants as $plant) {
+			$x = $plant[0];
+			$y = $plant[1];
+
+			$wetness = $this->map[$x][$y]->getWetness();
+
+			echo "Calling update plant ($x, $y) - $wetness\n";
+			$this->map[$x][$y]->updatePlant($wetness);
 		}
 	}
 
@@ -440,6 +467,31 @@ class Dirt {
 		$this->plant = null;
 	}
 
+	public function updatePlant() {
+		echo "in the dirt updatePlant\n";
+
+		if (!empty($this->plant) && $this->wetness) {
+			echo "we have wetness, full life!\n";
+			$this->plant->fullLife();
+		} else if (!empty($this->plant)) {
+			if ($this->plant->getLife() == 0) {
+				$maxLife = $this->plant->maxLife;
+
+				// kill the plant
+				$this->plant = null;
+
+				// add a mineral
+				$this->concentration += $maxLife;
+			} else {
+				echo "decrementing plants life\n";
+				$this->plant->decrLife();
+			}
+		} else {
+			echo "We have no plants\n";
+			print_r($this->plant);
+		}
+	}
+
 	public function addPlant($plant) {
 		if (empty($this->plant)) {
 			$this->plant = $plant;
@@ -495,13 +547,23 @@ class Dirt {
 		} else if ($viewType == 3) {
 			// plant matter view
 			if (!empty($this->plant)) {
-				$plant_stage = $this->plant->stage;
-
-				return "$plant_stage";
+				return "{$this->plant}";
 			} else {
 				return $this->defaultChar;
 			}
 		}
+	}
+
+	public function setWetness($wetness) {
+		$this->wetness = $wetness;
+	}
+
+	public function getWetness() {
+		return $this->wetness;
+	}
+
+	public function setConcentration($concentration) {
+		$this->concentration = $concentration;
 	}
 
 	public function __toString() {
@@ -542,7 +604,7 @@ class Plant {
 	public $maxLife;
 
 	public function __construct() {
-		$this->life = rand(5, 10);
+		$this->life = rand(5, 9);
 		$this->maxLife = $this->life;
 		$this->stage = 2;
 	}
@@ -560,11 +622,35 @@ class Plant {
 		}
 	}
 
+	public function decrLife() {
+		$this->life = $this->life - 1;
+
+		if ($this->life <= 0) {
+			$this->stage = 4;
+		}
+	}
+
 	public function getStage() {
 		return $this->stage;
 	}
 
 	public function getLife() {
 		return $this->life;
+	}
+
+	public function fullLife() {
+		$this->life = $this->maxLife;
+	}
+
+	public function __toString() {
+		if ($this->stage == 2) {
+			if ($this->life < 10) {
+				return "{$this->life}";
+			} else {
+				return "9";
+			}
+		} else if ($this->stage == 4) {
+			return "X";
+		}
 	}
 }
