@@ -396,16 +396,22 @@ class Map {
 		// main display subroutine
 		$ret = "Mapwidth: {$this->mapWidth} Viewport Width: {$this->vpWidth} Viewport Y: {$this->vpY} ViewType: {$this->viewType}\n";
 
-		// top left corner
-		$ret .= json_decode('"\u250c"');
+		for ($x = 0; $x < 3; $x++) {
+			// top left corner
+			$ret .= json_decode('"\u250c"');
 
-		// horitonztal top line
-		for ($x = 0; $x < $this->vpWidth; $x++) {
-			$ret .= json_decode('"\u2501"');
+			// horitonztal top line
+			for ($y = 0; $y < $this->vpWidth; $y++) {
+				$ret .= json_decode('"\u2501"');
+			}
+
+			// top right corner
+			$ret .= json_decode('"\u2510"');
+
+			$ret .= " ";
 		}
 
-		// top right corner
-		$ret .= json_decode('"\u2510"') . "\n";
+		$ret .= "\n";
 
 		// iterate the height of the map
 		for ($x = 0; $x < count($this->map); $x++) {
@@ -423,7 +429,7 @@ class Map {
 				}
 
 				if ($this->map[$x][$ypos] instanceof Dirt) {
-					$ret .= $this->map[$x][$ypos]->getView($this->viewType);
+					$ret .= $this->map[$x][$ypos]->getView(1);
 				} else {
 					$ret .= $this->map[$x][$ypos];
 				}
@@ -431,16 +437,71 @@ class Map {
 
 			// vertical right line
 			$ret .= json_decode('"\u2502"');
+
+			$ret .= " ";
+
+			// second display start
+			$ret .= json_decode('"\u2502"');
+
+			// iterate the width of the viewport
+			// starting at vpX and going $vpWidth characters
+			// when vpy hits 30, it should be 0
+			for ($y = 0; $y < $this->vpWidth; $y++) {
+				$ypos = $this->vpY + $y;
+
+				if ($ypos >= $this->mapWidth) {
+					$ypos = $ypos - $this->mapWidth;
+				}
+
+				if ($this->map[$x][$ypos] instanceof Dirt) {
+					$ret .= $this->map[$x][$ypos]->getView(2);
+				} else {
+					$ret .= $this->map[$x][$ypos];
+				}
+			}
+
+			// vertical right line
+			$ret .= json_decode('"\u2502"');
+
+			$ret .= " ";
+			
+			// third display start
+			$ret .= json_decode('"\u2502"');
+
+			// iterate the width of the viewport
+			// starting at vpX and going $vpWidth characters
+			// when vpy hits 30, it should be 0
+			for ($y = 0; $y < $this->vpWidth; $y++) {
+				$ypos = $this->vpY + $y;
+
+				if ($ypos >= $this->mapWidth) {
+					$ypos = $ypos - $this->mapWidth;
+				}
+
+				if ($this->map[$x][$ypos] instanceof Dirt) {
+					$ret .= $this->map[$x][$ypos]->getView(3);
+				} else {
+					$ret .= $this->map[$x][$ypos];
+				}
+			}
+
+			// vertical right line
+			$ret .= json_decode('"\u2502"');
+
 			$ret .= "\n";
 		}
 
-		$ret .= json_decode('"\u2514"');
+		for ($x = 0; $x < 3; $x++) {
+			$ret .= json_decode('"\u2514"');
 
-		for ($x = 0; $x < $this->vpWidth; $x++) {
-			$ret .= json_decode('"\u2501"');
+			for ($y = 0; $y < $this->vpWidth; $y++) {
+				$ret .= json_decode('"\u2501"');
+			}
+
+			$ret .= json_decode('"\u2518"');
+			$ret .= " ";
 		}
 
-		$ret .= json_decode('"\u2518"') . "\n";
 		$ret .= "\n";
 
 		return $ret;
