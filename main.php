@@ -3,8 +3,8 @@
 // define some system variables
 $skyHeight = 5;
 $groundHeight = 5;
-$vpWidth = 10;
-$mapWidth = 30;
+$vpWidth = 1;
+$mapWidth = 1;
 $maxRain = 3;
 $maxMinerals = 15;
 
@@ -131,6 +131,19 @@ class Map {
 					$tick = false;
 			
 					break;
+				case 'x':
+					// debug the map here
+					$tick = false;
+
+					system("stty echo");
+					$x = readline("X: ");
+					$y = readline("Y: ");
+
+					system("stty -echo");
+
+					var_dump($this->map[$x][$y]);
+
+					break;
 				default:
 					// do nothing here
 			}
@@ -147,8 +160,7 @@ class Map {
 	private function tick() {
 		// we do this backwardes, otherwise stuff that moves into dirt from the sky,
 		// will move twice in this tick
-		$this->updateDirt();
-		$this->updateSkyRain();
+		$this->updateRain();
 
 		echo $this;
 	}
@@ -234,19 +246,64 @@ class Map {
 		$this->map[$mX][$mY]->addContains(new Mineral(rand(1, 5)));
 	}
 
+	private function updateRain() {
+		$raindrops = $this->getRainCoords();
+
+		foreach ($raindrops as $raindrop) {
+			$x = $raindrop[0];
+			$y = $raindrop[1];
+
+			$newX = $x + 1;
+			$newY = $y;
+
+			$d = $this->map[$x][$y];
+
+			$contains = $d->getContains();
+
+			$newContains = array();	
+
+			foreach ($contains as $containedObj) {
+				if ($containedObj instanceof Rain && $newX < $this->mapHeight) {
+					if ($this->map[$x][$y] instanceof Dirt) {
+						$containedObj->decrSize();
+					}
+
+					$this->map[$newX][$newY]->addContains($containedObj);
+				} else if ($containedObj instanceof Mineral && $newX < $this->mapHeight) {
+					// mineral supply here set to 1, everything else moves on down	
+					$size = $containedObj->getSize();
+
+					if ($size > 1) {
+						$containedObj->setSize(1);
+						$newContains[] = $containedObj;
+
+						$this->map[$newX][$newY]->addContains(new Mineral($size - 1));
+					}
+				} else {
+					$newContains[] = $containedObj;
+				}
+			}
+
+			$this->map[$x][$y]->setContains($newContains);
+		}
+	}
+
 	// moves all the rain down a square in the skies (or ignores i)
 	private function updateSkyRain() {
 		$raindrops = $this->getSkyRainCoords();
 
 		foreach ($raindrops as $raindrop) {
 			// if the next space down is still air, move
-			$newX = $raindrop[0] + 1;
-			$newY = $raindrop[1];
+			$x = $raindrop[0];
+			$y = $raindrop[1];
+
+			$newX = $x + 1;
+			$newY = $y;
 
 			// move all the rains one down
 			$newContains = array();
 
-			foreach ($this->map[$raindrop[0]][$raindrop[1]]->getContains() as $containedObj) {
+			foreach ($this->map[$x][$y]->getContains() as $containedObj) {
 				if ($containedObj instanceof Rain && $newX < $this->mapHeight) {
 					$this->map[$newX][$newY]->addContains($containedObj);
 				} else {
@@ -254,7 +311,7 @@ class Map {
 				}
 			}
 
-			$this->map[$raindrop[0]][$raindrop[1]]->setContains($newContains);
+			$this->map[$x][$y]->setContains($newContains);
 		} 
 	}
 
@@ -278,6 +335,8 @@ class Map {
 			}
 		}
 
+		echo "getDirtRainCoords:\n";
+		var_dump($ret);
 		return $ret;
 		
 	}
@@ -305,30 +364,70 @@ class Map {
 		return $ret;	
 	}
 
+	private function getRainCoords() {
+		$ret = array();
+
+		for ($x = 0; $x < count($this->map); $x++) {
+			for ($y = 0; $y < count($this->map[0]); $y++) {
+				$d = $this->map[$x][$y];
+				$containedObjs = $d->getContains();
+
+				foreach ($containedObjs as $containedObj) {
+					if ($containedObj instanceof Rain) {
+						$ret[] = [$x, $y];
+					}
+				}
+			}
+		}
+
+		return $ret;
+	}
+
+	// every tick
 	private function updateDirt() {
-		$wetness = $this->getDirtRainCoords();
+		echo "in the updateDirt() method\n";
+		// we go through and move anything that needs moving
+
+		// water loses 1, and trickles down
+		// if a water happens, the mineral leaves 1, and takes the rest down
+		$wetnesses = $this->getDirtRainCoords();
 
 		// decrease 1 from the rain, and pass it on to the next guy
-		foreach ($wetness as $wetness) {
-			$d = $this->map[$wetness[0]][$wetness[1]];
+		echo "We found " . count($wetnesses) . " wet squares (i.e. dirt containing water)\n";
 
+		foreach ($wetnesses as $wetness) {
+			$x = $wetness[0];
+			$y = $wetness[1];
+			echo "found wetness at $x, $y\n";
+			$d = $this->map[$x][$y];
+
+			var_dump($d->getContains());
+			// everything we want to keep is here
 			$newContains = array();
+
 			foreach ($d->getContains() as $containedObj) {
+				echo "in the contains loop\n";
 				if ($containedObj instanceof Rain) {
 					$containedObj->decrSize();
 
 					if ($containedObj->getSize() > 0 && ($wetness[0] + 1 < $this->mapHeight)) {
 						// if the tile below us is a dirt,
 						// move the water there
+						echo "Moving water down 1\n";
 						$this->map[$wetness[0] + 1][$wetness[1]]->addContains($containedObj);
 					}
 				} else {
+					echo "Object is not rain.\n";
+					var_dump($containedObj);
+					// add the non rain object back to the contains
 					$newContains[] = $containedObj;
 				}
 			}		
 
 			$this->map[$wetness[0]][$wetness[1]]->setContains($newContains);
 		}
+
+		echo "Outside the wetness loop\n";
 	}
 
 	public function __toString() {
@@ -418,6 +517,10 @@ class Mineral {
 		return $this->size;
 	}
 
+	public function setSize($size) {
+		$this->size = $size;
+	}
+
 	public function __toString() {
 		return "M";
 	}
@@ -431,6 +534,28 @@ class Dirt {
 	public function __construct() {
 		$this->contains = array();
 		$this->defaultChar = ".";
+	}
+
+	public function hasRain() {
+		if (!empty($this->contains)) {
+			foreach ($this->contains as $containedObj) {
+				if ($containedObj instanceof Rain) {
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
+	public function hasMinerals() {
+		if (!empty($this->contains)) {
+			foreach ($this->contains as $containedObj) {
+				if ($containedObj instanceof Mineral) {
+					return true;
+				}
+			}
+		}
 	}
 
 	public function getContains() {
