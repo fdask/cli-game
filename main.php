@@ -47,6 +47,8 @@ class Map {
 	// how many plants to allow on the map at once
 	public $maxPlants;
 
+	private $threeScreen;
+
 	public function __construct($skyHeight, $groundHeight, $vpWidth, $mapWidth, $maxRain, $maxMinerals) {
 		$this->skyHeight = $skyHeight;
 		$this->groundHeight = $groundHeight;
@@ -56,6 +58,7 @@ class Map {
 		$this->maxRain = $maxRain;
 		$this->maxMinerals = $maxMinerals;
 		$this->vpY = 0;
+		$this->threeScreen = false;
 
 		// magic number
 		$this->maxPlants = 5;
@@ -164,6 +167,11 @@ class Map {
 					$this->addRain();
 					$tick = false;
 			
+					break;
+				case 't':
+					// toggle three screen
+					$this->threeScreen ? $this->threeScreen = false : $this->threeScreen = true;
+
 					break;
 				case 'x':
 					// debug the map here
@@ -392,12 +400,121 @@ class Map {
 
 		return $ret;
 	}
+
 	public function __toString() {
 		// main display subroutine
 		$ret = "Mapwidth: {$this->mapWidth} Viewport Width: {$this->vpWidth} Viewport Y: {$this->vpY} ViewType: {$this->viewType}\n";
 
-		for ($x = 0; $x < 3; $x++) {
-			// top left corner
+		if ($this->threeScreen) {
+			for ($x = 0; $x < 3; $x++) {
+				// top left corner
+				$ret .= json_decode('"\u250c"');
+
+				// horitonztal top line
+				for ($y = 0; $y < $this->vpWidth; $y++) {
+					$ret .= json_decode('"\u2501"');
+				}
+
+				// top right corner
+				$ret .= json_decode('"\u2510"');
+
+				$ret .= " ";
+			}
+
+			$ret .= "\n";
+
+			// iterate the height of the map
+			for ($x = 0; $x < count($this->map); $x++) {
+				// vertical left line
+				$ret .= json_decode('"\u2502"');
+
+				// iterate the width of the viewport
+				// starting at vpX and going $vpWidth characters
+				// when vpy hits 30, it should be 0
+				for ($y = 0; $y < $this->vpWidth; $y++) {
+					$ypos = $this->vpY + $y;
+
+					if ($ypos >= $this->mapWidth) {
+						$ypos = $ypos - $this->mapWidth;
+					}
+
+					if ($this->map[$x][$ypos] instanceof Dirt) {
+						$ret .= $this->map[$x][$ypos]->getView(1);
+					} else {
+						$ret .= $this->map[$x][$ypos];
+					}
+				}
+
+				// vertical right line
+				$ret .= json_decode('"\u2502"');
+
+				$ret .= " ";
+
+				// second display start
+				$ret .= json_decode('"\u2502"');
+
+				// iterate the width of the viewport
+				// starting at vpX and going $vpWidth characters
+				// when vpy hits 30, it should be 0
+				for ($y = 0; $y < $this->vpWidth; $y++) {
+					$ypos = $this->vpY + $y;
+
+					if ($ypos >= $this->mapWidth) {
+						$ypos = $ypos - $this->mapWidth;
+					}
+
+					if ($this->map[$x][$ypos] instanceof Dirt) {
+						$ret .= $this->map[$x][$ypos]->getView(2);
+					} else {
+						$ret .= $this->map[$x][$ypos];
+					}
+				}
+
+				// vertical right line
+				$ret .= json_decode('"\u2502"');
+
+				$ret .= " ";
+				
+				// third display start
+				$ret .= json_decode('"\u2502"');
+
+				// iterate the width of the viewport
+				// starting at vpX and going $vpWidth characters
+				// when vpy hits 30, it should be 0
+				for ($y = 0; $y < $this->vpWidth; $y++) {
+					$ypos = $this->vpY + $y;
+
+					if ($ypos >= $this->mapWidth) {
+						$ypos = $ypos - $this->mapWidth;
+					}
+
+					if ($this->map[$x][$ypos] instanceof Dirt) {
+						$ret .= $this->map[$x][$ypos]->getView(3);
+					} else {
+						$ret .= $this->map[$x][$ypos];
+					}
+				}
+
+				// vertical right line
+				$ret .= json_decode('"\u2502"');
+
+				$ret .= "\n";
+			}
+
+			for ($x = 0; $x < 3; $x++) {
+				$ret .= json_decode('"\u2514"');
+
+				for ($y = 0; $y < $this->vpWidth; $y++) {
+					$ret .= json_decode('"\u2501"');
+				}
+
+				$ret .= json_decode('"\u2518"');
+				$ret .= " ";
+			}
+		} else {
+			// single screen
+			
+			// upper left corner
 			$ret .= json_decode('"\u250c"');
 
 			// horitonztal top line
@@ -406,92 +523,36 @@ class Map {
 			}
 
 			// top right corner
-			$ret .= json_decode('"\u2510"');
+			$ret .= json_decode('"\u2510"') . "\n";
 
-			$ret .= " ";
-		}
+			// all the map lines
+			for ($x = 0; $x < count($this->map); $x++) {
+				// vertical left line
+				$ret .= json_decode('"\u2502"');
 
-		$ret .= "\n";
+				// iterate the width of the viewport
+				// starting at vpX and going $vpWidth characters
+				// when vpy hits 30, it should be 0
+				for ($y = 0; $y < $this->vpWidth; $y++) {
+					$ypos = $this->vpY + $y;
 
-		// iterate the height of the map
-		for ($x = 0; $x < count($this->map); $x++) {
-			// vertical left line
-			$ret .= json_decode('"\u2502"');
+					if ($ypos >= $this->mapWidth) {
+						$ypos = $ypos - $this->mapWidth;
+					}
 
-			// iterate the width of the viewport
-			// starting at vpX and going $vpWidth characters
-			// when vpy hits 30, it should be 0
-			for ($y = 0; $y < $this->vpWidth; $y++) {
-				$ypos = $this->vpY + $y;
-
-				if ($ypos >= $this->mapWidth) {
-					$ypos = $ypos - $this->mapWidth;
+					if ($this->map[$x][$ypos] instanceof Dirt) {
+						$ret .= $this->map[$x][$ypos]->getView($this->viewType);
+					} else {
+						$ret .= $this->map[$x][$ypos];
+					}
 				}
 
-				if ($this->map[$x][$ypos] instanceof Dirt) {
-					$ret .= $this->map[$x][$ypos]->getView(1);
-				} else {
-					$ret .= $this->map[$x][$ypos];
-				}
+				// vertical right line
+				$ret .= json_decode('"\u2502"');
+
+				$ret .= "\n";
 			}
 
-			// vertical right line
-			$ret .= json_decode('"\u2502"');
-
-			$ret .= " ";
-
-			// second display start
-			$ret .= json_decode('"\u2502"');
-
-			// iterate the width of the viewport
-			// starting at vpX and going $vpWidth characters
-			// when vpy hits 30, it should be 0
-			for ($y = 0; $y < $this->vpWidth; $y++) {
-				$ypos = $this->vpY + $y;
-
-				if ($ypos >= $this->mapWidth) {
-					$ypos = $ypos - $this->mapWidth;
-				}
-
-				if ($this->map[$x][$ypos] instanceof Dirt) {
-					$ret .= $this->map[$x][$ypos]->getView(2);
-				} else {
-					$ret .= $this->map[$x][$ypos];
-				}
-			}
-
-			// vertical right line
-			$ret .= json_decode('"\u2502"');
-
-			$ret .= " ";
-			
-			// third display start
-			$ret .= json_decode('"\u2502"');
-
-			// iterate the width of the viewport
-			// starting at vpX and going $vpWidth characters
-			// when vpy hits 30, it should be 0
-			for ($y = 0; $y < $this->vpWidth; $y++) {
-				$ypos = $this->vpY + $y;
-
-				if ($ypos >= $this->mapWidth) {
-					$ypos = $ypos - $this->mapWidth;
-				}
-
-				if ($this->map[$x][$ypos] instanceof Dirt) {
-					$ret .= $this->map[$x][$ypos]->getView(3);
-				} else {
-					$ret .= $this->map[$x][$ypos];
-				}
-			}
-
-			// vertical right line
-			$ret .= json_decode('"\u2502"');
-
-			$ret .= "\n";
-		}
-
-		for ($x = 0; $x < 3; $x++) {
 			$ret .= json_decode('"\u2514"');
 
 			for ($y = 0; $y < $this->vpWidth; $y++) {
