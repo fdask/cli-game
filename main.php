@@ -8,12 +8,51 @@ $mapWidth = 50;
 $maxRain = 3;
 $maxMinerals = 15;
 
-$map = new Map($skyHeight, $groundHeight, $vpWidth, $mapWidth, $maxRain, $maxMinerals);
+$p = new Player();
+$map = new Map($skyHeight, $groundHeight, $vpWidth, $mapWidth, $maxRain, $maxMinerals, $p);
 echo $map;
 
+class Player {
+	public $x;
+	public $y;
+
+	private $coords;
+
+	public function __construct() {
+		$this->coords = array();
+		$this->x = 0;
+		$this->y = 0;
+	}
+
+	// the player object expands
+	public function addCoord($x, $y) {
+		if (!in_array([$x, $y], $this->coords)) {
+			$this->coords[] = array($x, $y);
+		}
+	}
+
+	public function getCoords() {
+		return $this->coords;
+	}
+
+	public function __toString() {
+
+	}
+
+	public function onCoords($x, $y) {
+		if (in_array([$x, $y], $this->coords)) {
+			return true;
+		}
+
+		return false;
+	}
+}
 class Map {
 	private $map;
 	private $term;
+
+	// holds the player object
+	public $player;
 
 	// how much sky on the map
 	public $skyHeight;
@@ -33,6 +72,8 @@ class Map {
 	// how high is the map
 	public $mapHeight;
 
+	public $charOnScreens;
+
 	// which view we want to show the user
 	// 1 - shows the rain/wetness
 	// 2 - mineral view
@@ -49,7 +90,7 @@ class Map {
 
 	private $threeScreen;
 
-	public function __construct($skyHeight, $groundHeight, $vpWidth, $mapWidth, $maxRain, $maxMinerals) {
+	public function __construct($skyHeight, $groundHeight, $vpWidth, $mapWidth, $maxRain, $maxMinerals, $player) {
 		$this->skyHeight = $skyHeight;
 		$this->groundHeight = $groundHeight;
 		$this->mapHeight = $groundHeight + $skyHeight;
@@ -59,6 +100,16 @@ class Map {
 		$this->maxMinerals = $maxMinerals;
 		$this->vpY = 0;
 		$this->threeScreen = false;
+
+		$this->charOnScreens = array(
+			1, 2, 3
+		);
+
+		$this->player = $player;
+
+		// set the x and y of the player
+		$this->player->x = $skyHeight + rand(0, $groundHeight / 2);
+		$this->player->y = rand(0, $this->vpWidth - 1);
 
 		// magic number
 		$this->maxPlants = 5;
@@ -118,6 +169,9 @@ class Map {
 					$tick = false;
 
 					break;
+				case 'A':
+					echo "Moving character left\n";
+					break;
 				case 'd':
 					// move viewport to the right
 					if ($this->vpY + 1 >= $this->mapWidth) {
@@ -128,6 +182,9 @@ class Map {
 
 					$tick = false;
 
+					break;
+				case 'D':
+					echo "Moving character right\n";
 					break;
 				case 'm':
 					// add a mineral
@@ -168,10 +225,37 @@ class Map {
 					$tick = false;
 			
 					break;
+				case 's':
+					// show/hide character on selected viewport
+					if (in_array($this->viewType, $this->charOnScreens)) {
+						// remove from the array
+						echo "Removing character view from screen {$this->viewType}\n";
+
+						for ($x = 0; $x < count($this->charOnScreens); $x++) {
+							if ($this->charOnScreens[$x] == $this->viewType) {
+								array_splice($this->charOnScreens, $x, 1);
+
+								break;
+							}
+						}
+					} else {
+						echo "Adding character view to screen {$this->viewType}\n";
+						$this->charOnScreens[] = $this->viewType;
+					}
+
+					break;
+				case 'S':
+					echo "Moving character down\n";
+					break;
 				case 't':
 					// toggle three screen
 					$this->threeScreen ? $this->threeScreen = false : $this->threeScreen = true;
 
+					break;
+				case 'W':
+					// move character up
+					echo "Moving character up\n";
+					
 					break;
 				case 'x':
 					// debug the map here
@@ -438,7 +522,10 @@ class Map {
 						$ypos = $ypos - $this->mapWidth;
 					}
 
-					if ($this->map[$x][$ypos] instanceof Dirt) {
+					// if the player has a position here, draw that
+					if ($this->player->x == $x && $this->player->y == $ypos && in_array(1, $this->charOnScreens)) {
+						$ret .= "*";
+					} else if ($this->map[$x][$ypos] instanceof Dirt) {
 						$ret .= $this->map[$x][$ypos]->getView(1);
 					} else {
 						$ret .= $this->map[$x][$ypos];
@@ -463,7 +550,10 @@ class Map {
 						$ypos = $ypos - $this->mapWidth;
 					}
 
-					if ($this->map[$x][$ypos] instanceof Dirt) {
+					// if the player has a position here, draw that
+					if ($this->player->x == $x && $this->player->y == $ypos && in_array(2, $this->charOnScreens)) {
+						$ret .= "*";
+					} else if ($this->map[$x][$ypos] instanceof Dirt) {
 						$ret .= $this->map[$x][$ypos]->getView(2);
 					} else {
 						$ret .= $this->map[$x][$ypos];
@@ -488,7 +578,10 @@ class Map {
 						$ypos = $ypos - $this->mapWidth;
 					}
 
-					if ($this->map[$x][$ypos] instanceof Dirt) {
+					// if the player has a position here, draw that
+					if ($this->player->x == $x && $this->player->y == $ypos && in_array(3, $this->charOnScreens)) {
+						$ret .= "*";
+					} else if ($this->map[$x][$ypos] instanceof Dirt) {
 						$ret .= $this->map[$x][$ypos]->getView(3);
 					} else {
 						$ret .= $this->map[$x][$ypos];
@@ -540,7 +633,10 @@ class Map {
 						$ypos = $ypos - $this->mapWidth;
 					}
 
-					if ($this->map[$x][$ypos] instanceof Dirt) {
+					// if the player has a position here, draw that
+					if ($this->player->x == $x && $this->player->y == $ypos && in_array($this->viewType, $this->charOnScreens)) {
+						$ret .= "*";
+					} else if ($this->map[$x][$ypos] instanceof Dirt) {
 						$ret .= $this->map[$x][$ypos]->getView($this->viewType);
 					} else {
 						$ret .= $this->map[$x][$ypos];
