@@ -296,6 +296,13 @@ class Map {
 						if ($this->player->decrLife() < 0) {
 							$this->gameOver();
 						}
+
+											// move viewport to the left
+						if ($this->vpY - 1 < 0) {
+							$this->vpY = $this->mapWidth - 1;
+						} else {
+							$this->vpY--;
+						}
 					}
 
 					break;
@@ -317,7 +324,7 @@ class Map {
 					$newX = $this->player->getX();
 					$newY = $this->player->getY() + 1;
 
-					if ($newY >= $this->mapWidth) {
+					if ($newY > $this->mapWidth - 1) {
 						$newY = 0;
 					} 
 					
@@ -330,6 +337,13 @@ class Map {
 
 						if ($this->player->decrLife() < 0) {
 							$this->gameOver();
+						}
+
+						// move viewport to the right
+						if ($this->vpY + 1 >= $this->mapWidth) {
+							$this->vpY = 0;
+						} else {
+							$this->vpY++;
 						}
 					}
 					
@@ -487,8 +501,6 @@ class Map {
 		$this->addRain();
 		$this->addMineral();
 		$this->addPlant();
-
-		
 	}
 
 	private function initializeMap() {
@@ -582,7 +594,7 @@ class Map {
 		}
 
 		do {
-			$newY = rand(0, $this->mapWidth);
+			$newY = rand(0, $this->mapWidth - 1);
 		} while (in_array($newY, $ys));
 
 		// create the new plan
