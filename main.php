@@ -5,10 +5,10 @@ $skyHeight = 10;
 $groundHeight = 15;
 $vpWidth = 40;
 $mapWidth = 50;
-$maxRain = 3;
+$maxRain = 8;
 $maxMinerals = 15;
 
-$p = new Player($skyHeight, 0);
+$p = new Player($skyHeight, 20);
 $map = new Map($skyHeight, $groundHeight, $vpWidth, $mapWidth, $maxRain, $maxMinerals, $p);
 echo $map;
 
@@ -82,41 +82,6 @@ class Player {
 		// add the coords to our list
 		$this->addFrontCoord($this->getX(), $y);
 	}
-
-	/*
-	public function move($dir) {
-		// moves existing worm
-		switch ($dir) {
-			case 'N':
-				$newX = $this->player->x - 1;
-				$newY = $this->player->y;
-
-				if ($newX < 0) {
-					$this->player->x = 0;
-
-					return false;
-				}
-				
-				// we can move up.
-				$this->addFrontCoord($newX, $newY);
-
-				break;
-			case 'S':
-				$newX = $this->player->x + 1;
-				$newY = $this->player->y;
-
-				break;
-			case 'E':
-				break;
-			case 'W':
-				break;
-			default:
-				// shouldn't get here
-		}
-
-		return false;
-	}
-	*/
 
 	public function getCoords() {
 		return $this->coords;
@@ -293,11 +258,16 @@ class Map {
 							$this->player->coordPop();
 						}
 
+						if ($this->map[$newX][$newY]->concentration > 0) {
+							$this->player->setLife($this->map[$newX][$newY]->concentration + $this->player->getLife());
+							$this->map[$newX][$newY]->concentration = 0;
+						}
+
 						if ($this->player->decrLife() < 0) {
 							$this->gameOver();
 						}
 
-											// move viewport to the left
+						// move viewport to the left
 						if ($this->vpY - 1 < 0) {
 							$this->vpY = $this->mapWidth - 1;
 						} else {
@@ -333,6 +303,11 @@ class Map {
 						
 						if ($c == 'd') {
 							$this->player->coordPop();
+						}
+
+						if ($this->map[$newX][$newY]->concentration > 0) {
+							$this->player->setLife($this->map[$newX][$newY]->concentration + $this->player->getLife());
+							$this->map[$newX][$newY]->concentration = 0;
 						}
 
 						if ($this->player->decrLife() < 0) {
@@ -421,6 +396,13 @@ class Map {
 							$this->player->coordPop();
 						}
 
+						// add any life from minerals
+						if ($this->map[$newX][$newY]->concentration > 0) {
+							$this->player->setLife($this->player->getLife() + $this->map[$newX][$newY]->concentration);
+							$this->map[$newX][$newY]->concentration = 0;
+						}
+
+						// turnly upkeep tax
 						if ($this->player->decrLife() < 0) {
 							$this->gameOver();
 						}
@@ -431,6 +413,7 @@ class Map {
 					// toggle three screen
 					$this->threeScreen ? $this->threeScreen = false : $this->threeScreen = true;
 
+					$tick = false;
 					break;
 				
 				case 'w':
@@ -449,6 +432,11 @@ class Map {
 
 						if ($c == 'w') {
 							$this->player->coordPop();
+						}
+
+						if ($this->map[$newX][$newY]->concentration > 0) {
+							$this->player->setLife($this->map[$newX][$newY]->concentration + $this->player->getLife());
+							$this->map[$newX][$newY]->concentration = 0;
 						}
 
 						if ($this->player->decrLife() < 0) {
