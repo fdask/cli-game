@@ -758,6 +758,18 @@ class Map {
 		return $ret;
 	}
 
+	/**
+	 * dumps a bunch of instructions into the message queue
+	 */
+	public function addInstructions() {
+
+	}
+
+	/**
+	 * adds header of the specified length
+	 * 
+	 * with or without a title included
+	 */
 	public function titleHeader($l, $title = null) {
 		$ret = "";
 
@@ -815,18 +827,6 @@ class Map {
 
 				$ret .= $this->titleHeader($this->vpWidth, $txt);
 
-				/*
-				// top left corner
-				$ret .= json_decode('"\u250c"');
-
-				// horitonztal top line
-				for ($y = 0; $y < $this->vpWidth; $y++) {
-					$ret .= json_decode('"\u2501"');
-				}
-
-				// top right corner
-				$ret .= json_decode('"\u2510"');
-				*/
 				$ret .= " ";
 			}
 
@@ -951,18 +951,6 @@ class Map {
 
 			$ret .= $this->titleHeader($this->vpWidth, $txt);
 
-			/* upper left corner
-			$ret .= json_decode('"\u250c"');
-
-			// horitonztal top line
-			for ($y = 0; $y < $this->vpWidth; $y++) {
-				$ret .= json_decode('"\u2501"');
-			}
-
-			// top right corner
-			$ret .= json_decode('"\u2510"') . "\n";
-			*/
-
 			$ret .= "\n";
 
 			// all the map lines
@@ -1017,6 +1005,10 @@ class Map {
 	}
 }
 
+class Rock {
+
+}
+
 class Dirt {
 	// integer representing how much moisture is in the dirt
 	public $wetness;
@@ -1030,7 +1022,7 @@ class Dirt {
 	// if we are topsoil and have a plant, here it is
 	public $plant;
 
-	public function __construct() {
+	public function __construct($rocked = false) {
 		$this->wetness = 0;
 		$this->concentration = 0;
 		$this->defaultChar = ".";
