@@ -111,6 +111,7 @@ class Mailbox {
 		$this->addMessage("");
 		$this->addMessage("'q' to quit, 'n' for new game");
 		$this->addMessage("'z' and 'c' for scroll viewport");
+		$this->addMessage("collect minerals to maintain health");
 	}
 }
 
@@ -689,7 +690,6 @@ class Map {
 			$mY = rand(0, $this->mapWidth - 1);
 		} while (in_array([$mX, $mY], $existingMs));
 
-		echo "Setting mineral concentration at $mX, $mY\n";
 		$this->map[$mX][$mY]->concentration = rand(1, 5);
 	}
 
@@ -739,8 +739,6 @@ class Map {
 			return false;
 		}
 		
-		echo "adding rock.\n";
-
 		do {
 			$newX = rand($this->skyHeight, $this->mapHeight - 1);
 			$newY = rand(0, $this->vpWidth - 1);
