@@ -25,6 +25,10 @@ class Mailbox {
 		}
 	}
 
+	function clearMessages() {
+		$this->messages = array();
+	}
+
 	/**
 	 * add a message to the mailbox
 	 */
@@ -86,6 +90,27 @@ class Mailbox {
 		}
 
 		return true;
+	}
+
+	/**
+	 * dumps a bunch of instructions into the message queue
+	 */
+	public function addInstructions() {
+		$this->addMessage("wasd to move (press m)");
+		$this->addMessage("'m' to move to the next message");
+		$this->addMessage("the rain is falling down");
+		$this->addMessage("and minerals are washed around");
+		$this->addMessage("can't go through a rock");
+		$this->addMessage("try and not be found");
+		$this->addMessage("");
+		$this->addMessage("use 1 2 or 3 keys to change view");
+		$this->addMessage("h2o, mineral, or plant view");
+		$this->addMessage("press 't' to toggle all three");
+		$this->addMessage("'h' to show or hide you");
+		$this->addMessage("on the currently selected view");
+		$this->addMessage("");
+		$this->addMessage("'q' to quit, 'n' for new game");
+		$this->addMessage("'z' and 'c' for scroll viewport");
 	}
 }
 
@@ -172,6 +197,7 @@ class Player {
 		return false;
 	}
 }
+
 class Map {
 	private $map;
 	private $term;
@@ -232,17 +258,21 @@ class Map {
 		$this->maxMinerals = $maxMinerals;
 		$this->vpY = 0;
 		$this->threeScreen = false;
-		$this->mailbox = new Mailbox("Welcome to my game! (press m)");
-		$this->mailbox->addMessage("wasd to move (press m)");
-		$this->mailbox->addMessage("'m' to move to the next message");
-		$this->mailbox->addMessage("next message.");
+		$this->mailbox = new Mailbox();
+		$this->mailbox->addInstructions();
 		$this->charOnScreens = array(1, 2, 3);
-
+		
 		$this->player = $player;
 
-		// magic number
+		// magic numbers
+		$this->maxRocks = 10;
 		$this->maxPlants = 5;
 
+		$this->initialize();
+		$this->gameLoop();
+	}
+
+	public function initialize() {
 		// default to the rain view
 		$this->viewType = 1;
 
@@ -258,8 +288,8 @@ class Map {
 		}
 
 		// fill in the dirt
-		$this->fillMap($this->skyHeight, 0, $this->mapHeight, $this->mapWidth, "Dirt");
-		
+		$this->fillMap($this->skyHeight, 0, $this->mapHeight, $this->mapWidth, "Dirt");		
+
 		// add in random minerals up to maxMinerals
 		for ($x = 0; $x < $this->maxMinerals; $x++) {
 			$this->addMineral();
@@ -270,7 +300,21 @@ class Map {
 			$this->addPlant();
 		}
 
-		$this->gameLoop();
+		// add in the rocks
+		for ($x = 0; $x < $this->maxRocks; $x++) {
+			$this->addRock();
+		}
+	}
+
+	private function initializeMap() {
+		// fills the map array out with falses
+		$this->map = array();
+
+		for ($x = 0; $x < ($this->skyHeight + $this->groundHeight); $x++) {
+			for ($y = 0; $y < $this->mapWidth; $y++) {
+				$this->map[$x][$y] = false;
+			}
+		}
 	}
 
 	public function gameOver() {
@@ -334,6 +378,10 @@ class Map {
 					} 
 					
 					if (!$this->player->onCoords($newX, $newY)) {
+						if ($this->map[$newX][$newY] instanceof Rock) {
+							break;
+						}
+
 						$this->player->setY($newY);
 						
 						if ($c == 'a') {
@@ -381,6 +429,10 @@ class Map {
 					} 
 					
 					if (!$this->player->onCoords($newX, $newY)) {
+						if ($this->map[$newX][$newY] instanceof Rock) {
+							break;
+						} 
+
 						$this->player->setY($newY);
 						
 						if ($c == 'd') {
@@ -405,26 +457,37 @@ class Map {
 					}
 					
 					break;
+				case 'h':
+					// show/hide character on selected viewport
+					if (in_array($this->viewType, $this->charOnScreens)) {
+						// remove from the array
+						for ($x = 0; $x < count($this->charOnScreens); $x++) {
+							if ($this->charOnScreens[$x] == $this->viewType) {
+								array_splice($this->charOnScreens, $x, 1);
+
+								break;
+							}
+						}
+					} else {
+						$this->charOnScreens[] = $this->viewType;
+					}
+
+					break;
 				case 'm':
 					// delete the current message
 					$this->mailbox->deleteCurrentMessage();
 					$tick = false;
+					
+					break;
+				case 'M':
+					$this->mailbox->clearMessages();
+					$tick = false;
+
 					break;
 				case 'n':
 					// new.  re-initializes the map
-
-					// default to the rain view
-					$this->viewType = 1;
-
-					// initialize the map array
-					$this->initializeMap();
-
-					// fill in the sky
-					$this->fillMap(0, 0, $this->skyHeight, $this->mapWidth, "Sky");
-
-					// fill in the dirt
-					$this->fillMap($this->skyHeight, 0, $this->mapHeight, $this->mapWidth, "Dirt");
-			
+					$this->initialize();
+					
 					break;		
 				case 'p':
 					// add a new plant
@@ -443,22 +506,7 @@ class Map {
 					$tick = false;
 			
 					break;
-				case 'h':
-					// show/hide character on selected viewport
-					if (in_array($this->viewType, $this->charOnScreens)) {
-						// remove from the array
-						for ($x = 0; $x < count($this->charOnScreens); $x++) {
-							if ($this->charOnScreens[$x] == $this->viewType) {
-								array_splice($this->charOnScreens, $x, 1);
-
-								break;
-							}
-						}
-					} else {
-						$this->charOnScreens[] = $this->viewType;
-					}
-
-					break;
+				
 				case 's':
 					// move character down
 				case 'S':
@@ -471,6 +519,10 @@ class Map {
 					} 
 					
 					if (!$this->player->onCoords($newX, $newY)) {
+						if ($this->map[$newX][$newY] instanceof Rock) {
+							break;
+						} 
+
 						$this->player->setX($newX);
 
 						if ($c == 's') {
@@ -509,6 +561,10 @@ class Map {
 					}
 
 					if (!$this->player->onCoords($newX, $newY)) {
+						if ($this->map[$newX][$newY] instanceof Rock) {
+							break;
+						}
+
 						$this->player->setX($newX);
 
 						if ($c == 'w') {
@@ -570,17 +626,6 @@ class Map {
 		$this->addRain();
 		$this->addMineral();
 		$this->addPlant();
-	}
-
-	private function initializeMap() {
-		// fills the map array out with falses
-		$this->map = array();
-
-		for ($x = 0; $x < ($this->skyHeight + $this->groundHeight); $x++) {
-			for ($y = 0; $y < $this->mapWidth; $y++) {
-				$this->map[$x][$y] = false;
-			}
-		}
 	}
 
 	private function fillMap($x1, $y1, $x2, $y2, $fillObj) {
@@ -664,12 +709,46 @@ class Map {
 
 		do {
 			$newY = rand(0, $this->mapWidth - 1);
-		} while (in_array($newY, $ys));
+		} while (in_array($newY, $ys) || $this->map[$this->skyHeight][$newY] instanceof Rock);
 
 		// create the new plan
 		$plant = new Plant();
 
 		$this->map[$this->skyHeight][$newY]->addPlant($plant);
+	}
+
+	public function getRockCoords() {
+		$ret = array();
+
+		for ($x = $this->skyHeight; $x < $this->mapHeight; $x++) {
+			for ($y = 0; $y < $this->mapWidth; $y++) {
+				if ($this->map[$x][$y] instanceof Rock) {
+					$ret[] = array($x, $y);
+				}
+			}
+		}
+
+		return $ret;
+	}
+
+	public function addRock() {
+		// look for a dirt square we can take
+		$rockCoords = $this->getRockCoords();
+
+		if (count($rockCoords) >= $this->maxRocks) {
+			return false;
+		}
+		
+		echo "adding rock.\n";
+
+		do {
+			$newX = rand($this->skyHeight, $this->mapHeight - 1);
+			$newY = rand(0, $this->vpWidth - 1);
+		} while (in_array([$newX, $newY], $rockCoords));
+
+		$rock = new Rock();
+
+		$this->map[$newX][$newY] = $rock;
 	}
 
 	private function updateRain() {
@@ -684,7 +763,9 @@ class Map {
 
 			$wetness = $this->map[$x][$y]->wetness;
 
-			if ($this->map[$x][$y] instanceof Sky) {
+			if ($this->map[$x][$y] instanceof Rock) {
+				continue;
+			} else if ($this->map[$x][$y] instanceof Sky) {
 				$this->map[$x][$y]->wetness = 0;
 				$this->map[$newX][$newY]->wetness = $wetness;
 			} else if ($this->map[$x][$y] instanceof Dirt) {
@@ -693,6 +774,7 @@ class Map {
 
 				if ($this->map[$x][$y]->concentration > 0) {
 					$this->map[$x][$y]->concentration--;
+
 					$this->map[$newX][$newY]->concentration++;
 				} 
 			} 
@@ -735,7 +817,9 @@ class Map {
 
 		for ($x = 0; $x < count($this->map); $x++) {
 			for ($y = 0; $y < count($this->map[0]); $y++) {
-				if ($this->map[$x][$y]->wetness > 0) {
+				if ($this->map[$x][$y] instanceof Rock) {
+					continue;
+				} else if ($this->map[$x][$y]->wetness > 0) {
 					$ret[] = [$x, $y];
 				}
 			}
@@ -756,13 +840,6 @@ class Map {
 		}
 
 		return $ret;
-	}
-
-	/**
-	 * dumps a bunch of instructions into the message queue
-	 */
-	public function addInstructions() {
-
 	}
 
 	/**
@@ -1005,8 +1082,17 @@ class Map {
 	}
 }
 
+/**
+ * impassable, rock
+ */
 class Rock {
+	public function __construct() {
 
+	}
+
+	public function __toString() {
+		return json_decode('"\u2599"');
+	}
 }
 
 class Dirt {
