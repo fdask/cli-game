@@ -12,6 +12,83 @@ $p = new Player($skyHeight, 20);
 $map = new Map($skyHeight, $groundHeight, $vpWidth, $mapWidth, $maxRain, $maxMinerals, $p);
 echo $map;
 
+class Mailbox {
+	private $messages;
+	private $currentMsg;
+
+	function __construct($welcomeMsg = null) {
+		$this->currentMsg = 0;
+		$this->messages = array();
+
+		if ($welcomeMsg) {
+			$this->addMessage($welcomeMsg);
+		}
+	}
+
+	/**
+	 * add a message to the mailbox
+	 */
+	function addMessage($msg) {
+		$this->messages[] = $msg;
+
+		return true;
+	}
+
+	/**
+	 * returns the current message
+	 * 
+	 * then advances the currentMsg pointer
+	 */
+	function readCurrentMessage() {
+		if (isset($this->messages[$this->currentMsg])) {
+			return $this->messages[$this->currentMsg];
+		} else {
+			return "";
+		}
+	}
+
+	/**
+	 * advance the message pointer
+	 */
+	function nextMessage() {
+		if ($this->currentMsg < count($this->messages) - 1) {
+			$this->currentMsg++;
+
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * decrement the message pointer
+	 */
+	function prevMessage() {
+		if ($this->currentMsg > 0) {
+			$this->currentMsg--;
+
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * remove whatever message we are on
+	 */
+	function deleteCurrentMessage() {
+		if (count($this->messages)) {
+			array_splice($this->messages, $this->currentMsg, 1);
+
+			if ($this->currentMsg > count($this->messages)) {
+				$this->currentMsg = count($this->messages) - 1;
+			}
+		}
+
+		return true;
+	}
+}
+
 class Player {
 	private $x;
 	private $y;
@@ -143,6 +220,8 @@ class Map {
 	// whether we have enabled three screen view, or not.   toggles
 	private $threeScreen;
 
+	public $mailbox;
+
 	public function __construct($skyHeight, $groundHeight, $vpWidth, $mapWidth, $maxRain, $maxMinerals, $player) {
 		$this->skyHeight = $skyHeight;
 		$this->groundHeight = $groundHeight;
@@ -153,7 +232,10 @@ class Map {
 		$this->maxMinerals = $maxMinerals;
 		$this->vpY = 0;
 		$this->threeScreen = false;
-
+		$this->mailbox = new Mailbox("Welcome to my game! (press m)");
+		$this->mailbox->addMessage("wasd to move (press m)");
+		$this->mailbox->addMessage("'m' to move to the next message");
+		$this->mailbox->addMessage("next message.");
 		$this->charOnScreens = array(1, 2, 3);
 
 		$this->player = $player;
@@ -324,10 +406,9 @@ class Map {
 					
 					break;
 				case 'm':
-					// add a mineral
-					$this->addMineral();
+					// delete the current message
+					$this->mailbox->deleteCurrentMessage();
 					$tick = false;
-
 					break;
 				case 'n':
 					// new.  re-initializes the map
@@ -677,14 +758,64 @@ class Map {
 		return $ret;
 	}
 
+	public function titleHeader($l, $title = null) {
+		$ret = "";
+
+		if ($title) {
+			$startTitle = $l - (strlen($title) + 1);
+
+			for ($x = 0; $x < $startTitle; $x++) {
+				if ($x == 0) {
+					$ret .= json_decode('"\u250c"');
+				} 
+
+				$ret .= json_decode('"\u2501"');
+			}
+
+			$chars = str_split($title);
+			
+			for ($x = $startTitle; $x < $l - 1; $x++) {
+				$ret .= $chars[$x - $startTitle];
+			}
+
+			$ret .= json_decode('"\u2501"');
+			$ret .= json_decode('"\u2510"');
+		} else {
+			$ret .= json_decode('"\u250c"');
+
+			for ($x = 1; $x < $l; $x++) {
+				$ret .= json_decode('"\u2501"');
+			}
+
+			$ret .= json_decode('"\u2510"');
+		}
+
+		return $ret;
+	}
+
 	public function __toString() {
 		// main display subroutine
 		$ret = "Mapwidth: {$this->mapWidth} Viewport Width: {$this->vpWidth} Viewport Y: {$this->vpY} ViewType: {$this->viewType}\n";
 		$ret .= "Player Health: " . $this->player->getLife() . " X: " . $this->player->getX() . " Y: " . $this->player->getY() . "\n";
 
 		if ($this->threeScreen) {
-			// top border for three screens
+			// top border for three screens)
 			for ($x = 0; $x < 3; $x++) {
+				switch ($x) {
+					case 1:
+						$txt = "mineral";
+						break;
+					case 2:
+						$txt = "plant";
+						break;
+					case 0: 
+						$txt = "h2o";
+						break;
+				}
+
+				$ret .= $this->titleHeader($this->vpWidth, $txt);
+
+				/*
 				// top left corner
 				$ret .= json_decode('"\u250c"');
 
@@ -695,7 +826,7 @@ class Map {
 
 				// top right corner
 				$ret .= json_decode('"\u2510"');
-
+				*/
 				$ret .= " ";
 			}
 
@@ -799,10 +930,28 @@ class Map {
 				$ret .= json_decode('"\u2518"');
 				$ret .= " ";
 			}
+
+			$ret .= "\n";
+
+			// message area
+			$ret .= " " . json_decode('"\u2517"') . " " . $this->mailbox->readCurrentMessage();
 		} else {
 			// single screen
-			
-			// upper left corner
+			switch ($this->viewType) {
+				case 2:
+					$txt = "mineral";
+					break;
+				case 3:
+					$txt = "plant";
+					break;
+				case 1: 
+					$txt = "h2o";
+					break;
+			}
+
+			$ret .= $this->titleHeader($this->vpWidth, $txt);
+
+			/* upper left corner
 			$ret .= json_decode('"\u250c"');
 
 			// horitonztal top line
@@ -812,6 +961,9 @@ class Map {
 
 			// top right corner
 			$ret .= json_decode('"\u2510"') . "\n";
+			*/
+
+			$ret .= "\n";
 
 			// all the map lines
 			for ($x = 0; $x < count($this->map); $x++) {
@@ -844,6 +996,7 @@ class Map {
 				$ret .= "\n";
 			}
 
+			// bottom of the viewport
 			$ret .= json_decode('"\u2514"');
 
 			for ($y = 0; $y < $this->vpWidth; $y++) {
@@ -851,7 +1004,11 @@ class Map {
 			}
 
 			$ret .= json_decode('"\u2518"');
-			$ret .= " ";
+
+			$ret .= "\n";
+
+			// message area
+			$ret .= " " . json_decode('"\u2517"') . " " . $this->mailbox->readCurrentMessage();
 		}
 
 		$ret .= "\n";
