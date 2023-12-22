@@ -43,6 +43,9 @@ class Map {
 	// how many plants to allow on the map at once
 	public $maxPlants;
 
+    // how many crystals to allow at once
+    public $maxCrystals;
+
 	// whether we have enabled three screen view, or not.   toggles
 	private $threeScreen;
 
@@ -60,7 +63,7 @@ class Map {
 		$this->mapWidth = $mapWidth;
 		$this->maxRain = $maxRain;
 		$this->maxMinerals = $maxMinerals;
-		$this->vpY = 0;
+        $this->vpY = 0;
 		$this->threeScreen = false;
 		$this->mailbox = new Mailbox();
 		$this->mailbox->addInstructions();
@@ -71,6 +74,7 @@ class Map {
 		// magic numbers
 		$this->maxRocks = 10;
 		$this->maxPlants = 5;
+        $this->maxCrystals = 3;
 
 		$this->initialize();
 		$this->gameLoop();
@@ -160,6 +164,11 @@ class Map {
 		for ($x = 0; $x < $this->maxRocks; $x++) {
 			$this->addRock();
 		}
+
+        // add in the crystals
+        for ($x = 0; $x < $this->maxCrystals; $x++) {
+            $this->addCrystal();
+        }
 
         // lets add in a couple points of interest!
         $this->addPointOfInterest(new messageX("We hit X of three!", 13));
@@ -269,9 +278,13 @@ class Map {
 							$this->vpY--;
 						}
 
-                        // if we have a point of interest,
-                        // display it
-                        //if 
+                        // check if we're on a crystal square.
+                        // if so, take it.
+                        if ($this->map[$newX][$newY] instanceof Dirt && $this->map[$newX][$newY]->isCrystal()) {
+                            // remove the crystal, and add to players inventory
+                            $this->player->incrCrystals();
+                            $this->map[$newX][$newY]->setCrystal(false);
+                        }
 					}
 
 					break;
@@ -326,6 +339,14 @@ class Map {
 						} else {
 							$this->vpY++;
 						}
+
+                        // check if we're on a crystal square.
+                        // if so, take it.
+                        if ($this->map[$newX][$newY] instanceof Dirt && $this->map[$newX][$newY]->isCrystal()) {
+                            // remove the crystal, and add to players inventory
+                            $this->player->incrCrystals();
+                            $this->map[$newX][$newY]->setCrystal(false);
+                        }
 					}
 					
 					break;
@@ -414,6 +435,14 @@ class Map {
 						if ($this->player->decrLife() < 0) {
 							$this->gameOver();
 						}
+
+                        // check if we're on a crystal square.
+                        // if so, take it.
+                        if ($this->map[$newX][$newY] instanceof Dirt && $this->map[$newX][$newY]->isCrystal()) {
+                            // remove the crystal, and add to players inventory
+                            $this->player->incrCrystals();
+                            $this->map[$newX][$newY]->setCrystal(false);
+                        }
 					}
 
 					break;
@@ -458,6 +487,14 @@ class Map {
 						if ($this->player->decrLife() < 0) {
 							$this->gameOver();
 						}
+
+                        // check if we're on a crystal square.
+                        // if so, take it.
+                        if ($this->map[$newX][$newY] instanceof Dirt && $this->map[$newX][$newY]->isCrystal()) {
+                            // remove the crystal, and add to players inventory
+                            $this->player->incrCrystals();
+                            $this->map[$newX][$newY]->setCrystal(false);
+                        }
 					}
 
 					break;
@@ -630,6 +667,39 @@ class Map {
 		$this->map[$newX][$newY] = $rock;
 	}
 
+    public function getCrystalCoords() {
+        $ret = array();
+
+        for ($x = $this->skyHeight; $x < $this->mapHeight; $x++) {
+            for ($y = 0; $y < $this->mapWidth; $y++) {
+                if ($this->map[$x][$y] instanceof Dirt && $this->map[$x][$y]->isCrystal()) {
+                    $ret[] = [$x, $y];
+                }
+            }
+        }
+
+        return $ret;
+    }
+
+    public function addCrystal() {
+        // look for a dirt square we can take
+        $cCoords = $this->getCrystalCoords();
+        $rockCoords = $this->getRockCoords();
+
+        if (count($cCoords) >= $this->maxCrystals) {
+            return false;
+        }
+
+        $allCoords = array_merge($cCoords, $rockCoords);
+
+        do {
+            $newX = rand($this->mapHeight - 5, $this->mapHeight - 1);
+            $newY = rand(0, $this->mapWidth - 1);
+        } while(in_array([$newX, $newY], $allCoords));
+
+        $this->map[$newX][$newY]->setCrystal(true);
+    }
+
 	private function updateRain() {
 		$raindrops = $this->getRainCoords();
 
@@ -777,7 +847,7 @@ class Map {
 	public function __toString() {
 		// main display subroutine
 		$ret = "Mapwidth: {$this->mapWidth} Viewport Width: {$this->vpWidth} Viewport Y: {$this->vpY} ViewType: {$this->viewType}\n";
-		$ret .= "Player Health: " . $this->player->getLife() . " X: " . $this->player->getX() . " Y: " . $this->player->getY() . "\n";
+		$ret .= "Player Health: " . $this->player->getLife() . " X: " . $this->player->getX() . " Y: " . $this->player->getY() . " Crystals: " . $this->player->getCrystals() . "\n";
 
 		if ($this->threeScreen) {
 			// top border for three screens)
