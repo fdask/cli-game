@@ -76,6 +76,33 @@ class Map {
 		$this->gameLoop();
 	}
 
+    /**
+     * adds a new point of interest object into the array
+     */
+    public function addPointOfInterest($poi) {
+        $this->pointsOfInterest[] = $poi;
+    }
+
+    public function checkPointOfInterest() {
+        // using the x, y of the player, 
+        // lets figure out if any of the current 
+        // points of interests apply
+        foreach ($this->pointsOfInterest as $poi) {
+            if ($poi instanceof messageX && $this->player->getX() == $poi->getX()) {
+                
+            } else if ($poi instanceof messageY && $this->player->getY() == $poi->getY()) {
+
+            } else if ($poi instanceof messageXY && [$this->player->getX(), $this->player->getY()] == $poi->getXY()) {
+
+            }
+        }
+    }
+
+    public function removePointOfInterest($poi) {
+        // remove the given object from the array
+        array_splice($poi, $this->pointsOfInterest, 1);
+    }
+
 	public function initialize() {
 		// default to the rain view
 		$this->viewType = 1;
@@ -211,6 +238,9 @@ class Map {
 						} else {
 							$this->vpY--;
 						}
+
+                        // if we have a point of interest,
+                        // display it
 					}
 
 					break;

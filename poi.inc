@@ -47,6 +47,7 @@ class messageX {
 
 trait PointOfInterest {
     private $msg;
+    private $displayed;
 
     public function getMessage() {
         return $this->msg;
@@ -58,6 +59,11 @@ trait PointOfInterest {
 
     public function __construct($msg) {
         $this->setMessage($msg);
+        $this->displayed = false;
+    }
+
+    public function setDisplayed() {
+        $this->displayed = true;
     }
 }
 ?>

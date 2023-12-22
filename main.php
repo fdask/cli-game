@@ -9,6 +9,7 @@ include 'map.inc';
 include 'player.inc';
 include 'sky.inc';
 include 'plant.inc';
+include 'poi.inc';
 
 $skyHeight = 10;
 $groundHeight = 15;
