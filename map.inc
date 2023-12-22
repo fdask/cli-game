@@ -180,6 +180,8 @@ class Map {
 					
 					if (!$this->player->onCoords($newX, $newY)) {
 						if ($this->map[$newX][$newY] instanceof Rock) {
+                            $tick = false;
+
 							break;
 						}
 
@@ -233,6 +235,7 @@ class Map {
 					
 					if (!$this->player->onCoords($newX, $newY)) {
 						if ($this->map[$newX][$newY] instanceof Rock) {
+                            $tick = false;
 							break;
 						} 
 
@@ -325,6 +328,7 @@ class Map {
 					
 					if (!$this->player->onCoords($newX, $newY)) {
 						if ($this->map[$newX][$newY] instanceof Rock) {
+                            $tick = false;
 							break;
 						} 
 
@@ -369,7 +373,9 @@ class Map {
 
 					if (!$this->player->onCoords($newX, $newY)) {
 						if ($this->map[$newX][$newY] instanceof Rock) {
-							break;
+							$tick = false;
+                            
+                            break;
 						}
 
 						$this->player->setX($newX);
@@ -573,7 +579,7 @@ class Map {
 				continue;
 			} else if ($this->map[$x][$y] instanceof Sky) {
 				$this->map[$x][$y]->setWetness(0);
-                
+
 				if ($this->map[$newX][$newY] instanceof Dirt || $this->map[$newX][$newY] instanceof Sky) {
                     $this->map[$newX][$newY]->setWetness($wetness);
                 }

@@ -1,6 +1,7 @@
 #!/usr/bin/php
 <?php
 // define some system variables
+include 'wetable.inc';
 include 'dirt.inc';
 include 'mailbox.inc';
 include 'rock.inc';
@@ -8,7 +9,6 @@ include 'map.inc';
 include 'player.inc';
 include 'sky.inc';
 include 'plant.inc';
-include 'wetable.inc';
 
 $skyHeight = 10;
 $groundHeight = 15;

@@ -8,14 +8,13 @@ class Sky {
 	public function __construct() {
 		$this->setWetness(0);
 		$this->defaultChar = "~";
-		echo "constructing a sky\n";
 	}
 
 	public function __toString() {
 		if ($this->isWet()) {
 			return "|";
 		} else {
-			return "~";	
+			return $this->defaultChar;	
 		}
 	}
 }
