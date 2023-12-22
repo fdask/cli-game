@@ -7,8 +7,13 @@ class messageXY {
     private $x;
     private $y;
 
+    public function __construct($msg, $x, $y) {
+        $this->setXY($x, $y);
+        $this->setMessage($msg);
+        $this->displayed = false;
+    }
     public function getXY() {
-        return [$x, $y];
+        return [$this->x, $this->y];
     }
 
     public function setXY($x, $y) {
@@ -22,7 +27,12 @@ class messageY {
 
     private $y;
 
-    public function getY() {
+    public function __construct($msg, $value) {
+        $this->setY($value);
+        $this->setMessage($msg);
+        $this->displayed = false;
+    }
+public function getY() {
         return $this->y;
     }
 
@@ -35,6 +45,12 @@ class messageX {
     use PointOfInterest;
 
     private $x;
+
+    public function __construct($msg, $value) {
+        $this->setX($value);
+        $this->setMessage($msg);
+        $this->displayed = false;
+    }
 
     public function getX() {
         return $this->x;
@@ -57,19 +73,6 @@ trait PointOfInterest {
         $this->msg = $msg;
     }
 
-    public function __construct($value, $msg) {
-        if ($this instanceof messageX) {
-            $this->setX($value);
-        } else if ($this instanceof messageXY) {
-            $this->setXY($value);
-        } else if ($this instanceof messageY) {
-            $this->setY($value);
-        }
-        
-        $this->setMessage($msg);
-        $this->displayed = false;
-    }
-
     public function setDisplayed() {
         $this->displayed = true;
     }
@@ -82,5 +85,5 @@ trait PointOfInterest {
 // my little pills are yellow
 // your little pills are green
 // lets mix them all together
-// and see just what they mean
+// and find out what they mean
 ?>

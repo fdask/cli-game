@@ -87,7 +87,9 @@ class Map {
         // using the x, y of the player, 
         // lets figure out if any of the current 
         // points of interests apply
+        echo  "checking points of interest at " . $this->player->getX() . " , " . $this->player->getY() . "\n";
         foreach ($this->pointsOfInterest as $poi) {
+            print_r($poi);
             if ($poi instanceof messageX && $this->player->getX() == $poi->getX()) {
                 $msg = $poi->getMessage();
 
@@ -161,7 +163,9 @@ class Map {
 		}
 
         // lets add in a couple points of interest!
-        $this->addPointOfInterest(new messageX(13, "We hit X of three!"));
+        $this->addPointOfInterest(new messageX("We hit X of three!", 13));
+        $this->addPointOfInterest(new messageXY("alert!  15-5 breached", 15, 5));
+        $this->addPointOfInterest(new messageY("Y OF 32 IS WHERE WE GOOOO!", 32));
 	}
 
 	private function initializeMap() {
@@ -268,6 +272,7 @@ class Map {
 
                         // if we have a point of interest,
                         // display it
+                        //if 
 					}
 
 					break;
