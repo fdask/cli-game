@@ -13,12 +13,23 @@ class Dirt {
 	// if we are topsoil and have a plant, here it is
 	public $plant;
 
+    public $crystal;
+
 	public function __construct($rocked = false) {
 		$this->setWetness(0);
 		$this->setConcentration(0);
 		$this->defaultChar = ".";
 		$this->plant = null;
+        $this->crystal = false;
 	}
+
+    public function isCrystal() {
+        return $this->crystal;
+    }
+
+    public function setCrystal($bool) {
+        $this->crystal = $bool;
+    }
 
 	public function updatePlant() {
 		if (!empty($this->plant) && $this->isWet()) {
@@ -95,7 +106,9 @@ class Dirt {
 			// plant matter view
 			if (!empty($this->plant)) {
 				return "{$this->plant}";
-			} else {
+			} else if ($this->isCrystal()) {
+                return "C";
+            } else {
 				return $this->defaultChar;
 			}
 		}

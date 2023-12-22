@@ -7,13 +7,34 @@ class Player {
 
 	private $life;
 
+    private $crystals;
+
 	public function __construct($x, $y) {
 		$this->coords[] = array($x, $y);
 
 		$this->x = $x;
 		$this->y = $y;
 		$this->life = 100;
+        $this->crystals = 0;
 	}
+
+    public function getCrystals() {
+        return $this->crystals;
+    }
+
+    public function incrCrystals() {
+        $this->crystals++;
+    }
+
+    public function decrCrystals() {
+        if ($this->crystals > 0) {
+            $this->crystals--;
+
+            return true;
+        }
+
+        return false;
+    }
 
 	public function getSize() {
 		return count($this->coords);
