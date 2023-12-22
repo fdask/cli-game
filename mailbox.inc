@@ -83,6 +83,7 @@ class Mailbox {
 	 * dumps a bunch of instructions into the message queue
 	 */
 	public function addInstructions() {
+        /*
 		$this->addMessage("wasd to move (press m)");
 		$this->addMessage("'m' to move to the next message");
 		$this->addMessage("the rain is falling down");
@@ -99,5 +100,27 @@ class Mailbox {
 		$this->addMessage("'q' to quit, 'n' for new game");
 		$this->addMessage("'z' and 'c' for scroll viewport");
 		$this->addMessage("collect minerals to maintain health");
+        */
+        $this->addMessage("single line message this is.");
+        $this->addMessage(array(
+            "This is a multiline message.",
+            "We should see it on the screen",
+            "Starting at about the half way point"
+        ));
 	}
+
+    public function showKeyboardMsg() {
+        $this->addMessage(array(
+            " ",
+            "123 to change view",
+            "1: h2o (washes minerals down)",
+            "2: mineral (collect for health)",
+            "3: plant (turns to minerals)",
+            " ",
+            "m - next message",
+            "n - newgame",
+            "wasd to move",
+            " "
+        ));
+    }
 }
