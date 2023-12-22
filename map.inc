@@ -89,7 +89,6 @@ class Map {
         // points of interests apply
         echo  "checking points of interest at " . $this->player->getX() . " , " . $this->player->getY() . "\n";
         foreach ($this->pointsOfInterest as $poi) {
-            print_r($poi);
             if ($poi instanceof messageX && $this->player->getX() == $poi->getX()) {
                 $msg = $poi->getMessage();
 
