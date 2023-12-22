@@ -83,24 +83,48 @@ class Map {
         $this->pointsOfInterest[] = $poi;
     }
 
-    public function checkPointOfInterest() {
+    public function checkPointsOfInterest() {
         // using the x, y of the player, 
         // lets figure out if any of the current 
         // points of interests apply
         foreach ($this->pointsOfInterest as $poi) {
             if ($poi instanceof messageX && $this->player->getX() == $poi->getX()) {
-                
+                $msg = $poi->getMessage();
+
+                // add the message to the mailbox
+                $this->mailbox->addMessage($msg);
+                $poi->setDisplayed();
             } else if ($poi instanceof messageY && $this->player->getY() == $poi->getY()) {
+                $msg = $poi->getMessage();
 
+                // add the message to the mailbox
+                $this->mailbox->addMessage($msg);
+                $poi->setDisplayed();
             } else if ($poi instanceof messageXY && [$this->player->getX(), $this->player->getY()] == $poi->getXY()) {
+                $msg = $poi->getMessage();
 
+                // add the message to the mailbox
+                $this->mailbox->addMessage($msg);
+                $poi->setDisplayed();
+            }
+
+            if ($poi->getDisplayed()) {
+                $this->removePointOfInterest($poi);
             }
         }
     }
 
     public function removePointOfInterest($poi) {
         // remove the given object from the array
-        array_splice($poi, $this->pointsOfInterest, 1);
+        for ($x = 0; $x < count($this->pointsOfInterest); $x++) {
+            if ($this->pointsOfInterest[$x] == $poi) {
+                array_splice($this->pointsOfInterest, $x, 1);
+
+                return true;
+            }
+        }
+
+        return false;
     }
 
 	public function initialize() {
@@ -135,6 +159,9 @@ class Map {
 		for ($x = 0; $x < $this->maxRocks; $x++) {
 			$this->addRock();
 		}
+
+        // lets add in a couple points of interest!
+        $this->addPointOfInterest(new messageX(13, "We hit X of three!"));
 	}
 
 	private function initializeMap() {
@@ -462,7 +489,10 @@ class Map {
 	}
 
 	private function tick() {
-		// redraw the screen
+		// check for points of interest
+        $this->checkPointsOfInterest();
+        
+        // redraw the screen
 		echo $this;
 		
 		// we do this backwardes, otherwise stuff that moves into dirt from the sky,

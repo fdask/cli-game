@@ -57,7 +57,15 @@ trait PointOfInterest {
         $this->msg = $msg;
     }
 
-    public function __construct($msg) {
+    public function __construct($value, $msg) {
+        if ($this instanceof messageX) {
+            $this->setX($value);
+        } else if ($this instanceof messageXY) {
+            $this->setXY($value);
+        } else if ($this instanceof messageY) {
+            $this->setY($value);
+        }
+        
         $this->setMessage($msg);
         $this->displayed = false;
     }
@@ -65,5 +73,14 @@ trait PointOfInterest {
     public function setDisplayed() {
         $this->displayed = true;
     }
+
+    public function getDisplayed() {
+        return $this->displayed;
+    }
 }
+
+// my little pills are yellow
+// your little pills are green
+// lets mix them all together
+// and see just what they mean
 ?>
