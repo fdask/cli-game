@@ -389,9 +389,11 @@ class Map {
 							$this->player->coordPop();
 						}
 
-						if ($this->map[$newX][$newY]->concentration > 0) {
-							$this->player->setLife($this->map[$newX][$newY]->concentration + $this->player->getLife());
-							$this->map[$newX][$newY]->concentration = 0;
+						$concentration = $this->map[$newX][$newY]->getConcentration();
+
+						if ($concentration > 0) {
+							$this->player->setLife($concentration + $this->player->getLife());
+							$this->map[$newX][$newY]->setConcentration(0);
 						}
 
 						if ($this->player->decrLife() < 0) {
@@ -440,9 +442,11 @@ class Map {
 							$this->player->coordPop();
 						}
 
-						if ($this->map[$newX][$newY]->concentration > 0) {
-							$this->player->setLife($this->map[$newX][$newY]->concentration + $this->player->getLife());
-							$this->map[$newX][$newY]->concentration = 0;
+						$concentration = $this->map[$newX][$newY]->getConcentration();
+
+						if ($concentration > 0) {
+							$this->player->setLife($concentration + $this->player->getLife());
+							$this->map[$newX][$newY]->setConcentration(0);
 						}
 
 						if ($this->player->decrLife() < 0) {
@@ -530,10 +534,12 @@ class Map {
 							$this->player->coordPop();
 						}
 
+						$concentration = $this->map[$newX][$newY]->getConcentration();
+
 						// add any life from minerals
-						if ($this->map[$newX][$newY]->concentration > 0) {
-							$this->player->setLife($this->player->getLife() + $this->map[$newX][$newY]->concentration);
-							$this->map[$newX][$newY]->concentration = 0;
+						if ($concentration > 0) {
+							$this->player->setLife($concentration + $this->player->getLife());
+							$this->map[$newX][$newY]->setConcentration(0);
 						}
 
 						// turnly upkeep tax
@@ -572,9 +578,11 @@ class Map {
 							$this->player->coordPop();
 						}
 
-						if ($this->map[$newX][$newY]->concentration > 0) {
-							$this->player->setLife($this->map[$newX][$newY]->concentration + $this->player->getLife());
-							$this->map[$newX][$newY]->concentration = 0;
+						$concentration = $this->map[$newX][$newY]->getConcentration();
+
+						if ($concentration > 0) {
+							$this->player->setLife($concentration + $this->player->getLife());
+							$this->map[$newX][$newY]->setConcentration(0);
 						}
 
 						if ($this->player->decrLife() < 0) {
@@ -690,7 +698,7 @@ class Map {
 			$mY = rand(0, $this->mapWidth - 1);
 		} while (in_array([$mX, $mY], $existingMs));
 
-		$this->map[$mX][$mY]->concentration = rand(1, 5);
+		$this->map[$mX][$mY]->setConcentration(rand(1, 5));
 	}
 
 	private function addPlant() {
@@ -770,10 +778,15 @@ class Map {
 				$this->map[$x][$y]->wetness = 0;
 				$this->map[$newX][$newY]->wetness = $wetness - 1;
 
-				if ($this->map[$x][$y]->concentration > 0) {
-					$this->map[$x][$y]->concentration--;
+				// update dirts containing minerals
+				$concentration = $this->map[$x][$y]->getConcentration();
 
-					$this->map[$newX][$newY]->concentration++;
+				if ($concentration > 0) {
+					// current space loses a mineral
+					$this->map[$x][$y]->decrConcentration();
+
+					// space below gets a mineral
+					$this->map[$newX][$newY]->incrConcentration();
 				} 
 			} 
 		}
@@ -801,7 +814,7 @@ class Map {
 		// scan the dirt for existing minerals
 		for ($x = 0; $x < count($this->map); $x++) {
 			for ($y = 0; $y < count($this->map[0]); $y++) {
-				if ($this->map[$x][$y] instanceof Dirt && ($this->map[$x][$y]->concentration > 0)) {
+				if ($this->map[$x][$y] instanceof Dirt && ($this->map[$x][$y]->hasMinerals())) {
 					$ret[] = [$x, $y];
 				}
 			}
@@ -1098,7 +1111,7 @@ class Dirt {
 	public $wetness;
 
 	// integer representing the concentration of minerals
-	public $concentration;
+	private $concentration;
 
 	// the single ascii character dirt shows up on the map as
 	public $defaultChar;
@@ -1108,7 +1121,7 @@ class Dirt {
 
 	public function __construct($rocked = false) {
 		$this->wetness = 0;
-		$this->concentration = 0;
+		$this->setConcentration(0);
 		$this->defaultChar = ".";
 		$this->plant = null;
 	}
@@ -1124,7 +1137,7 @@ class Dirt {
 				$this->plant = null;
 
 				// add a mineral
-				$this->concentration += $maxLife;
+				$this->setConcentration($this->getConcentration() + $maxLife);
 			} else {
 				$this->plant->decrLife();
 			}
@@ -1176,11 +1189,13 @@ class Dirt {
 			}
 		} else if ($viewType == 2) {
 			// mineral view
-			if ($this->concentration > 0) {
-				if ($this->concentration > 9) {
+			$concentration = $this->getConcentration();
+
+			if ($concentration > 0) {
+				if ($concentration > 9) {
 					return "9";
 				} else {
-					return "{$this->concentration}";
+					return "$concentration";
 				}
 			} else {
 				return $this->defaultChar;
@@ -1203,8 +1218,20 @@ class Dirt {
 		return $this->wetness;
 	}
 
-	public function setConcentration($concentration) {
-		$this->concentration = $concentration;
+	public function setConcentration($c) {
+		$this->concentration = $c;
+	}
+
+	public function getConcentration() {
+		return $this->concentration;
+	}
+
+	public function incrConcentration() {
+		$this->concentration++;
+	}
+
+	public function decrConcentration() {
+		$this->concentration--;
 	}
 
 	public function __toString() {
