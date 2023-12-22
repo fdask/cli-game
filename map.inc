@@ -34,7 +34,6 @@ class Map {
 	// 2 - mineral view
 	// 3 - plant view
 	public $viewType;
-
 	// how many raindrops allowed on the map at once
 	public $maxRain;
 
@@ -47,7 +46,11 @@ class Map {
 	// whether we have enabled three screen view, or not.   toggles
 	private $threeScreen;
 
+    // an instance of the mailbox object
 	public $mailbox;
+
+    // an array of points of interest
+    public $pointsOfInterest;
 
 	public function __construct($skyHeight, $groundHeight, $vpWidth, $mapWidth, $maxRain, $maxMinerals, $player) {
 		$this->skyHeight = $skyHeight;
@@ -62,7 +65,7 @@ class Map {
 		$this->mailbox = new Mailbox();
 		$this->mailbox->addInstructions();
 		$this->charOnScreens = array(1, 2, 3);
-		
+		$this->pointsOfInterest = array();
 		$this->player = $player;
 
 		// magic numbers
@@ -374,7 +377,7 @@ class Map {
 					if (!$this->player->onCoords($newX, $newY)) {
 						if ($this->map[$newX][$newY] instanceof Rock) {
 							$tick = false;
-                            
+
                             break;
 						}
 
