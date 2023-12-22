@@ -91,7 +91,6 @@ class Map {
         // using the x, y of the player, 
         // lets figure out if any of the current 
         // points of interests apply
-        echo  "checking points of interest at " . $this->player->getX() . " , " . $this->player->getY() . "\n";
         foreach ($this->pointsOfInterest as $poi) {
             if ($poi instanceof messageX && $this->player->getX() == $poi->getX()) {
                 $msg = $poi->getMessage();
@@ -207,6 +206,12 @@ class Map {
 			$tick = true;
 
 			switch ($c) {
+                case '?':
+                    // show keyboard commands
+                    $this->mailbox->showKeyboardMsg();
+                    $tick = false;
+
+                    break;
 				case '1':
 					// switch to wetness view
 					$this->viewType = 1;
@@ -871,12 +876,28 @@ class Map {
 
 			$ret .= "\n";
 
-			// iterate the height of the map
+            // iterate the height of the map
 			for ($x = 0; $x < count($this->map); $x++) {
 				// vertical left line
 				$ret .= json_decode('"\u2502"');
 
-				// iterate the width of the viewport
+                /** MULTILINE MESSAGING **/
+                $curMsg = $this->mailbox->readCurrentMessage();
+                $curChars = array();
+
+                if (is_array($curMsg)) {
+                    // calculate how many lines it is
+                    $lines = count($curMsg);
+                    $half = floor(($this->mapHeight - $lines) / 2);
+                    
+                    if ($x >= $half && $x < $half + $lines) {
+                        // if we are within the viewport X
+                        $curLine = $curMsg[$x - $half];
+                        $curChars = str_split($curLine);
+                    }
+                }
+
+                // iterate the width of the viewport
 				// starting at vpX and going $vpWidth characters
 				// when vpy hits 30, it should be 0
 				for ($y = 0; $y < $this->vpWidth; $y++) {
@@ -887,7 +908,15 @@ class Map {
 					}
 
 					// if the player has a position here, draw that
-					if ($this->player->onCoords($x, $ypos) && in_array(1, $this->charOnScreens)) {
+                    if (!empty($curChars) && $y <= 3) {
+                        $ret .= " ";
+                    } else if (!empty($curChars) && $y > 3) {
+                        if (isset($curChars[$y - 4])) {
+                            $ret .= $curChars[$y - 4];
+                        } else {
+                            $ret .= " ";
+                        }
+                    } else if ($this->player->onCoords($x, $ypos) && in_array(1, $this->charOnScreens)) {
 						$ret .= "*";
 					} else if ($this->map[$x][$ypos] instanceof Dirt) {
 						$ret .= $this->map[$x][$ypos]->getView(1);
@@ -942,8 +971,7 @@ class Map {
 						$ypos = $ypos - $this->mapWidth;
 					}
 
-					// if the player has a position here, draw that
-					if ($this->player->onCoords($x, $ypos) && in_array(3, $this->charOnScreens)) {
+                   if ($this->player->onCoords($x, $ypos) && in_array(3, $this->charOnScreens)) {
 						$ret .= "*";
 					} else if ($this->map[$x][$ypos] instanceof Dirt) {
 						$ret .= $this->map[$x][$ypos]->getView(3);
@@ -972,8 +1000,12 @@ class Map {
 
 			$ret .= "\n";
 
+            $ret .= " " . json_decode('"\u2517"');
+
 			// message area
-			$ret .= " " . json_decode('"\u2517"') . " " . $this->mailbox->readCurrentMessage();
+            if (!is_array($this->mailbox->readCurrentMessage())) {
+			    $ret .= " " . $this->mailbox->readCurrentMessage();
+            }
 		} else {
 			// single screen
 			switch ($this->viewType) {
@@ -997,6 +1029,22 @@ class Map {
 				// vertical left line
 				$ret .= json_decode('"\u2502"');
 
+                /** MULTILINE MESSAGING **/
+                $curMsg = $this->mailbox->readCurrentMessage();
+                $curChars = array();
+ 
+                if (is_array($curMsg)) {
+                    // calculate how many lines it is
+                    $lines = count($curMsg);
+                    $half = floor(($this->mapHeight - $lines) / 2);
+                    
+                    if ($x >= $half && $x < $half + $lines) {
+                        // if we are within the viewport X
+                        $curLine = $curMsg[$x - $half];
+                        $curChars = str_split($curLine);
+                    }
+                }
+
 				// iterate the width of the viewport
 				// starting at vpX and going $vpWidth characters
 				// when vpy hits 30, it should be 0
@@ -1007,9 +1055,18 @@ class Map {
 						$ypos = $ypos - $this->mapWidth;
 					}
 
-					// if the player has a position here, draw that
-					if ($this->player->onCoords($x, $ypos) && in_array($this->viewType, $this->charOnScreens)) {
-						$ret .= "*";
+                     // if the player has a position here, draw that
+                     if (!empty($curChars) && $y <= 3) {
+                        $ret .= " ";
+                    } else if (!empty($curChars) && $y > 3) {
+                        if (isset($curChars[$y - 4])) {
+                            $ret .= $curChars[$y - 4];
+                        } else {
+                            $ret .= " ";
+                        }
+					} else if ($this->player->onCoords($x, $ypos) && in_array($this->viewType, $this->charOnScreens)) {
+						// if the player has a position here, draw that
+                        $ret .= "*";
 					} else if ($this->map[$x][$ypos] instanceof Dirt) {
 						$ret .= $this->map[$x][$ypos]->getView($this->viewType);
 					} else {
@@ -1034,8 +1091,12 @@ class Map {
 
 			$ret .= "\n";
 
+            $ret .= " " . json_decode('"\u2517"');
+
 			// message area
-			$ret .= " " . json_decode('"\u2517"') . " " . $this->mailbox->readCurrentMessage();
+            if (!is_array($this->mailbox->readCurrentMessage())) {
+			    $ret .= " " . $this->mailbox->readCurrentMessage();
+            } 
 		}
 
 		$ret .= "\n";
