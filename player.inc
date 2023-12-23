@@ -20,7 +20,7 @@ class Player {
 
 		$this->x = $x;
 		$this->y = $y;
-		$this->life = 100;
+		$this->life = 1000;
         $this->crystals = 0;
         $this->defaultChar = "*";
 		$this->headChar = "o";
@@ -92,8 +92,8 @@ class Player {
 
 		// set the x/y to the new head
 		
-		$this->setX($xy[0]);
-		$this->setY($xy[1]);
+		$this->x = $xy[0];
+		$this->y = $xy[1];
 	}
 
 	public function addFrontCoord($x, $y) {
@@ -101,7 +101,7 @@ class Player {
 	}
 
 	public function coordPop() {
-		array_pop($this->coords);
+		return array_pop($this->coords);
 	}
 	
 	public function setX($x) {
