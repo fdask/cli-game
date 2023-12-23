@@ -289,6 +289,9 @@ class Map {
                             // remove the crystal, and add to players inventory
                             $this->player->incrCrystals();
                             $this->map[$newX][$newY]->setCrystal(false);
+
+                            // magic number
+                            $this->player->setLife($this->player->getLife() + 50);
                         }
 					}
 
@@ -351,6 +354,8 @@ class Map {
                             // remove the crystal, and add to players inventory
                             $this->player->incrCrystals();
                             $this->map[$newX][$newY]->setCrystal(false);
+                            // magic number
+                            $this->player->setLife($this->player->getLife() + 50);
                         }
 					}
 					
@@ -447,6 +452,8 @@ class Map {
                             // remove the crystal, and add to players inventory
                             $this->player->incrCrystals();
                             $this->map[$newX][$newY]->setCrystal(false);
+                            // magic number
+                            $this->player->setLife($this->player->getLife() + 50);
                         }
 					}
 
@@ -499,6 +506,8 @@ class Map {
                             // remove the crystal, and add to players inventory
                             $this->player->incrCrystals();
                             $this->map[$newX][$newY]->setCrystal(false);
+                            // magic number
+                            $this->player->setLife($this->player->getLife() + 50);
                         }
 					}
 
@@ -849,6 +858,22 @@ class Map {
 		return $ret;
 	}
 
+    public function bottomBorder() {
+        $ret = "";
+
+        // bottom border for three screens
+		$ret .= json_decode('"\u2514"');
+
+        for ($y = 0; $y < $this->vpWidth; $y++) {
+            $ret .= json_decode('"\u2501"');
+        }
+
+    	$ret .= json_decode('"\u2518"');
+		$ret .= " ";
+
+        return $ret;
+    }
+
 	public function __toString() {
 		// main display subroutine
 		$ret = "Mapwidth: {$this->mapWidth} Viewport Width: {$this->vpWidth} Viewport Y: {$this->vpY} ViewType: {$this->viewType}\n";
@@ -917,7 +942,7 @@ class Map {
                             $ret .= " ";
                         }
                     } else if ($this->player->onCoords($x, $ypos) && in_array(1, $this->charOnScreens)) {
-						$ret .= "*";
+						$ret .= $this->player->getDefaultChar();
 					} else if ($this->map[$x][$ypos] instanceof Dirt) {
 						$ret .= $this->map[$x][$ypos]->getView(1);
 					} else {
@@ -945,7 +970,7 @@ class Map {
 
 					// if the player has a position here, draw that
 					if ($this->player->onCoords($x, $ypos) && in_array(2, $this->charOnScreens)) {
-						$ret .= "*";
+						$ret .= $this->player->getDefaultChar();
 					} else if ($this->map[$x][$ypos] instanceof Dirt) {
 						$ret .= $this->map[$x][$ypos]->getView(2);
 					} else {
@@ -972,7 +997,7 @@ class Map {
 					}
 
                    if ($this->player->onCoords($x, $ypos) && in_array(3, $this->charOnScreens)) {
-						$ret .= "*";
+						$ret .= $this->player->getDefaultChar();
 					} else if ($this->map[$x][$ypos] instanceof Dirt) {
 						$ret .= $this->map[$x][$ypos]->getView(3);
 					} else {
@@ -988,18 +1013,11 @@ class Map {
 
 			// bottom border for three screens
 			for ($x = 0; $x < 3; $x++) {
-				$ret .= json_decode('"\u2514"');
-
-				for ($y = 0; $y < $this->vpWidth; $y++) {
-					$ret .= json_decode('"\u2501"');
-				}
-
-				$ret .= json_decode('"\u2518"');
-				$ret .= " ";
+				$ret .= $this->bottomBorder();
 			}
 
+            // the little hang down thing for messages
 			$ret .= "\n";
-
             $ret .= " " . json_decode('"\u2517"');
 
 			// message area
@@ -1066,7 +1084,7 @@ class Map {
                         }
 					} else if ($this->player->onCoords($x, $ypos) && in_array($this->viewType, $this->charOnScreens)) {
 						// if the player has a position here, draw that
-                        $ret .= "*";
+                        $ret .= $this->player->getDefaultChar();
 					} else if ($this->map[$x][$ypos] instanceof Dirt) {
 						$ret .= $this->map[$x][$ypos]->getView($this->viewType);
 					} else {
@@ -1081,16 +1099,10 @@ class Map {
 			}
 
 			// bottom of the viewport
-			$ret .= json_decode('"\u2514"');
+			$ret .= $this->bottomBorder();
 
-			for ($y = 0; $y < $this->vpWidth; $y++) {
-				$ret .= json_decode('"\u2501"');
-			}
-
-			$ret .= json_decode('"\u2518"');
-
-			$ret .= "\n";
-
+            // little hangdown thing for messages
+			$ret .= "\n";         
             $ret .= " " . json_decode('"\u2517"');
 
 			// message area

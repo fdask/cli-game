@@ -9,6 +9,8 @@ class Player {
 
     private $crystals;
 
+    private $defaultChar;
+
 	public function __construct($x, $y) {
 		$this->coords[] = array($x, $y);
 
@@ -16,7 +18,12 @@ class Player {
 		$this->y = $y;
 		$this->life = 100;
         $this->crystals = 0;
+        $this->defaultChar = "*";
 	}
+
+    public function getDefaultChar() {
+        return $this->defaultChar;
+    }
 
     public function getCrystals() {
         return $this->crystals;
