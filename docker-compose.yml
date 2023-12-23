@@ -1,0 +1,6 @@
+version: "3"
+services:
+  server:
+    image: rain
+    stdin_open: true
+    tty: true
