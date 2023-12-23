@@ -31,7 +31,6 @@ class Plant {
 			$this->ticker = $this->ticks;
 		} else {
 			$this->ticker--;
-			echo "Decrementing ticker!\n";
 		}
 	}
 

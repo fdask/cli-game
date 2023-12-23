@@ -9,7 +9,11 @@ class Player {
 
     private $crystals;
 
+	// what to show for the body of the player
     private $defaultChar;
+
+	// what character for the head of the char
+	private $headChar;
 
 	public function __construct($x, $y) {
 		$this->coords[] = array($x, $y);
@@ -19,8 +23,13 @@ class Player {
 		$this->life = 100;
         $this->crystals = 0;
         $this->defaultChar = "*";
+		$this->headChar = "o";
 	}
 
+	public function getHeadChar() {
+		return $this->headChar;
+	}
+	
     public function getDefaultChar() {
         return $this->defaultChar;
     }
@@ -55,8 +64,14 @@ class Player {
 		$this->life = $life;
 	}
 
+	/**
+	 * decrement the players life
+	 */
 	public function decrLife() {
-		$this->life = $this->life - count($this->coords);
+		// for every 5 long, we had an additional life penalty
+		$additional = ceil(count($this->coords) / 5);
+
+		$this->life = $this->life - $additional;
 
 		return $this->life;
 	}
