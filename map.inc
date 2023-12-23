@@ -199,8 +199,8 @@ class Map {
 		$this->term = `stty -g`;
 		system("stty -icanon -echo");
 
-		$this->tick();
-
+		echo $this;
+		
 		// keypress handler
 		while ($c = fread(STDIN, 1)) {
 			$tick = true;
@@ -480,7 +480,7 @@ class Map {
 						if ($this->map[$newX][$newY] instanceof Rock) {
 							$tick = false;
 
-                            break;
+							break;
 						}
 
 						$this->player->setX($newX);
@@ -547,10 +547,7 @@ class Map {
 		// check for points of interest
         $this->checkPointsOfInterest();
         
-        // redraw the screen
-		echo $this;
-		
-		// we do this backwardes, otherwise stuff that moves into dirt from the sky,
+    	// we do this backwardes, otherwise stuff that moves into dirt from the sky,
 		// will move twice in this tick
 		$this->updateRain();
 		$this->updatePlants();
@@ -559,6 +556,9 @@ class Map {
 		$this->addRain();
 		$this->addMineral();
 		$this->addPlant();
+	
+	    // redraw the screen
+		echo $this;
 	}
 
 	public function fillMap($x1, $y1, $x2, $y2, $fillObj) {
