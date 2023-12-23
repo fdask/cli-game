@@ -41,10 +41,10 @@ class Dirt {
 				// kill the plant
 				$this->plant = null;
 
-				// add a mineral
+				// add a mineral where the dead plant was
 				$this->setConcentration($this->getConcentration() + $maxLife);
 			} else {
-				$this->plant->decrLife();
+				$this->plant->tick();
 			}
 		} 
 	}

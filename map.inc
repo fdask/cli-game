@@ -497,11 +497,14 @@ class Map {
 					$newX = $this->player->getX() - 1;
 					$newY = $this->player->getY();
 
+					// character cannot go into the sky
 					if ($newX < $this->skyHeight) {
 						$newX = $this->skyHeight;
 					}
 
+					// character cannot pass onto itself
 					if (!$this->player->onCoords($newX, $newY)) {
+						// character cannot go through a rock
 						if ($this->map[$newX][$newY] instanceof Rock) {
 							$tick = false;
 
@@ -514,6 +517,7 @@ class Map {
 							$this->player->coordPop();
 						}
 
+						// collect minerals 
 						$concentration = $this->map[$newX][$newY]->getConcentration();
 
 						if ($concentration > 0) {
@@ -521,6 +525,7 @@ class Map {
 							$this->map[$newX][$newY]->setConcentration(0);
 						}
 
+						// upkeep tax
 						if ($this->player->decrLife() < 0) {
 							$this->gameOver();
 						}
