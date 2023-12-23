@@ -1,2 +1,2 @@
 docker build . -t rain
-docker run -it rain php /usr/src/rain/main.php
+docker run -it rain
