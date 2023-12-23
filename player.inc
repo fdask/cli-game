@@ -83,6 +83,19 @@ class Player {
 		}
 	}
 
+	// put the head where the tail is
+	public function reverseCoords() {
+		// reverse the array
+		$this->coords = array_reverse($this->coords);
+
+		$xy = $this->coords[0];
+
+		// set the x/y to the new head
+		
+		$this->setX($xy[0]);
+		$this->setY($xy[1]);
+	}
+
 	public function addFrontCoord($x, $y) {
 		array_unshift($this->coords, array($x, $y));
 	}

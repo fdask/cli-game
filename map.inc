@@ -433,8 +433,9 @@ class Map {
 
 					exit;
 				case 'r':
-					// add a raindrop up to maxRain
-					$this->addRain();
+					// reverse the snake
+					$this->player->reverseCoords();
+					
 					$tick = false;
 			
 					break;
