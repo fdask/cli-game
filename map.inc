@@ -318,6 +318,8 @@ class Map {
                             // magic number
                             $this->player->setLife($this->player->getLife() + 50);
                         }
+					} else {
+						$tick = false;
 					}
 
 					break;
@@ -382,6 +384,8 @@ class Map {
                             // magic number
                             $this->player->setLife($this->player->getLife() + 50);
                         }
+					} else {
+						$tick = false;
 					}
 					
 					break;
@@ -480,6 +484,8 @@ class Map {
                             // magic number
                             $this->player->setLife($this->player->getLife() + 50);
                         }
+					} else {
+						$tick = false;
 					}
 
 					break;
@@ -539,6 +545,8 @@ class Map {
                             // magic number
                             $this->player->setLife($this->player->getLife() + 50);
                         }
+					} else {
+						$tick = false;
 					}
 
 					break;
@@ -982,7 +990,12 @@ class Map {
                             $ret .= " ";
                         }
                     } else if ($this->player->onCoords($x, $ypos) && in_array(1, $this->charOnScreens)) {
-						$ret .= $this->player->getDefaultChar();
+						// if this is the x/y, get the head char
+						if ($this->player->getX() == $x && $this->player->getY() == $ypos) {
+							$ret .= $this->player->getHeadChar();
+						} else {
+							$ret .= $this->player->getDefaultChar();
+						}
 					} else if ($this->map[$x][$ypos] instanceof Dirt) {
 						$ret .= $this->map[$x][$ypos]->getView(1);
 					} else {
@@ -1010,7 +1023,12 @@ class Map {
 
 					// if the player has a position here, draw that
 					if ($this->player->onCoords($x, $ypos) && in_array(2, $this->charOnScreens)) {
-						$ret .= $this->player->getDefaultChar();
+						// if this is the x/y, get the head char
+						if ($this->player->getX() == $x && $this->player->getY() == $ypos) {
+							$ret .= $this->player->getHeadChar();
+						} else {
+							$ret .= $this->player->getDefaultChar();
+						}
 					} else if ($this->map[$x][$ypos] instanceof Dirt) {
 						$ret .= $this->map[$x][$ypos]->getView(2);
 					} else {
@@ -1037,7 +1055,12 @@ class Map {
 					}
 
                    if ($this->player->onCoords($x, $ypos) && in_array(3, $this->charOnScreens)) {
-						$ret .= $this->player->getDefaultChar();
+						// if this is the x/y, get the head char
+						if ($this->player->getX() == $x && $this->player->getY() == $ypos) {
+							$ret .= $this->player->getHeadChar();
+						} else {
+							$ret .= $this->player->getDefaultChar();
+						}
 					} else if ($this->map[$x][$ypos] instanceof Dirt) {
 						$ret .= $this->map[$x][$ypos]->getView(3);
 					} else {
@@ -1123,8 +1146,12 @@ class Map {
                             $ret .= " ";
                         }
 					} else if ($this->player->onCoords($x, $ypos) && in_array($this->viewType, $this->charOnScreens)) {
-						// if the player has a position here, draw that
-                        $ret .= $this->player->getDefaultChar();
+						// if this is the x/y, get the head char
+						if ($this->player->getX() == $x && $this->player->getY() == $ypos) {
+							$ret .= $this->player->getHeadChar();
+						} else {
+							$ret .= $this->player->getDefaultChar();
+						}
 					} else if ($this->map[$x][$ypos] instanceof Dirt) {
 						$ret .= $this->map[$x][$ypos]->getView($this->viewType);
 					} else {
