@@ -34,14 +34,23 @@ class Map {
 	// 2 - mineral view
 	// 3 - plant view
 	public $viewType;
+
+	public $enableRain;
+
 	// how many raindrops allowed on the map at once
 	public $maxRain;
+
+	public $enableMinerals;
 
 	// how many mineral spaces to allow on the map at once
 	public $maxMinerals;
 
+	public $enablePlants;
+
 	// how many plants to allow on the map at once
 	public $maxPlants;
+
+	public $enableCrystals;
 
     // how many crystals to allow at once
     public $maxCrystals;
@@ -70,6 +79,12 @@ class Map {
 		$this->charOnScreens = array(1, 2, 3);
 		$this->pointsOfInterest = array();
 		$this->player = $player;
+
+		$this->enableRain = true;
+		$this->enableCrystals = true;
+		$this->enablePlants = true;
+		$this->enableMinerals = true;
+		$this->enableRocks = true;
 
 		// magic numbers
 		$this->maxRocks = 10;
@@ -141,33 +156,43 @@ class Map {
 		// fill in the sky
 		$this->fillMap(0, 0, $this->skyHeight, $this->mapWidth, "Sky");
 
-		// add in random rains up to maxRain
-		for ($x = 0; $x < $this->maxRain; $x++) {
-			$this->addRain();
+		if ($this->enableRain) {
+			// add in random rains up to maxRain
+			for ($x = 0; $x < $this->maxRain; $x++) {
+				$this->addRain();
+			}
 		}
 
 		// fill in the dirt
 		$this->fillMap($this->skyHeight, 0, $this->mapHeight, $this->mapWidth, "Dirt");		
 
-		// add in random minerals up to maxMinerals
-		for ($x = 0; $x < $this->maxMinerals; $x++) {
-			$this->addMineral();
+		if ($this->enableMinerals) {
+			// add in random minerals up to maxMinerals
+			for ($x = 0; $x < $this->maxMinerals; $x++) {
+				$this->addMineral();
+			}
 		}
 
 		// add in plants up to maxPlants
-		for ($x = 0; $x < $this->maxPlants; $x++) {
-			$this->addPlant();
+		if ($this->enablePlants) {
+			for ($x = 0; $x < $this->maxPlants; $x++) {
+				$this->addPlant();
+			}
 		}
 
-		// add in the rocks
-		for ($x = 0; $x < $this->maxRocks; $x++) {
-			$this->addRock();
+		if ($this->enableRocks) {
+			// add in the rocks
+			for ($x = 0; $x < $this->maxRocks; $x++) {
+				$this->addRock();
+			}
 		}
 
-        // add in the crystals
-        for ($x = 0; $x < $this->maxCrystals; $x++) {
-            $this->addCrystal();
-        }
+		if ($this->enableCrystals) {
+			// add in the crystals
+			for ($x = 0; $x < $this->maxCrystals; $x++) {
+				$this->addCrystal();
+			}
+		}
 
         // lets add in a couple points of interest!
         $this->addPointOfInterest(new messageX("We hit X of three!", 13));
@@ -200,7 +225,7 @@ class Map {
 		system("stty -icanon -echo");
 
 		echo $this;
-		
+
 		// keypress handler
 		while ($c = fread(STDIN, 1)) {
 			$tick = true;
@@ -521,7 +546,7 @@ class Map {
 
 					if (is_null($x)) {
 						break;
-					}
+						}
 
 					$y = readline("Y: ");
 
@@ -547,16 +572,26 @@ class Map {
 		// check for points of interest
         $this->checkPointsOfInterest();
         
-    	// we do this backwardes, otherwise stuff that moves into dirt from the sky,
-		// will move twice in this tick
-		$this->updateRain();
+    	$this->updateRain();
 		$this->updatePlants();
 
 		// will only add up to the maxes
-		$this->addRain();
-		$this->addMineral();
-		$this->addPlant();
-	
+		if ($this->enableRain) {
+			$this->addRain();
+		}
+
+		if ($this->enableMinerals) {
+			$this->addMineral();
+		}
+
+		if ($this->enablePlants) {
+			$this->addPlant();
+		}
+
+		if ($this->enableCrystals) {
+			$this->addCrystal();
+		}
+
 	    // redraw the screen
 		echo $this;
 	}
