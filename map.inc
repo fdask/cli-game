@@ -287,7 +287,7 @@ class Map {
 						$this->player->setY($newY);
 						
 						if ($c == 'a') {
-							$this->player->coordPop();
+							$popped = $this->player->coordPop();
 						}
 
 						$concentration = $this->map[$newX][$newY]->getConcentration();
@@ -433,8 +433,9 @@ class Map {
 
 					exit;
 				case 'r':
-					// add a raindrop up to maxRain
-					$this->addRain();
+					// reverse the snake
+					$this->player->reverseCoords();
+
 					$tick = false;
 			
 					break;
@@ -446,6 +447,7 @@ class Map {
 					$newX = $this->player->getX() + 1;
 					$newY = $this->player->getY();
 
+					// don't go below the bottom
 					if ($newX > ($this->skyHeight + $this->groundHeight) - 1) {
 						$newX = $this->skyHeight + $this->groundHeight - 1;
 					} 
@@ -617,23 +619,6 @@ class Map {
 		}	
 	}
 
-	private function getSkyRainCoords() {
-		$ret = array();
-
-		// scan the skies for existing rain
-		for ($x = 0; $x < count($this->map); $x++) {
-			for ($y = 0; $y < count($this->map[0]); $y++) {
-				if ($this->map[$x][$y] instanceof Sky) {
-					if ($this->map[$x][$y]->isWet()) {
-						$ret[] = [$x, $y];
-					}
-				}
-			}
-		}
-
-		return $ret;
-	}
-
 	private function addRain() {
 		$existingRain = $this->getSkyRainCoords();
 		$ys = array();
@@ -697,20 +682,6 @@ class Map {
 		$this->map[$this->skyHeight][$newY]->addPlant($plant);
 	}
 
-	public function getRockCoords() {
-		$ret = array();
-
-		for ($x = $this->skyHeight; $x < $this->mapHeight; $x++) {
-			for ($y = 0; $y < $this->mapWidth; $y++) {
-				if ($this->map[$x][$y] instanceof Rock) {
-					$ret[] = array($x, $y);
-				}
-			}
-		}
-
-		return $ret;
-	}
-
 	public function addRock() {
 		// look for a dirt square we can take
 		$rockCoords = $this->getRockCoords();
@@ -729,21 +700,7 @@ class Map {
 		$this->map[$newX][$newY] = $rock;
 	}
 
-    public function getCrystalCoords() {
-        $ret = array();
-
-        for ($x = $this->skyHeight; $x < $this->mapHeight; $x++) {
-            for ($y = 0; $y < $this->mapWidth; $y++) {
-                if ($this->map[$x][$y] instanceof Dirt && $this->map[$x][$y]->isCrystal()) {
-                    $ret[] = [$x, $y];
-                }
-            }
-        }
-
-        return $ret;
-    }
-
-    public function addCrystal() {
+	public function addCrystal() {
         // look for a dirt square we can take
         $cCoords = $this->getCrystalCoords();
         $rockCoords = $this->getRockCoords();
@@ -761,6 +718,96 @@ class Map {
 
         $this->map[$newX][$newY]->setCrystal(true);
     }
+
+	public function getRockCoords() {
+		$ret = array();
+
+		for ($x = $this->skyHeight; $x < $this->mapHeight; $x++) {
+			for ($y = 0; $y < $this->mapWidth; $y++) {
+				if ($this->map[$x][$y] instanceof Rock) {
+					$ret[] = array($x, $y);
+				}
+			}
+		}
+
+		return $ret;
+	}
+
+    public function getCrystalCoords() {
+        $ret = array();
+
+        for ($x = $this->skyHeight; $x < $this->mapHeight; $x++) {
+            for ($y = 0; $y < $this->mapWidth; $y++) {
+                if ($this->map[$x][$y] instanceof Dirt && $this->map[$x][$y]->isCrystal()) {
+                    $ret[] = [$x, $y];
+                }
+            }
+        }
+
+        return $ret;
+    }
+
+    private function getMineralCoords() {
+		$ret = array();
+
+		// scan the dirt for existing minerals
+		for ($x = 0; $x < count($this->map); $x++) {
+			for ($y = 0; $y < count($this->map[0]); $y++) {
+				if ($this->map[$x][$y] instanceof Dirt && ($this->map[$x][$y]->hasMinerals())) {
+					$ret[] = [$x, $y];
+				}
+			}
+		}
+
+		return $ret;	
+	}
+
+	private function getPlantCoords() {
+		$ret = array();
+
+		for ($x = 0; $x < count($this->map); $x++) {
+			for ($y = 0; $y < count($this->map[0]); $y++) {
+				if ($this->map[$x][$y] instanceof Dirt && $this->map[$x][$y]->hasPlant()) {
+					$ret[] = [$x, $y];
+				}
+			}
+		}
+
+		return $ret;
+	}
+
+	private function getRainCoords() {
+		$ret = array();
+
+		for ($x = 0; $x < count($this->map); $x++) {
+			for ($y = 0; $y < count($this->map[0]); $y++) {
+				if ($this->map[$x][$y] instanceof Rock) {
+					continue;
+				} else if ($this->map[$x][$y]->isWet()) {
+					$ret[] = [$x, $y];
+				}
+			}
+		}
+
+		return $ret;
+	}
+
+	private function getSkyRainCoords() {
+		$ret = array();
+
+		// scan the skies for existing rain
+		for ($x = 0; $x < count($this->map); $x++) {
+			for ($y = 0; $y < count($this->map[0]); $y++) {
+				if ($this->map[$x][$y] instanceof Sky) {
+					if ($this->map[$x][$y]->isWet()) {
+						$ret[] = [$x, $y];
+					}
+				}
+			}
+		}
+
+		return $ret;
+	}
 
 	private function updateRain() {
 		$raindrops = $this->getRainCoords();
@@ -819,51 +866,6 @@ class Map {
 
 			$this->map[$x][$y]->updatePlant($wetness);
 		}
-	}
-
-	private function getMineralCoords() {
-		$ret = array();
-
-		// scan the dirt for existing minerals
-		for ($x = 0; $x < count($this->map); $x++) {
-			for ($y = 0; $y < count($this->map[0]); $y++) {
-				if ($this->map[$x][$y] instanceof Dirt && ($this->map[$x][$y]->hasMinerals())) {
-					$ret[] = [$x, $y];
-				}
-			}
-		}
-
-		return $ret;	
-	}
-
-	private function getRainCoords() {
-		$ret = array();
-
-		for ($x = 0; $x < count($this->map); $x++) {
-			for ($y = 0; $y < count($this->map[0]); $y++) {
-				if ($this->map[$x][$y] instanceof Rock) {
-					continue;
-				} else if ($this->map[$x][$y]->isWet()) {
-					$ret[] = [$x, $y];
-				}
-			}
-		}
-
-		return $ret;
-	}
-
-	private function getPlantCoords() {
-		$ret = array();
-
-		for ($x = 0; $x < count($this->map); $x++) {
-			for ($y = 0; $y < count($this->map[0]); $y++) {
-				if ($this->map[$x][$y] instanceof Dirt && $this->map[$x][$y]->hasPlant()) {
-					$ret[] = [$x, $y];
-				}
-			}
-		}
-
-		return $ret;
 	}
 
 	/**

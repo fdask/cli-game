@@ -20,7 +20,7 @@ class Player {
 
 		$this->x = $x;
 		$this->y = $y;
-		$this->life = 100;
+		$this->life = 1000;
         $this->crystals = 0;
         $this->defaultChar = "*";
 		$this->headChar = "o";
@@ -83,12 +83,25 @@ class Player {
 		}
 	}
 
+	// put the head where the tail is
+	public function reverseCoords() {
+		// reverse the array
+		$this->coords = array_reverse($this->coords);
+
+		$xy = $this->coords[0];
+
+		// set the x/y to the new head
+		
+		$this->x = $xy[0];
+		$this->y = $xy[1];
+	}
+
 	public function addFrontCoord($x, $y) {
 		array_unshift($this->coords, array($x, $y));
 	}
 
 	public function coordPop() {
-		array_pop($this->coords);
+		return array_pop($this->coords);
 	}
 	
 	public function setX($x) {
