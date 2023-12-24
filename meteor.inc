@@ -26,7 +26,7 @@ class Meteor {
 
     public function __construct($dir, $speed) {
         $this->direction = $dir;
-        $this->weight = rand(5, 9);
+        $this->weight = rand(2, 7);
         $this->speed = $speed;
         $this->headChar = json_decode('"\u00a4"');
         $this->tailLeftChar = json_decode('"\u2517"');
@@ -95,5 +95,9 @@ class Meteor {
 
     public function getSpeed() {
         return $this->speed;
+    }
+
+    public function getWeight() {
+        return $this->weight;
     }
 }

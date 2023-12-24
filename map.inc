@@ -910,8 +910,10 @@ class Map {
 			$mx = $xy[0];
 			$my = $xy[1];
 			$speed = $this->meteor->getSpeed();
+			$weight = $this->meteor->getWeight();
+			$dir = $this->meteor->getDirection();
 
-			if ($this->meteor->getDirection() == "R") {
+			if ($dir == "R") {
 				// we add the speed
 				$newMy = $my + $speed;
 
@@ -919,7 +921,7 @@ class Map {
 				if ($newMy >= $this->mapWidth) {
 					$newMy = $newMy - $this->mapWidth;
 				}
-			} else if ($this->meteor->getDirection() == "L") {
+			} else if ($dir == "L") {
 				// we subtract the speed
 				$newMy = $my - $speed;
 
@@ -932,8 +934,29 @@ class Map {
 
 			if ($newMx >= $this->skyHeight) {
 				// we've crashed!
-				echo "METEOR CRASHED!\n";
-				exit;
+				$this->meteor = null;
+
+				// put the trail in!
+				for ($x = $this->skyHeight; $x < $this->skyHeight + $weight; $x++) {
+					if ($this->map[$x][$newMy] instanceof Dirt) {
+						$this->map[$x][$newMy]->setToxicity(rand(2, 7));
+						echo "Setting dirt at ($x, $newMy) toxic!\n";
+
+						if ($dir == "R") {
+							$newMy = $newMy + $speed;
+
+							if ($newMy > $this->mapWidth) {
+								$newMy = $newMy - $this->mapWidth;
+							}
+						} else {
+							$newMy = $newMy - $speed;
+
+							if ($newMy < 0) {
+								$newMy = $newMy + $this->mapWidth;
+							}
+						}
+					}
+				}
 			} else {
 				// update the positioning of the meteors
 				$this->meteor->setXY($newMx, $newMy);
@@ -1307,8 +1330,10 @@ class Map {
 							} else {
 								$ret .= $this->map[$x][$ypos];
 							}
+						} else {
+							$ret .= $this->map[$x][$ypos];
 						}
-					}
+					} 
 				}
 
 				// vertical right line
