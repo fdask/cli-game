@@ -55,7 +55,7 @@ class Meteor {
     public function getY() {
         return $this->y;
     }
-    
+
     public function getXY() {
         return [$this->getX(), $this->getY()];
     }
@@ -78,9 +78,9 @@ class Meteor {
     }
 
     public function getTailChar() {
-        if ($this->direction = "L") {
+        if ($this->direction == "L") {
             return $this->tailLeftChar;
-        } else if ($this->direction = "R") {
+        } else if ($this->direction == "R") {
             return $this->tailRightChar;
         }
     }

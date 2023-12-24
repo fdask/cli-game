@@ -930,11 +930,13 @@ class Map {
 
 			$newMx = $mx + 1;
 
-			if ($newMx > $this->skyHeight) {
+			if ($newMx >= $this->skyHeight) {
 				// we've crashed!
-
+				echo "METEOR CRASHED!\n";
+				exit;
 			} else {
 				// update the positioning of the meteors
+				$this->meteor->setXY($newMx, $newMy);
 			}
 			
 		}
