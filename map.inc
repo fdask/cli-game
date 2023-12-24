@@ -275,17 +275,6 @@ class Map {
 					$tick = false;
 
 					break;
-				case 'z':
-					// move viewport to the left
-					if ($this->vpY - 1 < 0) {
-						$this->vpY = $this->mapWidth - 1;
-					} else {
-						$this->vpY--;
-					}
-
-					$tick = false;
-
-					break;
 				case 'a': 
 					// move the character left
 				case 'A':
@@ -320,7 +309,8 @@ class Map {
 						$toxicity = $this->map[$newX][$newY]->getToxicity();
 
 						if ($toxicity > 0) {
-							$this->player->setLife($this->player->getLife() - $toxicity);
+							// magic number
+							$this->player->setLife($this->player->getLife() - ($toxicity * 10));
 							$this->map[$newX][$newY]->setToxicity(0);
 						}
 
@@ -351,11 +341,31 @@ class Map {
 
 					break;
 				case 'c':
+					$playerInWindow = false;
+
 					// move viewport to the right
-					if ($this->vpY + 1 >= $this->mapWidth) {
-						$this->vpY = 0;
-					} else {
-						$this->vpY++;
+					$y = $this->player->getY() - 1;
+
+					// count out vpWidth spaces to the right
+					for ($i = 0; $i < $this->vpWidth; $i++) {
+						$realY = $i + $this->vpY;
+
+						if ($realY >= $this->mapWidth) {
+							$realY = $realY - $this->mapWidth;
+						} 
+						
+						if ($y == $realY) {
+							$playerInWindow = true;
+							break;
+						}
+					}
+
+					if ($playerInWindow) {
+						if ($this->vpY + 1 >= $this->mapWidth) {
+							$this->vpY = 0;
+						} else {
+							$this->vpY++;
+						}
 					}
 
 					$tick = false;
@@ -394,7 +404,8 @@ class Map {
 						$toxicity = $this->map[$newX][$newY]->getToxicity();
 
 						if ($toxicity > 0) {
-							$this->player->setLife($this->player->getLife() - $toxicity);
+							// magic number
+							$this->player->setLife($this->player->getLife() - ($toxicity * 10));
 							$this->map[$newX][$newY]->setToxicity(0);
 						}
 						
@@ -423,6 +434,25 @@ class Map {
 					}
 					
 					break;
+				case 'g':
+					// debug the map here
+					$tick = false;
+
+					system("stty echo");
+					$x = readline("X: ");
+
+					if (is_null($x)) {
+						break;
+						}
+
+					$y = readline("Y: ");
+
+					system("stty -echo");
+
+					var_dump($this->map[$x][$y]);
+
+					break;
+	
 				case 'h':
 					// show/hide character on selected viewport
 					if (in_array($this->viewType, $this->charOnScreens)) {
@@ -509,7 +539,8 @@ class Map {
 						$toxicity = $this->map[$newX][$newY]->getToxicity();
 
 						if ($toxicity > 0) {
-							$this->player->setLife($this->player->getLife() - $toxicity);
+							// magic number
+							$this->player->setLife($this->player->getLife() - ($toxicity * 10));
 							$this->map[$newX][$newY]->setToxicity(0);
 						}
 						
@@ -577,7 +608,8 @@ class Map {
 						$toxicity = $this->map[$newX][$newY]->getToxicity();
 
 						if ($toxicity > 0) {
-							$this->player->setLife($this->player->getLife() - $toxicity);
+							// magic number
+							$this->player->setLife($this->player->getLife() - ($toxicity * 10));
 							$this->map[$newX][$newY]->setToxicity(0);
 						}
 						
@@ -609,23 +641,37 @@ class Map {
 					$tick = false;
 
 					break;
-				case 'g':
-					// debug the map here
-					$tick = false;
+				case 'z':
+					$playerInWindow = false;
 
-					system("stty echo");
-					$x = readline("X: ");
+					// move viewport to the left
+					$y = $this->player->getY() + 1;
 
-					if (is_null($x)) {
-						break;
+					// coun 40 squares
+					// count out vpWidth spaces to the right
+					for ($i = 0; $i < $this->vpWidth; $i++) {
+						$realY = $i + $this->vpY;
+
+						if ($realY >= $this->mapWidth) {
+							$realY = $realY - $this->mapWidth;
+						} 
+						
+						if ($y == $realY) {
+							$playerInWindow = true;
+							break;
 						}
+					}
 
-					$y = readline("Y: ");
+					if ($playerInWindow) {
+						if ($this->vpY - 1 < 0) {
+							$this->vpY = $this->mapWidth - 1;
+						} else {
+							$this->vpY--;
+						}
+					}
 
-					system("stty -echo");
-
-					var_dump($this->map[$x][$y]);
-
+					$tick = false;
+					
 					break;
 				default:
 					// do nothing here
@@ -987,8 +1033,7 @@ class Map {
 					for ($x = $this->skyHeight; $x < $this->skyHeight + $weight; $x++) {
 						if ($this->map[$x][$newMy] instanceof Dirt) {
 							$this->map[$x][$newMy]->setToxicity(rand(2, 7));
-							echo "Setting dirt at ($x, $newMy) toxic!\n";
-
+							
 							if ($dir == "R") {
 								$newMy = $newMy + $speed;
 
@@ -1214,8 +1259,20 @@ class Map {
 					} else if ($this->map[$x][$ypos] instanceof Dirt) {
 						$ret .= $this->map[$x][$ypos]->getView(1);
 					} else {
-						$ret .= $this->map[$x][$ypos];
-					}
+						if ($this->meteor && $this->meteor instanceof Meteor) {
+							if (array($x, $ypos) == $this->meteor->getXY()) {
+								// head of the meteor
+								$ret .= $this->meteor->getHeadChar();
+							} else if (in_array(array($x, $ypos), $this->meteor->getTailCoords())) {
+								// part of the tail
+								$ret .= $this->meteor->getTailChar();
+							} else {
+								$ret .= $this->map[$x][$ypos];
+							}
+						} else {
+							$ret .= $this->map[$x][$ypos];
+						}
+					} 
 				}
 
 				// vertical right line
@@ -1247,8 +1304,20 @@ class Map {
 					} else if ($this->map[$x][$ypos] instanceof Dirt) {
 						$ret .= $this->map[$x][$ypos]->getView(2);
 					} else {
-						$ret .= $this->map[$x][$ypos];
-					}
+						if ($this->meteor && $this->meteor instanceof Meteor) {
+							if (array($x, $ypos) == $this->meteor->getXY()) {
+								// head of the meteor
+								$ret .= $this->meteor->getHeadChar();
+							} else if (in_array(array($x, $ypos), $this->meteor->getTailCoords())) {
+								// part of the tail
+								$ret .= $this->meteor->getTailChar();
+							} else {
+								$ret .= $this->map[$x][$ypos];
+							}
+						} else {
+							$ret .= $this->map[$x][$ypos];
+						}
+					} 
 				}
 
 				// vertical right line
@@ -1279,9 +1348,20 @@ class Map {
 					} else if ($this->map[$x][$ypos] instanceof Dirt) {
 						$ret .= $this->map[$x][$ypos]->getView(3);
 					} else {
-						// draw the sky, the rain, etc.
-						$ret .= $this->map[$x][$ypos];
-					}
+						if ($this->meteor && $this->meteor instanceof Meteor) {
+							if (array($x, $ypos) == $this->meteor->getXY()) {
+								// head of the meteor
+								$ret .= $this->meteor->getHeadChar();
+							} else if (in_array(array($x, $ypos), $this->meteor->getTailCoords())) {
+								// part of the tail
+								$ret .= $this->meteor->getTailChar();
+							} else {
+								$ret .= $this->map[$x][$ypos];
+							}
+						} else {
+							$ret .= $this->map[$x][$ypos];
+						}
+					} 
 				}
 
 				// vertical right line
