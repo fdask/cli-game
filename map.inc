@@ -299,6 +299,24 @@ class Map {
 							$popped = $this->player->coordPop();
 						}
 
+						// collect rain
+						$wetness = $this->map[$newX][$newY]->getWetness();
+
+						if ($wetness > 0) {
+							$this->player->incrMoisture($wetness);
+							$this->map[$newX][$newY]->setWetness(0);
+
+							if ($this->player->getMoisture() >= ($this->player->getMoistureMax() * 2)) {
+								echo "YOU GOT TOO WET AND DIED\n";
+
+								$this->gameOver();
+							} else if ($this->player->getMoisture() <= ($this->player->getMoistureMax() * -2)) {
+								echo "YOU DRIED OUT AND DIED\n";
+
+								$this->gameOver();
+							}
+						}
+
 						$concentration = $this->map[$newX][$newY]->getConcentration();
 
 						if ($concentration > 0) {
@@ -392,6 +410,24 @@ class Map {
 						
 						if ($c == 'd') {
 							$this->player->coordPop();
+						}
+
+						// collect rain
+						$wetness = $this->map[$newX][$newY]->getWetness();
+
+						if ($wetness > 0) {
+							$this->player->incrMoisture($wetness);
+							$this->map[$newX][$newY]->setWetness(0);
+						}
+
+						if ($this->player->getMoisture() >= ($this->player->getMoistureMax() * 2)) {
+							echo "YOU GOT TOO WET AND DIED\n";
+
+							$this->gameOver();
+						} else if ($this->player->getMoisture() <= ($this->player->getMoistureMax() * -2)) {
+							echo "YOU DRIED OUT AND DIED\n";
+
+							$this->gameOver();
 						}
 
 						$concentration = $this->map[$newX][$newY]->getConcentration();
@@ -528,6 +564,24 @@ class Map {
 							$this->player->coordPop();
 						}
 
+						// collect rain
+						$wetness = $this->map[$newX][$newY]->getWetness();
+
+						if ($wetness > 0) {
+							$this->player->incrMoisture($wetness);
+							$this->map[$newX][$newY]->setWetness(0);
+						}
+						
+						if ($this->player->getMoisture() >= ($this->player->getMoistureMax() * 2)) {
+							echo "YOU GOT TOO WET AND DIED\n";
+
+							$this->gameOver();
+						} else if ($this->player->getMoisture() <= ($this->player->getMoistureMax() * -2)) {
+							echo "YOU DRIED OUT AND DIED\n";
+
+							$this->gameOver();
+						}
+						
 						$concentration = $this->map[$newX][$newY]->getConcentration();
 
 						// add any life from minerals
@@ -597,6 +651,24 @@ class Map {
 							$this->player->coordPop();
 						}
 
+						// collect rain
+						$wetness = $this->map[$newX][$newY]->getWetness();
+
+						if ($wetness > 0) {
+							$this->player->incrMoisture($wetness);
+							$this->map[$newX][$newY]->setWetness(0);
+						}
+						
+						if ($this->player->getMoisture() >= ($this->player->getMoistureMax() * 2)) {
+							echo "YOU GOT TOO WET AND DIED\n";
+
+							$this->gameOver();
+						} else if ($this->player->getMoisture() <= ($this->player->getMoistureMax() * -2)) {
+							echo "YOU DRIED OUT AND DIED\n";
+
+							$this->gameOver();
+						}
+
 						// collect minerals 
 						$concentration = $this->map[$newX][$newY]->getConcentration();
 
@@ -605,6 +677,7 @@ class Map {
 							$this->map[$newX][$newY]->setConcentration(0);
 						}
 						
+						// collect toxicity
 						$toxicity = $this->map[$newX][$newY]->getToxicity();
 
 						if ($toxicity > 0) {
@@ -719,6 +792,9 @@ class Map {
 				$this->addMeteor();
 			}
 		}
+
+		// mostly for moisture, mostly
+		$this->player->tick();
 
 	    // redraw the screen
 		echo $this;
@@ -1074,6 +1150,7 @@ class Map {
 			$x = $raindrop[0];
 			$y = $raindrop[1];
 
+			// raindrops move straight down.
 			$newX = $x + 1;
 			$newY = $y;
 
@@ -1084,13 +1161,36 @@ class Map {
 			} else if ($this->map[$x][$y] instanceof Sky) {
 				$this->map[$x][$y]->setWetness(0);
 
-				if ($this->map[$newX][$newY] instanceof Dirt || $this->map[$newX][$newY] instanceof Sky) {
+				if ($this->player->onCoords($newX, $newY)) {
+					//echo "rain is moving into player char at $newX, $newY\n";
+					$this->player->setMoistureTicker($this->player->getMoistureTicks());
+					$this->player->incrMoisture($wetness);
+				} else if ($this->map[$newX][$newY] instanceof Dirt || $this->map[$newX][$newY] instanceof Sky) {
                     $this->map[$newX][$newY]->setWetness($wetness);
                 }
 			} else if ($this->map[$x][$y] instanceof Dirt) {
 				$this->map[$x][$y]->setWetness(0);
 
-                if ($this->map[$newX][$newY] instanceof Dirt) {
+				// if the player is in the newX, newY,
+				// reset the moisture tick counter
+				// increase moisture by 2
+				// get all the coordinates of the character
+				if ($this->player->onCoords($newX, $newY)) {
+					// exposing variables
+					//echo "Rain is moving into player char at $newX, $newY\n";
+					$this->player->setMoistureTicker($this->player->getMoistureTicks());
+					$this->player->incrMoisture($wetness);
+
+					if ($this->player->getMoisture() >= ($this->player->getMoistureMax() * 2)) {
+						echo "YOU GOT TOO WET AND DIED\n";
+
+						$this->gameOver();
+					} else if ($this->player->getMoisture() <= ($this->player->getMoistureMax() * -2)) {
+						echo "YOU DRIED OUT AND DIED\n";
+
+						$this->gameOver();
+					}
+				} else if ($this->map[$newX][$newY] instanceof Dirt) {
 				    $this->map[$newX][$newY]->setWetness($wetness - 1);
                 }
 
@@ -1185,7 +1285,22 @@ class Map {
 	public function __toString() {
 		// main display subroutine
 		$ret = "Mapwidth: {$this->mapWidth} Viewport Width: {$this->vpWidth} Viewport Y: {$this->vpY} ViewType: {$this->viewType}\n";
-		$ret .= "Player Health: " . $this->player->getLife() . " X: " . $this->player->getX() . " Y: " . $this->player->getY() . " Crystals: " . $this->player->getCrystals() . "\n";
+		
+		$ret .= "Player Health: " . $this->player->getLife() . " ";
+		$ret .= "X: " . $this->player->getX() . " ";
+		$ret .= "Y: " . $this->player->getY() . " ";
+		$ret .= "Crystals: " . $this->player->getCrystals() . " ";
+
+		$m = $this->player->getMoisture();
+		$mx = $this->player->getMoistureMax();
+
+		if ($m >= 0) {
+			$ret .= "Moisture: $m/$mx";
+		} else {
+			$ret .= "Moisture: $m/-$mx";
+		}
+
+		$ret .= "\n";
 
 		if ($this->threeScreen) {
 			// top border for three screens)
