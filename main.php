@@ -19,6 +19,8 @@ $mapWidth = 50;
 $maxRain = 8;
 $maxMinerals = 15;
 
+echo "\n";
+
 $p = new Player($skyHeight, 20);
 $map = new Map($skyHeight, $groundHeight, $vpWidth, $mapWidth, $maxRain, $maxMinerals, $p);
 ?>

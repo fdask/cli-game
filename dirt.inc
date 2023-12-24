@@ -32,7 +32,8 @@ class Dirt {
 		$this->plant = null;
         $this->crystal = false;
 		$this->toxicity = 0;
-		$this->toxicTicks = 4;
+		$this->toxicTicks = 15;
+		$this->tticker = $this->toxicTicks;
 	}
 
 	public function isToxic() {
@@ -43,15 +44,19 @@ class Dirt {
 		return $this->toxicity = $t;
 	}
 
+	public function getToxicity() {
+		return $this->toxicity;
+	}
+
 	public function tick() {
-		if ($tticker > 0) {
-			$tticker--;
+		if ($this->tticker > 0) {
+			$this->tticker--;
 		} else {
 			$this->decrToxicity();
 			$this->tticker = $this->toxicTicks;
 		}
 	}
-	
+
 	public function decrToxicity() {
 		if ($this->toxicity > 0) {
 			$this->toxicity--;

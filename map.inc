@@ -67,6 +67,9 @@ class Map {
 	// a single meteor object, if one exists
 	public $meteor;
 
+	public $meteorTicks;
+	public $meteorTicker;
+
 	public function __construct($skyHeight, $groundHeight, $vpWidth, $mapWidth, $maxRain, $maxMinerals, $player) {
 		$this->skyHeight = $skyHeight;
 		$this->groundHeight = $groundHeight;
@@ -83,6 +86,8 @@ class Map {
 		$this->pointsOfInterest = array();
 		$this->player = $player;
 		$this->meteor = null;
+		$this->meteorTicks = 20;
+		$this->meteorTicker = 20;
 
 		$this->enableRain = true;
 		$this->enableCrystals = true;
@@ -199,8 +204,16 @@ class Map {
 			}
 		}
 
-		$this->addMeteor();
-
+		if ($this->enableMeteors) {
+			// decrement the tick.  if we're at zero, add a new one
+			if ($this->meteorTicker > 0) {
+				$this->meteorTicker--;
+			} else {
+				$this->meteorTicker = $this->meteorTicks;
+				$this->addMeteor();
+			}
+		}
+		
         // lets add in a couple points of interest!
         $this->addPointOfInterest(new messageX("We hit X of three!", 13));
         $this->addPointOfInterest(new messageXY("alert!  15-5 breached", 15, 5));
@@ -304,6 +317,13 @@ class Map {
 							$this->map[$newX][$newY]->setConcentration(0);
 						}
 
+						$toxicity = $this->map[$newX][$newY]->getToxicity();
+
+						if ($toxicity > 0) {
+							$this->player->setLife($this->player->getLife() - $toxicity);
+							$this->map[$newX][$newY]->setToxicity(0);
+						}
+
 						if ($this->player->decrLife() < 0) {
 							$this->gameOver();
 						}
@@ -371,6 +391,13 @@ class Map {
 							$this->map[$newX][$newY]->setConcentration(0);
 						}
 
+						$toxicity = $this->map[$newX][$newY]->getToxicity();
+
+						if ($toxicity > 0) {
+							$this->player->setLife($this->player->getLife() - $toxicity);
+							$this->map[$newX][$newY]->setToxicity(0);
+						}
+						
 						if ($this->player->decrLife() < 0) {
 							$this->gameOver();
 						}
@@ -479,6 +506,13 @@ class Map {
 							$this->map[$newX][$newY]->setConcentration(0);
 						}
 
+						$toxicity = $this->map[$newX][$newY]->getToxicity();
+
+						if ($toxicity > 0) {
+							$this->player->setLife($this->player->getLife() - $toxicity);
+							$this->map[$newX][$newY]->setToxicity(0);
+						}
+						
 						// turnly upkeep tax
 						if ($this->player->decrLife() < 0) {
 							$this->gameOver();
@@ -539,7 +573,14 @@ class Map {
 							$this->player->setLife($concentration + $this->player->getLife());
 							$this->map[$newX][$newY]->setConcentration(0);
 						}
+						
+						$toxicity = $this->map[$newX][$newY]->getToxicity();
 
+						if ($toxicity > 0) {
+							$this->player->setLife($this->player->getLife() - $toxicity);
+							$this->map[$newX][$newY]->setToxicity(0);
+						}
+						
 						// upkeep tax
 						if ($this->player->decrLife() < 0) {
 							$this->gameOver();
@@ -625,7 +666,12 @@ class Map {
 		}
 
 		if ($this->enableMeteors) {
-			$this->addMeteor();
+			if ($this->meteorTicker > 0) {
+				$this->meteorTicker--;
+			} else {
+				$this->meteorTicker = $this->meteorTicks;
+				$this->addMeteor();
+			}
 		}
 
 	    // redraw the screen
