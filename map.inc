@@ -553,6 +553,15 @@ class Map {
 
 					break;
 				case 'x':
+					// shrink the player down by one
+					if ($this->player->getSize() > 1) {
+						$this->player->coordPop();
+					}
+
+					$tick = false;
+
+					break;
+				case 'g':
 					// debug the map here
 					$tick = false;
 
