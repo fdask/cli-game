@@ -13,7 +13,17 @@ class Dirt {
 	// if we are topsoil and have a plant, here it is
 	public $plant;
 
+	// boolean indicate if we have a crystal here or not
     public $crystal;
+
+	// how many turns between toxicity decrementing
+	public $toxicTicks;
+
+	// toxic ticker
+	public $tticker;
+
+	// int level of toxicity
+	public $toxicity;
 
 	public function __construct($rocked = false) {
 		$this->setWetness(0);
@@ -21,6 +31,36 @@ class Dirt {
 		$this->defaultChar = ".";
 		$this->plant = null;
         $this->crystal = false;
+		$this->toxicity = 0;
+		$this->toxicTicks = 15;
+		$this->tticker = $this->toxicTicks;
+	}
+
+	public function isToxic() {
+		return $this->toxicity;
+	}
+
+	public function setToxicity($t) {
+		return $this->toxicity = $t;
+	}
+
+	public function getToxicity() {
+		return $this->toxicity;
+	}
+
+	public function tick() {
+		if ($this->tticker > 0) {
+			$this->tticker--;
+		} else {
+			$this->decrToxicity();
+			$this->tticker = $this->toxicTicks;
+		}
+	}
+
+	public function decrToxicity() {
+		if ($this->toxicity > 0) {
+			$this->toxicity--;
+		}
 	}
 
     public function isCrystal() {
@@ -103,10 +143,14 @@ class Dirt {
 				return $this->defaultChar;
 			}
 		} else if ($viewType == 3) {
-			// plant matter view
-			if (!empty($this->plant)) {
+			// plant matter (plants, crystals, toxicity) view
+			if ($this->isToxic()) {
+				// magic number
+				return "T";
+			} else if (!empty($this->plant)) {
 				return "{$this->plant}";
 			} else if ($this->isCrystal()) {
+				// magic number
                 return "C";
             } else {
 				return $this->defaultChar;
