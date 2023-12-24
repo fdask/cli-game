@@ -32,6 +32,7 @@ class Meteor {
         $this->tailLeftChar = json_decode('"\u2517"');
         $this->tailRightChar = json_decode('"\u251b"');
         $this->ticker = 3;
+        $this->ticks = 3;
         $this->tailCoords = array();
     }
 

@@ -89,7 +89,7 @@ class Map {
 		$this->enablePlants = true;
 		$this->enableMinerals = true;
 		$this->enableRocks = true;
-		$this->enableMeteors = false;
+		$this->enableMeteors = true;
 
 		// magic numbers
 		$this->maxRocks = 10;
@@ -769,7 +769,7 @@ class Map {
 		}
 
 		// add a new meteor of speed 1.
-		$this->meteor = new Meteor($dir, 1);
+		$this->meteor = new Meteor($dir, rand(1, 5));
 
 		// the x is 0 to start, but the Y is random
 		$this->meteor->setXY(0, rand(0, $this->mapWidth));
@@ -906,62 +906,73 @@ class Map {
 	private function updateMeteor() {
 		// find any meteor objects in the sky
 		if (!is_null($this->meteor) && $this->meteor instanceof Meteor) {
-			$xy = $this->meteor->getXY();
-			$mx = $xy[0];
-			$my = $xy[1];
-			$speed = $this->meteor->getSpeed();
-			$weight = $this->meteor->getWeight();
-			$dir = $this->meteor->getDirection();
+			if (!$this->meteor->tick()) {
+				$xy = $this->meteor->getXY();
+				$mx = $xy[0];
+				$my = $xy[1];
+				$speed = $this->meteor->getSpeed();
+				$weight = $this->meteor->getWeight();
+				$dir = $this->meteor->getDirection();
 
-			if ($dir == "R") {
-				// we add the speed
-				$newMy = $my + $speed;
+				if ($dir == "R") {
+					// we add the speed
+					$newMy = $my + $speed;
 
-				// if we are greater than the map width, loop around
-				if ($newMy >= $this->mapWidth) {
-					$newMy = $newMy - $this->mapWidth;
+					// if we are greater than the map width, loop around
+					if ($newMy >= $this->mapWidth) {
+						$newMy = $newMy - $this->mapWidth;
+					}
+				} else if ($dir == "L") {
+					// we subtract the speed
+					$newMy = $my - $speed;
+
+					if ($newMy < 0) {
+						$newMy = $my + $this->mapWidth;
+					}
 				}
-			} else if ($dir == "L") {
-				// we subtract the speed
-				$newMy = $my - $speed;
 
-				if ($newMy < 0) {
-					$newMy = $my + $this->mapWidth;
-				}
-			}
+				$newMx = $mx + 1;
 
-			$newMx = $mx + 1;
+				if ($newMx >= $this->skyHeight) {
+					// we've crashed!
+					$this->meteor = null;
 
-			if ($newMx >= $this->skyHeight) {
-				// we've crashed!
-				$this->meteor = null;
+					// put the trail in!
+					for ($x = $this->skyHeight; $x < $this->skyHeight + $weight; $x++) {
+						if ($this->map[$x][$newMy] instanceof Dirt) {
+							$this->map[$x][$newMy]->setToxicity(rand(2, 7));
+							echo "Setting dirt at ($x, $newMy) toxic!\n";
 
-				// put the trail in!
-				for ($x = $this->skyHeight; $x < $this->skyHeight + $weight; $x++) {
-					if ($this->map[$x][$newMy] instanceof Dirt) {
-						$this->map[$x][$newMy]->setToxicity(rand(2, 7));
-						echo "Setting dirt at ($x, $newMy) toxic!\n";
+							if ($dir == "R") {
+								$newMy = $newMy + $speed;
 
-						if ($dir == "R") {
-							$newMy = $newMy + $speed;
+								if ($newMy > $this->mapWidth) {
+									$newMy = $newMy - $this->mapWidth;
+								}
+							} else {
+								$newMy = $newMy - $speed;
 
-							if ($newMy > $this->mapWidth) {
-								$newMy = $newMy - $this->mapWidth;
-							}
-						} else {
-							$newMy = $newMy - $speed;
-
-							if ($newMy < 0) {
-								$newMy = $newMy + $this->mapWidth;
+								if ($newMy < 0) {
+									$newMy = $newMy + $this->mapWidth;
+								}
 							}
 						}
 					}
+				} else {
+					// update the positioning of the meteors
+					$this->meteor->setXY($newMx, $newMy);
 				}
-			} else {
-				// update the positioning of the meteors
-				$this->meteor->setXY($newMx, $newMy);
-			}
-			
+			}	
+		}
+
+		// decay the toxicity of any dirt squares
+		$tcs = $this->getToxicCoords();
+
+		foreach ($tcs as $xy) {
+			$x = $xy[0];
+			$y = $xy[1];
+
+			$this->map[$x][$y]->tick();
 		}
 	}
 
@@ -1023,10 +1034,6 @@ class Map {
 			$this->map[$x][$y]->updatePlant($wetness);
 		}
 	}
-
-	public function getNextMeteorXY() {
-        // based on our speed, and direction, predict the next X, Y pos.
-    }
 
 	/**
 	 * adds header of the specified length

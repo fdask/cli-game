@@ -16,6 +16,12 @@ class Dirt {
 	// boolean indicate if we have a crystal here or not
     public $crystal;
 
+	// how many turns between toxicity decrementing
+	public $toxicTicks;
+
+	// toxic ticker
+	public $tticker;
+
 	// int level of toxicity
 	public $toxicity;
 
@@ -26,6 +32,7 @@ class Dirt {
 		$this->plant = null;
         $this->crystal = false;
 		$this->toxicity = 0;
+		$this->toxicTicks = 4;
 	}
 
 	public function isToxic() {
@@ -36,6 +43,15 @@ class Dirt {
 		return $this->toxicity = $t;
 	}
 
+	public function tick() {
+		if ($tticker > 0) {
+			$tticker--;
+		} else {
+			$this->decrToxicity();
+			$this->tticker = $this->toxicTicks;
+		}
+	}
+	
 	public function decrToxicity() {
 		if ($this->toxicity > 0) {
 			$this->toxicity--;
