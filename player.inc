@@ -41,7 +41,7 @@ class Player {
 		// outside of those extremes, we either dry out, or waterlog.
 		$this->setMoisture(0);
 		$this->moistureMax = 5;
-		$this->moistureTicks = 10;
+		$this->moistureTicks = 25;
 		$this->moistureTicker = $this->moistureTicks;
 	}
 

@@ -32,7 +32,7 @@ class Dirt {
 		$this->plant = null;
         $this->crystal = false;
 		$this->toxicity = 0;
-		$this->toxicTicks = 15;
+		$this->toxicTicks = 20;
 		$this->tticker = $this->toxicTicks;
 	}
 
