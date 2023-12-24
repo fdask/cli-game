@@ -119,6 +119,7 @@ class Mailbox {
 			"m - next message",
             "q - quit game",
 			"r - reverse",
+			"x - shrink character",
 			"n - newgame",
             " "
         ));
