@@ -1,0 +1,5 @@
+{
+    "require-dev": {
+        "damianopetrungaro/php-commitizen": "^0.2.0"
+    }
+}

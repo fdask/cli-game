@@ -9,6 +9,17 @@ class Player {
 
     private $crystals;
 
+	// how wet we are
+	private $moisture;
+
+	// how many moves without water until we are LESS moist
+	private $moistureTicks;
+
+	// actual keep track of the ticker here
+	private $moistureTicker;
+
+	private $moistureMax;
+
 	// what to show for the body of the player
     private $defaultChar;
 
@@ -24,6 +35,55 @@ class Player {
         $this->crystals = 0;
         $this->defaultChar = "*";
 		$this->headChar = "o";
+
+		// moisture stuff
+		// a player can exist with +=$moistureMax.  
+		// outside of those extremes, we either dry out, or waterlog.
+		$this->setMoisture(0);
+		$this->moistureMax = 5;
+		$this->moistureTicks = 10;
+		$this->moistureTicker = $this->moistureTicks;
+	}
+
+	// every move a player makes, run some code
+	public function tick() {
+		if ($this->moistureTicker > 0) {
+			$this->moistureTicker--;
+		} else {
+			// reset the moisture ticker
+			$this->moistureTicker = $this->moistureTicks;
+
+			$this->decrMoisture();
+		}
+	}
+
+	public function incrMoisture($inc = null) {
+		if (is_null($inc)) {
+			$this->moisture++;
+		} else {
+			$this->moisture = $this->moisture + $inc;
+		}
+
+		return $this->moisture;
+	}
+
+	public function setMoistureTicker($val) {
+		$this->moistureTicker = $val;
+	}
+	
+	public function decrMoisture() {
+		return $this->moisture--;
+	}
+	public function getMoisture() {
+		return $this->moisture;
+	}
+
+	public function getMoistureTicks() {
+		return $this->moistureTicks;
+	}
+
+	public function setMoisture($m) {
+		$this->moisture = $m;
 	}
 
 	public function getHeadChar() {
@@ -37,6 +97,10 @@ class Player {
     public function getCrystals() {
         return $this->crystals;
     }
+
+	public function getMoistureMax() {
+		return $this->moistureMax;
+	}
 
     public function incrCrystals() {
         $this->crystals++;
