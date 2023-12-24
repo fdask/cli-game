@@ -93,13 +93,12 @@ class Mailbox {
 		$this->addMessage("and minerals are washed around");
 		$this->addMessage("can't go through a rock");
 		$this->addMessage("try and not be found");
-		$this->addMessage("");
+		$this->addMessage("? to show help");
 		$this->addMessage("use 1 2 or 3 keys to change view");
 		$this->addMessage("h2o, mineral, or plant view");
 		$this->addMessage("press 't' to toggle all three");
 		$this->addMessage("'h' to show or hide you");
 		$this->addMessage("on the currently selected view");
-		$this->addMessage("");
 		$this->addMessage("'q' to quit, 'n' for new game");
 		$this->addMessage("'z' and 'c' for scroll viewport");
 		$this->addMessage("collect minerals to maintain health");
@@ -113,7 +112,7 @@ class Mailbox {
             "2: mineral (collect for health)",
             "3: plant (turns to minerals)",
             " ",
-            "wasd to move",
+            "wasd to move / zc to scroll view",
 			" ",
 			"h - hide character",
 			"m - next message",

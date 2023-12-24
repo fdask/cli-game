@@ -64,6 +64,9 @@ class Map {
     // an array of points of interest
     public $pointsOfInterest;
 
+	// a single meteor object, if one exists
+	public $meteor;
+
 	public function __construct($skyHeight, $groundHeight, $vpWidth, $mapWidth, $maxRain, $maxMinerals, $player) {
 		$this->skyHeight = $skyHeight;
 		$this->groundHeight = $groundHeight;
@@ -79,12 +82,14 @@ class Map {
 		$this->charOnScreens = array(1, 2, 3);
 		$this->pointsOfInterest = array();
 		$this->player = $player;
+		$this->meteor = null;
 
 		$this->enableRain = true;
 		$this->enableCrystals = true;
 		$this->enablePlants = true;
 		$this->enableMinerals = true;
 		$this->enableRocks = true;
+		$this->enableMeteors = false;
 
 		// magic numbers
 		$this->maxRocks = 10;
@@ -193,6 +198,8 @@ class Map {
 				$this->addCrystal();
 			}
 		}
+
+		$this->addMeteor();
 
         // lets add in a couple points of interest!
         $this->addPointOfInterest(new messageX("We hit X of three!", 13));
@@ -598,6 +605,7 @@ class Map {
         
     	$this->updateRain();
 		$this->updatePlants();
+		$this->updateMeteor();
 
 		// will only add up to the maxes
 		if ($this->enableRain) {
@@ -614,6 +622,10 @@ class Map {
 
 		if ($this->enableCrystals) {
 			$this->addCrystal();
+		}
+
+		if ($this->enableMeteors) {
+			$this->addMeteor();
 		}
 
 	    // redraw the screen
@@ -650,11 +662,25 @@ class Map {
 		$this->map[0][$rainY]->setWetness(rand(1, 3));
 	}
 
+	/**
+	 * add a mineral to a dirt square
+	 */
 	private function addMineral() {
 		$existingMs = $this->getMineralCoords();
 	
 		// only allow up to maxMinerals
 		if (count($existingMs) >= $this->maxMinerals) {
+			return false;
+		}
+
+		// add existing rocks and player coordinates
+		$existingMs = array_merge($existingMs, $this->getRockCoords(), $this->player->getCoords());
+
+		$dirtHeight = $this->mapHeight - $this->skyHeight;
+
+		// if all squares are taken, go back
+		// this is our failsafe to prevent an infinite loop in the do/while below
+		if (count($existingMs) >= ($dirtHeight * $this->mapWidth)) {
 			return false;
 		}
 
@@ -727,6 +753,55 @@ class Map {
 
         $this->map[$newX][$newY]->setCrystal(true);
     }
+
+	public function addMeteor() {
+		// only one at a time!
+		if ($this->meteor && $this->meteor instanceof Meteor) {
+			return false;
+		}
+
+		$dirChance = rand(0, 1);
+
+		if ($dirChance == 0) {
+			$dir = "L";
+		} else {
+			$dir = "R";
+		}
+
+		// add a new meteor of speed 1.
+		$this->meteor = new Meteor($dir, 1);
+
+		// the x is 0 to start, but the Y is random
+		$this->meteor->setXY(0, rand(0, $this->mapWidth));
+	}
+
+	public function getDirtCoords() {
+		$ret = array();
+
+		for ($x = $this->skyHeight; $x < $this->mapHeight; $x++) {
+			for ($y = 0; $y < $this->mapWidth; $y++) {
+				if ($this->map[$x][$y] instanceof Dirt) {
+					$ret[] = array($x, $y);
+				}
+			}
+		}
+
+		return $ret;
+	}
+
+	public function getToxicCoords() {
+		$ret = array();
+
+		for ($x = $this->skyHeight; $x < $this->mapHeight; $x++) {
+			for ($y = 0; $y < $this->mapWidth; $y++) {
+				if ($this->map[$x][$y] instanceof Dirt && $this->map[$x][$y]->isToxic()) {
+					$ret[] = array($x, $y);
+				}
+			}
+		}
+
+		return $ret;
+	}
 
 	public function getRockCoords() {
 		$ret = array();
@@ -818,6 +893,53 @@ class Map {
 		return $ret;
 	}
 
+	private function getMeteorCoords() {
+		if ($this->meteor && $this->meteor instanceof Meteor) {
+			$xy = $this->meteor->getXY();
+
+			return array_merge($this->meteor->getTailCoords(), $x[0], $x[1]);
+		}
+		
+		return false;
+	}
+
+	private function updateMeteor() {
+		// find any meteor objects in the sky
+		if (!is_null($this->meteor) && $this->meteor instanceof Meteor) {
+			$xy = $this->meteor->getXY();
+			$mx = $xy[0];
+			$my = $xy[1];
+			$speed = $this->meteor->getSpeed();
+
+			if ($this->meteor->getDirection() == "R") {
+				// we add the speed
+				$newMy = $my + $speed;
+
+				// if we are greater than the map width, loop around
+				if ($newMy >= $this->mapWidth) {
+					$newMy = $newMy - $this->mapWidth;
+				}
+			} else if ($this->meteor->getDirection() == "L") {
+				// we subtract the speed
+				$newMy = $my - $speed;
+
+				if ($newMy < 0) {
+					$newMy = $my + $this->mapWidth;
+				}
+			}
+
+			$newMx = $mx + 1;
+
+			if ($newMx > $this->skyHeight) {
+				// we've crashed!
+
+			} else {
+				// update the positioning of the meteors
+			}
+			
+		}
+	}
+
 	private function updateRain() {
 		$raindrops = $this->getRainCoords();
 
@@ -876,6 +998,10 @@ class Map {
 			$this->map[$x][$y]->updatePlant($wetness);
 		}
 	}
+
+	public function getNextMeteorXY() {
+        // based on our speed, and direction, predict the next X, Y pos.
+    }
 
 	/**
 	 * adds header of the specified length
@@ -1075,6 +1201,7 @@ class Map {
 					} else if ($this->map[$x][$ypos] instanceof Dirt) {
 						$ret .= $this->map[$x][$ypos]->getView(3);
 					} else {
+						// draw the sky, the rain, etc.
 						$ret .= $this->map[$x][$ypos];
 					}
 				}
@@ -1099,7 +1226,9 @@ class Map {
 			    $ret .= " " . $this->mailbox->readCurrentMessage();
             }
 		} else {
-			// single screen
+			/**
+			 * SINGLE SCREEN VIEW STARTS HERE!
+			 */
 			switch ($this->viewType) {
 				case 2:
 					$txt = "mineral";
@@ -1166,7 +1295,17 @@ class Map {
 					} else if ($this->map[$x][$ypos] instanceof Dirt) {
 						$ret .= $this->map[$x][$ypos]->getView($this->viewType);
 					} else {
-						$ret .= $this->map[$x][$ypos];
+						if ($this->meteor && $this->meteor instanceof Meteor) {
+							if (array($x, $ypos) == $this->meteor->getXY()) {
+								// head of the meteor
+								$ret .= $this->meteor->getHeadChar();
+							} else if (in_array(array($x, $ypos), $this->meteor->getTailCoords())) {
+								// part of the tail
+								$ret .= $this->meteor->getTailChar();
+							} else {
+								$ret .= $this->map[$x][$ypos];
+							}
+						}
 					}
 				}
 
