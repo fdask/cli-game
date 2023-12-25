@@ -1,6 +1,9 @@
 <?php
 class Map {
+	// an array that holds the objects on the map
 	private $map;
+
+	// stores current term settings to restore post game
 	private $term;
 
 	// holds the player object
@@ -66,7 +69,7 @@ class Map {
 
 	// a single meteor object, if one exists
 	public $meteor;
-
+	public $enableMeteors;
 	public $meteorTicks;
 	public $meteorTicker;
 
@@ -155,6 +158,10 @@ class Map {
 
         return false;
     }
+
+	public function save() {
+		file_put_contents("rainsave", serialize($this));
+	}
 
 	public function initialize() {
 		// default to the rain view
@@ -275,6 +282,12 @@ class Map {
 					$tick = false;
 
 					break;
+				case '5':
+					// save the game
+					$this->save();
+					$tick = false;
+
+					break;
 				case 'a': 
 					// move the character left
 				case 'A':
@@ -305,17 +318,9 @@ class Map {
 						if ($wetness > 0) {
 							$this->player->incrMoisture($wetness);
 							$this->map[$newX][$newY]->setWetness(0);
-
-							if ($this->player->getMoisture() >= ($this->player->getMoistureMax() * 2)) {
-								echo "YOU GOT TOO WET AND DIED\n";
-
-								$this->gameOver();
-							} else if ($this->player->getMoisture() <= ($this->player->getMoistureMax() * -2)) {
-								echo "YOU DRIED OUT AND DIED\n";
-
-								$this->gameOver();
-							}
 						}
+
+						$this->checkPlayerMoisture();
 
 						$concentration = $this->map[$newX][$newY]->getConcentration();
 
@@ -420,15 +425,7 @@ class Map {
 							$this->map[$newX][$newY]->setWetness(0);
 						}
 
-						if ($this->player->getMoisture() >= ($this->player->getMoistureMax() * 2)) {
-							echo "YOU GOT TOO WET AND DIED\n";
-
-							$this->gameOver();
-						} else if ($this->player->getMoisture() <= ($this->player->getMoistureMax() * -2)) {
-							echo "YOU DRIED OUT AND DIED\n";
-
-							$this->gameOver();
-						}
+						$this->checkPlayerMoisture();
 
 						$concentration = $this->map[$newX][$newY]->getConcentration();
 
@@ -572,15 +569,7 @@ class Map {
 							$this->map[$newX][$newY]->setWetness(0);
 						}
 						
-						if ($this->player->getMoisture() >= ($this->player->getMoistureMax() * 2)) {
-							echo "YOU GOT TOO WET AND DIED\n";
-
-							$this->gameOver();
-						} else if ($this->player->getMoisture() <= ($this->player->getMoistureMax() * -2)) {
-							echo "YOU DRIED OUT AND DIED\n";
-
-							$this->gameOver();
-						}
+						$this->checkPlayerMoisture();
 						
 						$concentration = $this->map[$newX][$newY]->getConcentration();
 
@@ -658,17 +647,9 @@ class Map {
 							$this->player->incrMoisture($wetness);
 							$this->map[$newX][$newY]->setWetness(0);
 						}
+
+						$this->checkPlayerMoisture();
 						
-						if ($this->player->getMoisture() >= ($this->player->getMoistureMax() * 2)) {
-							echo "YOU GOT TOO WET AND DIED\n";
-
-							$this->gameOver();
-						} else if ($this->player->getMoisture() <= ($this->player->getMoistureMax() * -2)) {
-							echo "YOU DRIED OUT AND DIED\n";
-
-							$this->gameOver();
-						}
-
 						// collect minerals 
 						$concentration = $this->map[$newX][$newY]->getConcentration();
 
@@ -756,6 +737,18 @@ class Map {
 				// redraw the screen
 				echo $this;
 			}
+		}
+	}
+
+	public function checkPlayerMoisture() {
+		if ($this->player->getMoisture() >= ($this->player->getMoistureMax() * 2)) {
+			echo "YOU GOT TOO WET AND DIED\n";
+
+			$this->gameOver();
+		} else if ($this->player->getMoisture() <= ($this->player->getMoistureMax() * -2)) {
+			echo "YOU DRIED OUT AND DIED\n";
+
+			$this->gameOver();
 		}
 	}
 
@@ -1106,7 +1099,13 @@ class Map {
 					$this->meteor = null;
 
 					// put the trail in!
-					for ($x = $this->skyHeight; $x < $this->skyHeight + $weight; $x++) {
+					$target = $this->skyHeight + $weight;
+
+					if ($target > $this->mapHeight) {
+						$target = $this->mapHeight;
+					}
+
+					for ($x = $this->skyHeight; $x < $target; $x++) {
 						if ($this->map[$x][$newMy] instanceof Dirt) {
 							$this->map[$x][$newMy]->setToxicity(rand(2, 7));
 							
