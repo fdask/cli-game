@@ -11,6 +11,8 @@ class Plant {
 	public $life;
 	public $maxLife;
 
+	public $wisdom;
+
 	// a countdown
 	private $ticker;
 
@@ -21,6 +23,7 @@ class Plant {
 		$this->life = rand(5, 9);
 		$this->maxLife = $this->life;
 		$this->stage = 2;
+		$this->wisdom = 0;
 		$this->ticks = 3;
 		$this->ticker = $this->ticks;
 	}
@@ -33,20 +36,6 @@ class Plant {
 			$this->ticker--;
 		}
 	}
-
-	/*public function updatePlant($water) {
-		// this is a plant internal tick()
-		// check if we've had water recently
-		if (is_null($water)) {
-			echo "Calling tick!\n";
-			$this->tick();
-
-			if ($this->life <= 0) {
-				// character is dead
-				$this->stage = 4;
-			} 
-		}
-	}*/
 
 	public function decrLife() {
 		$this->life = $this->life - 1;
@@ -65,6 +54,7 @@ class Plant {
 	}
 
 	public function fullLife() {
+		$this->wisdom++;
 		$this->life = $this->maxLife;
 	}
 
