@@ -1088,6 +1088,16 @@ class Map {
 		return false;
 	}
 
+	private function getToxicWastePercentage() {
+		$rocks = $this->getRockCoords();
+		$toxic = $this->getToxicCoords();
+		$dirt = $this->getDirtCoords();
+
+		$ret = round((count($toxic) / (count($dirt) - count($rocks))) * 100, 1);
+
+		return $ret;
+	}
+
 	private function updateMeteor() {
 		// find any meteor objects in the sky
 		if (!is_null($this->meteor) && $this->meteor instanceof Meteor) {
@@ -1313,6 +1323,7 @@ class Map {
 		$ret .= "X: " . $this->player->getX() . " ";
 		$ret .= "Y: " . $this->player->getY() . " ";
 		$ret .= "Crystals: " . $this->player->getCrystals() . " ";
+		$ret .= "TW%: " . $this->getToxicWastePercentage() . " ";
 
 		$m = $this->player->getMoisture();
 		$mx = $this->player->getMoistureMax();
