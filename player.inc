@@ -26,6 +26,15 @@ class Player {
 	// what character for the head of the char
 	private $headChar;
 
+	// the players stats
+	public $scoreWater;
+	public $scoreMinerals;
+	public $scoreToxicWaste;
+	public $scoreMoves;
+	public $scoreGrow;
+	public $scoreShrink;
+	public $scoreCrystals;
+
 	public function __construct($x, $y) {
 		$this->coords[] = array($x, $y);
 
@@ -35,6 +44,8 @@ class Player {
         $this->crystals = 0;
         $this->defaultChar = "*";
 		$this->headChar = "o";
+		
+		$this->resetScore();
 
 		// moisture stuff
 		// a player can exist with +=$moistureMax.  
@@ -43,6 +54,38 @@ class Player {
 		$this->moistureMax = 5;
 		$this->moistureTicks = 25;
 		$this->moistureTicker = $this->moistureTicks;
+	}
+
+	public function resetScore() {
+		$this->scoreWater = 0;
+		$this->scoreMinerals = 0;
+		$this->scoreToxicWaste = 0;
+		$this->scoreMoves = 0;
+		$this->scoreGrown = 0;
+		$this->scoreShrink = 0;
+		$this->scoreCrystals = 0;
+	}
+
+	public function calculateScore() {
+		return ($this->scoreWater * 10) + ($this->scoreMinerals * 10) + ($this->scoreMoves) + ($this->scoreCrystals * 100);
+	}
+
+	// add a message with score, and details of
+	public function getScoreScreen() {
+		$scoreMsg = array(
+			"Score: " . $this->calculateScore(),
+			" ",
+			"Water: " . $this->scoreWater,
+			"Minerals: " . $this->scoreMinerals,
+			"Toxic Waste: " . $this->scoreToxicWaste,
+			"Crystals: " . $this->scoreCrystals,
+			" ",
+			"Moves: " . $this->scoreMoves,
+			"Grown: " . $this->scoreGrown,
+			"Shrunk: " . $this->scoreShrink
+		);
+
+		return $scoreMsg;
 	}
 
 	// every move a player makes, run some code
@@ -55,13 +98,17 @@ class Player {
 
 			$this->decrMoisture();
 		}
+
+		$this->scoreMoves++;
 	}
 
 	public function incrMoisture($inc = null) {
 		if (is_null($inc)) {
 			$this->moisture++;
+			$this->waterScore++;
 		} else {
 			$this->moisture = $this->moisture + $inc;
+			$this->scoreWater = $this->scoreWater + $inc;
 		}
 
 		return $this->moisture;
@@ -74,6 +121,7 @@ class Player {
 	public function decrMoisture() {
 		return $this->moisture--;
 	}
+
 	public function getMoisture() {
 		return $this->moisture;
 	}
@@ -104,6 +152,7 @@ class Player {
 
     public function incrCrystals() {
         $this->crystals++;
+		$this->scoreCrystals++;
     }
 
     public function decrCrystals() {
@@ -145,6 +194,8 @@ class Player {
 		if (!in_array([$x, $y], $this->coords)) {
 			$this->coords[] = array($x, $y);
 		}
+
+		$this->scoreGrow++;
 	}
 
 	// put the head where the tail is

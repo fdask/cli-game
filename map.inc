@@ -288,6 +288,12 @@ class Map {
 					$tick = false;
 
 					break;
+				case '9':
+					$ss = $this->player->getScoreScreen();
+					$this->mailbox->addMessageToStart($ss);
+					$tick = false;
+
+					break;
 				case 'a': 
 					// move the character left
 				case 'A':
@@ -299,6 +305,7 @@ class Map {
 						$newY = $this->mapWidth - 1;
 					} 
 					
+					// dont let player move onto themselves
 					if (!$this->player->onCoords($newX, $newY)) {
 						if ($this->map[$newX][$newY] instanceof Rock) {
                             $tick = false;
@@ -310,6 +317,8 @@ class Map {
 						
 						if ($c == 'a') {
 							$popped = $this->player->coordPop();
+						} else {
+							$this->player->scoreGrown++;
 						}
 
 						// collect rain
@@ -326,6 +335,7 @@ class Map {
 
 						if ($concentration > 0) {
 							$this->player->setLife($concentration + $this->player->getLife());
+							$this->player->scoreMinerals += $concentration;
 							$this->map[$newX][$newY]->setConcentration(0);
 						}
 
@@ -334,6 +344,7 @@ class Map {
 						if ($toxicity > 0) {
 							// magic number
 							$this->player->setLife($this->player->getLife() - ($toxicity * 10));
+							$this->player->scoreToxicWaste += $toxicity;
 							$this->map[$newX][$newY]->setToxicity(0);
 						}
 
@@ -415,6 +426,8 @@ class Map {
 						
 						if ($c == 'd') {
 							$this->player->coordPop();
+						} else {
+							$this->player->scoreGrown++;
 						}
 
 						// collect rain
@@ -431,6 +444,7 @@ class Map {
 
 						if ($concentration > 0) {
 							$this->player->setLife($concentration + $this->player->getLife());
+							$this->player->scoreMinerals += $concentration;
 							$this->map[$newX][$newY]->setConcentration(0);
 						}
 
@@ -439,6 +453,7 @@ class Map {
 						if ($toxicity > 0) {
 							// magic number
 							$this->player->setLife($this->player->getLife() - ($toxicity * 10));
+							$this->player->scoreToxicWaste += $toxicity;
 							$this->map[$newX][$newY]->setToxicity(0);
 						}
 						
@@ -559,6 +574,8 @@ class Map {
 
 						if ($c == 's') {
 							$this->player->coordPop();
+						} else {
+							$this->player->scoreGrown++;
 						}
 
 						// collect rain
@@ -576,6 +593,7 @@ class Map {
 						// add any life from minerals
 						if ($concentration > 0) {
 							$this->player->setLife($concentration + $this->player->getLife());
+							$this->player->scoreMinerals += $concentration;
 							$this->map[$newX][$newY]->setConcentration(0);
 						}
 
@@ -584,6 +602,7 @@ class Map {
 						if ($toxicity > 0) {
 							// magic number
 							$this->player->setLife($this->player->getLife() - ($toxicity * 10));
+							$this->player->scoreToxicWaste += $toxicity;
 							$this->map[$newX][$newY]->setToxicity(0);
 						}
 						
@@ -638,6 +657,8 @@ class Map {
 
 						if ($c == 'w') {
 							$this->player->coordPop();
+						} else {
+							$this->player->scoreGrown++;
 						}
 
 						// collect rain
@@ -655,6 +676,7 @@ class Map {
 
 						if ($concentration > 0) {
 							$this->player->setLife($concentration + $this->player->getLife());
+							$this->player->scoreMinerals += $concentration;
 							$this->map[$newX][$newY]->setConcentration(0);
 						}
 						
@@ -664,6 +686,7 @@ class Map {
 						if ($toxicity > 0) {
 							// magic number
 							$this->player->setLife($this->player->getLife() - ($toxicity * 10));
+							$this->player->scoreToxicWaste += $toxicity;
 							$this->map[$newX][$newY]->setToxicity(0);
 						}
 						
@@ -690,6 +713,7 @@ class Map {
 					// shrink the player down by one
 					if ($this->player->getSize() > 1) {
 						$this->player->coordPop();
+						$this->player->scoreShrink++;
 					}
 
 					$tick = false;
