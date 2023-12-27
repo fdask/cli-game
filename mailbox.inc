@@ -38,7 +38,7 @@ class Mailbox {
 		if (isset($this->messages[$this->currentMsg])) {
 			return $this->messages[$this->currentMsg];
 		} else {
-			return "";
+			return false;
 		}
 	}
 

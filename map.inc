@@ -1494,8 +1494,14 @@ class Map {
             $ret .= " " . json_decode('"\u2517"');
 
 			// message area
-            if (!is_array($this->mailbox->readCurrentMessage())) {
-			    $ret .= " " . $this->mailbox->readCurrentMessage();
+			$curMessage = $this->mailbox->readCurrentMessage();
+
+            if (!is_array($curMessage)) {
+				if ($curMessage) {
+			    	$ret .= " " . $curMessage;
+				} else {
+					$ret .= " EOF";
+				}
             }
 		} else {
 			/**
@@ -1597,8 +1603,14 @@ class Map {
             $ret .= " " . json_decode('"\u2517"');
 
 			// message area
-            if (!is_array($this->mailbox->readCurrentMessage())) {
-			    $ret .= " " . $this->mailbox->readCurrentMessage();
+			$currentMessage = $this->mailbox->readCurrentMessage();
+
+            if (!is_array($currentMessage)) {
+				if ($currentMessage) {
+			    	$ret .= " " . $currentMessage;
+				} else {
+					$ret .= " EOF";
+				}
             } 
 		}
 
