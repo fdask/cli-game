@@ -221,10 +221,11 @@ class Map {
 			}
 		}
 		
-        // lets add in a couple points of interest!
+        /* lets add in a couple points of interest!
         $this->addPointOfInterest(new messageX("We hit X of three!", 13));
         $this->addPointOfInterest(new messageXY("alert!  15-5 breached", 15, 5));
         $this->addPointOfInterest(new messageY("Y OF 32 IS WHERE WE GOOOO!", 32));
+		*/
 	}
 
 	private function initializeMap() {
@@ -825,6 +826,9 @@ class Map {
 		}	
 	}
 
+	/**
+	 * add a raindrop to the sky
+	 */
 	private function addRain() {
 		$existingRain = $this->getSkyRainCoords();
 		$ys = array();
@@ -1315,6 +1319,17 @@ class Map {
         return $ret;
     }
 
+	public function moistureDisplay() {
+		$m = $this->player->getMoisture();
+		$mx = $this->player->getMoistureMax();
+
+		if ($m >= 0) {
+			return "$m/$mx";
+		} else {
+			return "$m/-$mx";
+		}
+	}
+
 	public function __toString() {
 		// main display subroutine
 		$ret = "Mapwidth: {$this->mapWidth} Viewport Width: {$this->vpWidth} Viewport Y: {$this->vpY} ViewType: {$this->viewType}\n";
@@ -1324,16 +1339,8 @@ class Map {
 		$ret .= "Y: " . $this->player->getY() . " ";
 		$ret .= "Crystals: " . $this->player->getCrystals() . " ";
 		$ret .= "TW%: " . $this->getToxicWastePercentage() . " ";
-
-		$m = $this->player->getMoisture();
-		$mx = $this->player->getMoistureMax();
-
-		if ($m >= 0) {
-			$ret .= "Moisture: $m/$mx";
-		} else {
-			$ret .= "Moisture: $m/-$mx";
-		}
-
+		$ret .= "Moisture: " . $this->moistureDisplay() . " ";
+		
 		$ret .= "\n";
 
 		if ($this->threeScreen) {
@@ -1401,9 +1408,9 @@ class Map {
                     } else if ($this->player->onCoords($x, $ypos) && in_array(1, $this->charOnScreens)) {
 						// if this is the x/y, get the head char
 						if ($this->player->getX() == $x && $this->player->getY() == $ypos) {
-							$ret .= $this->player->getHeadChar();
+							$ret .= Colors::fg_color(Config::$playerHeadColor, $this->player->getHeadChar());
 						} else {
-							$ret .= $this->player->getDefaultChar();
+							$ret .= Colors::fg_color(Config::$playerTailColor, $this->player->getDefaultChar());
 						}
 					} else if ($this->map[$x][$ypos] instanceof Dirt) {
 						$ret .= $this->map[$x][$ypos]->getView(1);
@@ -1446,9 +1453,9 @@ class Map {
 					if ($this->player->onCoords($x, $ypos) && in_array(2, $this->charOnScreens)) {
 						// if this is the x/y, get the head char
 						if ($this->player->getX() == $x && $this->player->getY() == $ypos) {
-							$ret .= $this->player->getHeadChar();
+							$ret .= Colors::fg_color(Config::$playerHeadColor, $this->player->getHeadChar());
 						} else {
-							$ret .= $this->player->getDefaultChar();
+							$ret .= Colors::fg_color(Config::$playerTailColor, $this->player->getDefaultChar());
 						}
 					} else if ($this->map[$x][$ypos] instanceof Dirt) {
 						$ret .= $this->map[$x][$ypos]->getView(2);
@@ -1490,9 +1497,9 @@ class Map {
                    if ($this->player->onCoords($x, $ypos) && in_array(3, $this->charOnScreens)) {
 						// if this is the x/y, get the head char
 						if ($this->player->getX() == $x && $this->player->getY() == $ypos) {
-							$ret .= $this->player->getHeadChar();
+							$ret .= Colors::fg_color(Config::$playerHeadColor, $this->player->getHeadChar());
 						} else {
-							$ret .= $this->player->getDefaultChar();
+							$ret .= Colors::fg_color(Config::$playerTailColor, $this->player->getDefaultChar());
 						}
 					} else if ($this->map[$x][$ypos] instanceof Dirt) {
 						$ret .= $this->map[$x][$ypos]->getView(3);
@@ -1601,9 +1608,9 @@ class Map {
 					} else if ($this->player->onCoords($x, $ypos) && in_array($this->viewType, $this->charOnScreens)) {
 						// if this is the x/y, get the head char
 						if ($this->player->getX() == $x && $this->player->getY() == $ypos) {
-							$ret .= $this->player->getHeadChar();
+							$ret .= Colors::fg_color(Config::$playerHeadColor, $this->player->getHeadChar());
 						} else {
-							$ret .= $this->player->getDefaultChar();
+							$ret .= Colors::fg_color(Config::$playerTailColor, $this->player->getDefaultChar());
 						}
 					} else if ($this->map[$x][$ypos] instanceof Dirt) {
 						$ret .= $this->map[$x][$ypos]->getView($this->viewType);
@@ -1611,10 +1618,10 @@ class Map {
 						if ($this->meteor && $this->meteor instanceof Meteor) {
 							if (array($x, $ypos) == $this->meteor->getXY()) {
 								// head of the meteor
-								$ret .= $this->meteor->getHeadChar();
+								$ret .= Colors::fg_color(Config::$meteorHeadColor, $this->meteor->getHeadChar());
 							} else if (in_array(array($x, $ypos), $this->meteor->getTailCoords())) {
 								// part of the tail
-								$ret .= $this->meteor->getTailChar();
+								$ret .= Colors::fg_color(Config::$meteorTailColor, $this->meteor->getTailChar());
 							} else {
 								$ret .= $this->map[$x][$ypos];
 							}

@@ -122,9 +122,9 @@ class Dirt {
 
 			if ($wetness > 0) { 
 				if ($wetness > 9) {
-					return "9";
+					return Colors::fg_color(Config::$rainColor, "9");
 				} else {
-					return "$wetness";
+					return Colors::fg_color(Config::$rainColor, "$wetness");
 				}
 			} else {
 				return $this->defaultChar;
@@ -135,9 +135,13 @@ class Dirt {
 
 			if ($concentration > 0) {
 				if ($concentration > 9) {
-					return "9";
+					return Colors::fg_color(Config::$strongMineralColor, "9");
 				} else {
-					return "$concentration";
+					if ($concentration > 6) {
+						return Colors::fg_color(Config::$strongMineralColor, "$concentration");
+					} else {
+						return Colors::fg_color(Config::$mineralColor, "$concentration");
+					}
 				}
 			} else {
 				return $this->defaultChar;
@@ -146,12 +150,12 @@ class Dirt {
 			// plant matter (plants, crystals, toxicity) view
 			if ($this->isToxic()) {
 				// magic number
-				return "T";
+				return Colors::fg_color(Config::$toxicWasteColor, "T");
 			} else if (!empty($this->plant)) {
 				return "{$this->plant}";
 			} else if ($this->isCrystal()) {
 				// magic number
-                return "C";
+                return Colors::fg_color(Config::$crystalColor, "C");
             } else {
 				return $this->defaultChar;
 			}
