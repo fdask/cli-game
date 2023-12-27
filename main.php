@@ -11,6 +11,8 @@ include 'sky.inc';
 include 'plant.inc';
 include 'poi.inc';
 include 'meteor.inc';
+include 'colors.inc';
+include 'config.inc';
 
 $skyHeight = 10;
 $groundHeight = 15;
@@ -19,6 +21,9 @@ $mapWidth = 50;
 $maxRain = 8;
 $maxMinerals = 15;
 
+Colors::all_fg();
+Colors::all_bg();
+//exit;
 echo "\n";
 
 if (file_exists("rainsave")) {

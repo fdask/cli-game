@@ -12,7 +12,7 @@ class Sky {
 
 	public function __toString() {
 		if ($this->isWet()) {
-			return "|";
+			return Colors::fg_color('blue', "|");
 		} else {
 			return $this->defaultChar;	
 		}
