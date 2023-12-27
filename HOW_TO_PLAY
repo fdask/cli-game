@@ -43,13 +43,15 @@ Rocks are immovable, and impassable.
 
 ### Toxic Waste
 
+Shown as a 'T' in plant view.
+
 Dirt squares become toxic when a meteor crashes into them.
 Passing through toxic dirt, harms the player character 
 (decreases health), but also removes it.
 
 ### Rain
 
-Shown as | in the sky.  Passes moisture to the dirt
+Shown as | in the sky (all views).  Passes moisture to the dirt
 it lands on.
 
 ### Plants
@@ -60,20 +62,21 @@ Plants are shown in the plant view as a number from 1-9 representing
 the plants health.  Without water, a plant gradually dies,
 eventually breaking down into minerals in the dirt.
 
-Every time a plant is restored to full health (by hitting water),
+Every time a plant is restored to full health (hit by rain),
 it grows more wise.
 
 ### Minerals
 
 Minerals, shown in the mineral view as a number from 1-9 representing
-the concentration of it, are key to staying alive for long times.
+the concentration, are key to staying alive for long times.
 
-The player absorbs any minerals it touches, turning them points, and
-a health bonus.
+The player absorbs any minerals it touches, and gets a health bonus
+equal to the concentration absorbed.
 
 ### Crystals
 
-Crystals appear randomly in the depths of the soil.
+Crystals appear randomly in the depths of the soil.  They
+are shown in 
 
 Collect as many of them as you can, as they are great
 for your score (and health!).
