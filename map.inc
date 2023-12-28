@@ -1342,10 +1342,10 @@ class Map {
 						if ($this->meteor && $this->meteor instanceof Meteor) {
 							if (array($x, $ypos) == $this->meteor->getXY()) {
 								// head of the meteor
-								$ret .= $this->meteor->getHeadChar();
+								$ret .= Colors::fg_color(Config::$meteorHeadColor, $this->meteor->getHeadChar());
 							} else if (in_array(array($x, $ypos), $this->meteor->getTailCoords())) {
 								// part of the tail
-								$ret .= $this->meteor->getTailChar();
+								$ret .= Colors::fg_color(Config::$meteorTailColor, $this->meteor->getTailChar());
 							} else {
 								$ret .= $this->map[$x][$ypos];
 							}
@@ -1387,10 +1387,10 @@ class Map {
 						if ($this->meteor && $this->meteor instanceof Meteor) {
 							if (array($x, $ypos) == $this->meteor->getXY()) {
 								// head of the meteor
-								$ret .= $this->meteor->getHeadChar();
+								$ret .= Colors::fg_color(Config::$meteorHeadColor, $this->meteor->getHeadChar());
 							} else if (in_array(array($x, $ypos), $this->meteor->getTailCoords())) {
 								// part of the tail
-								$ret .= $this->meteor->getTailChar();
+								$ret .= Colors::fg_color(Config::$meteorTailColor, $this->meteor->getTailChar());
 							} else {
 								$ret .= $this->map[$x][$ypos];
 							}
@@ -1431,10 +1431,10 @@ class Map {
 						if ($this->meteor && $this->meteor instanceof Meteor) {
 							if (array($x, $ypos) == $this->meteor->getXY()) {
 								// head of the meteor
-								$ret .= $this->meteor->getHeadChar();
+								$ret .= Colors::fg_color(Config::$meteorHeadColor, $this->meteor->getHeadChar());
 							} else if (in_array(array($x, $ypos), $this->meteor->getTailCoords())) {
 								// part of the tail
-								$ret .= $this->meteor->getTailChar();
+								$ret .= Colors::fg_color(Config::$meteorTailColor, $this->meteor->getTailChar());
 							} else {
 								$ret .= $this->map[$x][$ypos];
 							}
