@@ -54,7 +54,7 @@ class Map {
 		$this->mailbox = new Mailbox();
 		$this->mailbox->addInstructions();
 		
-		$this->player = new Player($this->level->skyHeight, 0);
+		$this->player = new Player($this->level->skyHeight, floor($this->level->vpWidth / 2));
 		
 		$this->initialize();
 		$this->gameLoop();
