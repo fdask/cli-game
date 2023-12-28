@@ -32,7 +32,8 @@ class messageY {
         $this->setMessage($msg);
         $this->displayed = false;
     }
-public function getY() {
+
+    public function getY() {
         return $this->y;
     }
 

@@ -45,7 +45,9 @@ Rocks are immovable, and impassable.
 
 Dirt squares become toxic when a meteor crashes into them.
 Passing through toxic dirt, harms the player character 
-(decreases health), but also removes it.
+(decreases health), but also clear out the toxicity.
+
+Toxic waste is shown in the plant view as a 'T'.
 
 ### Rain
 
@@ -62,6 +64,9 @@ eventually breaking down into minerals in the dirt.
 
 Every time a plant is restored to full health (by hitting water),
 it grows more wise.
+
+At a certain point, a long living plant will become enlightened.
+These plants will be shown as glowing (on the plant view).
 
 ### Minerals
 

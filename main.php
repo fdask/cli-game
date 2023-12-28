@@ -13,24 +13,42 @@ include 'poi.inc';
 include 'meteor.inc';
 include 'colors.inc';
 include 'config.inc';
+include 'level.inc';
 
-$skyHeight = 10;
-$groundHeight = 15;
-$vpWidth = 40;
-$mapWidth = 50;
-$maxRain = 8;
-$maxMinerals = 15;
+/* generate a default level 
+$ret = array(
+    'mapWidth' => 60,
+    'mapHeight' => 18,
+    'vpWidth' => 30,
+    'skyHeight' => 8,
+    'enableRocks' => true,
+    'maxRocks' => 15,
+    'enableRain' => true,
+    'maxRain' => 7,
+    'enableMinerals' => true,
+    'maxMinerals' => 10,
+    'enablePlants' => true,
+    'maxPlants' => 8,
+    'enableCrystals' => true,
+    'maxCrystals' => 15,
+    'enableMeteors' => true,
+    'meteorTicks' => 15
+);
 
-Colors::all_fg();
-Colors::all_bg();
-//exit;
+$l = new Level();
+$l->takeArray($ret);
+$l->saveToJSON("level1.dat");
+
+exit;
+*/
+
+// GAME START
 echo "\n";
 
 if (file_exists("rainsave")) {
     $map = unserialize(file_get_contents("rainsave"));
     $map->gameLoop();
 } else {
-    $p = new Player($skyHeight, 20);
-    $map = new Map($skyHeight, $groundHeight, $vpWidth, $mapWidth, $maxRain, $maxMinerals, $p);
+    $map = new Map(Config::$defaultLevelFile);
 }
 ?>

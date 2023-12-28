@@ -1,5 +1,24 @@
 <?php
 class Config {
+    // initial map
+    public static $defaultLevelFile = "level1.dat";
+
+    // basic map settings
+    public static $defaultSkyHeight = 10;
+    public static $defaultGroundHeight = 15;
+    public static $defaultVpWidth = 30;
+    public static $defaultMapWidth = 60;
+
+    // level environment setting defaults
+    public static $defaultMaxRocks = 10;
+    public static $defaultMaxRain = 2;
+    public static $defaultMaxMinerals = 10;
+    public static $defaultMaxPlants = 7;
+    public static $defaultMaxCrystals = 5;
+    public static $defaultMeteorTicks = 10;
+
+
+    // color data
     public static $rainColor = 'blue';
 
     public static $mineralColor = 'brown';
@@ -17,4 +36,5 @@ class Config {
 
     public static $plantColor = 'green';
     public static $enlightenedPlantColor = 'green';
+
 }

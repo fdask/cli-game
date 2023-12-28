@@ -9,23 +9,8 @@ class Map {
 	// holds the player object
 	public $player;
 
-	// how much sky on the map
-	public $skyHeight;
-
-	// how deep is the dirt
-	public $groundHeight;
-
-	// how wide is the viewport
-	public $vpWidth;
-
 	// the starting y position of the viewport
 	public $vpY;
-
-	// how wide is the total map	
-	public $mapWidth;
-
-	// how high is the map (hehehe)
-	public $mapHeight;
 
 	// an array holding the integers 1-3 
 	// to indicate whether char shows on
@@ -38,88 +23,48 @@ class Map {
 	// 3 - plant view
 	public $viewType;
 
-	public $enableRain;
-
-	// how many raindrops allowed on the map at once
-	public $maxRain;
-
-	public $enableMinerals;
-
-	// how many mineral spaces to allow on the map at once
-	public $maxMinerals;
-
-	public $enablePlants;
-
-	// how many plants to allow on the map at once
-	public $maxPlants;
-
-	public $enableCrystals;
-
-    // how many crystals to allow at once
-    public $maxCrystals;
-
 	// whether we have enabled three screen view, or not.   toggles
 	private $threeScreen;
 
     // an instance of the mailbox object
 	public $mailbox;
 
-    // an array of points of interest
-    public $pointsOfInterest;
-
 	// a single meteor object, if one exists
 	public $meteor;
-	public $enableMeteors;
-	public $meteorTicks;
+
+	// countdown to launch
 	public $meteorTicker;
 
-	public function __construct($skyHeight, $groundHeight, $vpWidth, $mapWidth, $maxRain, $maxMinerals, $player) {
-		$this->skyHeight = $skyHeight;
-		$this->groundHeight = $groundHeight;
-		$this->mapHeight = $groundHeight + $skyHeight;
-		$this->vpWidth = $vpWidth;
-		$this->mapWidth = $mapWidth;
-		$this->maxRain = $maxRain;
-		$this->maxMinerals = $maxMinerals;
+	// the level data goes here
+	public $level;
+
+	public function __construct($filename = null) {
+		if (!is_null($filename)) {
+			$this->level = new Level($filename);
+		} else {
+			$this->level = new Level();
+		}
+
+		// screen settings
+		$this->viewType = 1;
         $this->vpY = 0;
 		$this->threeScreen = false;
+		$this->charOnScreens = array(1, 2, 3);
+
 		$this->mailbox = new Mailbox();
 		$this->mailbox->addInstructions();
-		$this->charOnScreens = array(1, 2, 3);
-		$this->pointsOfInterest = array();
-		$this->player = $player;
-		$this->meteor = null;
-		$this->meteorTicks = 20;
-		$this->meteorTicker = 20;
-
-		$this->enableRain = true;
-		$this->enableCrystals = true;
-		$this->enablePlants = true;
-		$this->enableMinerals = true;
-		$this->enableRocks = true;
-		$this->enableMeteors = true;
-
-		// magic numbers
-		$this->maxRocks = 10;
-		$this->maxPlants = 5;
-        $this->maxCrystals = 3;
-
+		
+		$this->player = new Player($this->level->skyHeight, 0);
+		
 		$this->initialize();
 		$this->gameLoop();
 	}
-
-    /**
-     * adds a new point of interest object into the array
-     */
-    public function addPointOfInterest($poi) {
-        $this->pointsOfInterest[] = $poi;
-    }
 
     public function checkPointsOfInterest() {
         // using the x, y of the player, 
         // lets figure out if any of the current 
         // points of interests apply
-        foreach ($this->pointsOfInterest as $poi) {
+        foreach ($this->level->pointsOfInterest as $poi) {
             if ($poi instanceof messageX && $this->player->getX() == $poi->getX()) {
                 $msg = $poi->getMessage();
 
@@ -146,94 +91,73 @@ class Map {
         }
     }
 
-    public function removePointOfInterest($poi) {
-        // remove the given object from the array
-        for ($x = 0; $x < count($this->pointsOfInterest); $x++) {
-            if ($this->pointsOfInterest[$x] == $poi) {
-                array_splice($this->pointsOfInterest, $x, 1);
-
-                return true;
-            }
-        }
-
-        return false;
-    }
 
 	public function save() {
 		file_put_contents("rainsave", serialize($this));
 	}
 
 	public function initialize() {
-		// default to the rain view
-		$this->viewType = 1;
-
 		// initialize the map array
 		$this->initializeMap();
 
 		// fill in the sky
-		$this->fillMap(0, 0, $this->skyHeight, $this->mapWidth, "Sky");
+		$this->fillMap(0, 0, $this->level->skyHeight, $this->level->mapWidth, "Sky");
 
-		if ($this->enableRain) {
+		if ($this->level->enableRain) {
 			// add in random rains up to maxRain
-			for ($x = 0; $x < $this->maxRain; $x++) {
+			for ($x = 0; $x < $this->level->maxRain; $x++) {
 				$this->addRain();
 			}
 		}
 
 		// fill in the dirt
-		$this->fillMap($this->skyHeight, 0, $this->mapHeight, $this->mapWidth, "Dirt");		
+		$this->fillMap($this->level->skyHeight, 0, $this->level->mapHeight, $this->level->mapWidth, "Dirt");		
 
-		if ($this->enableMinerals) {
+		if ($this->level->enableMinerals) {
 			// add in random minerals up to maxMinerals
-			for ($x = 0; $x < $this->maxMinerals; $x++) {
+			for ($x = 0; $x < $this->level->maxMinerals; $x++) {
 				$this->addMineral();
 			}
 		}
 
 		// add in plants up to maxPlants
-		if ($this->enablePlants) {
-			for ($x = 0; $x < $this->maxPlants; $x++) {
+		if ($this->level->enablePlants) {
+			for ($x = 0; $x < $this->level->maxPlants; $x++) {
 				$this->addPlant();
 			}
 		}
 
-		if ($this->enableRocks) {
+		if ($this->level->enableRocks) {
 			// add in the rocks
-			for ($x = 0; $x < $this->maxRocks; $x++) {
+			for ($x = 0; $x < $this->level->maxRocks; $x++) {
 				$this->addRock();
 			}
 		}
 
-		if ($this->enableCrystals) {
+		if ($this->level->enableCrystals) {
 			// add in the crystals
-			for ($x = 0; $x < $this->maxCrystals; $x++) {
+			for ($x = 0; $x < $this->level->maxCrystals; $x++) {
 				$this->addCrystal();
 			}
 		}
 
-		if ($this->enableMeteors) {
+		if ($this->level->enableMeteors) {
 			// decrement the tick.  if we're at zero, add a new one
 			if ($this->meteorTicker > 0) {
 				$this->meteorTicker--;
 			} else {
-				$this->meteorTicker = $this->meteorTicks;
+				$this->meteorTicker = $this->level->meteorTicks;
 				$this->addMeteor();
 			}
 		}
-		
-        /* lets add in a couple points of interest!
-        $this->addPointOfInterest(new messageX("We hit X of three!", 13));
-        $this->addPointOfInterest(new messageXY("alert!  15-5 breached", 15, 5));
-        $this->addPointOfInterest(new messageY("Y OF 32 IS WHERE WE GOOOO!", 32));
-		*/
 	}
 
 	private function initializeMap() {
 		// fills the map array out with falses
 		$this->map = array();
 
-		for ($x = 0; $x < ($this->skyHeight + $this->groundHeight); $x++) {
-			for ($y = 0; $y < $this->mapWidth; $y++) {
+		for ($x = 0; $x < ($this->level->mapHeight); $x++) {
+			for ($y = 0; $y < $this->level->mapWidth; $y++) {
 				$this->map[$x][$y] = false;
 			}
 		}
@@ -303,7 +227,7 @@ class Map {
 					$newY = $this->player->getY() - 1;
 
 					if ($newY < 0) {
-						$newY = $this->mapWidth - 1;
+						$newY = $this->level->mapWidth - 1;
 					} 
 					
 					// dont let player move onto themselves
@@ -355,7 +279,7 @@ class Map {
 
 						// move viewport to the left
 						if ($this->vpY - 1 < 0) {
-							$this->vpY = $this->mapWidth - 1;
+							$this->vpY = $this->level->mapWidth - 1;
 						} else {
 							$this->vpY--;
 						}
@@ -382,11 +306,11 @@ class Map {
 					$y = $this->player->getY() - 1;
 
 					// count out vpWidth spaces to the right
-					for ($i = 0; $i < $this->vpWidth; $i++) {
+					for ($i = 0; $i < $this->level->vpWidth; $i++) {
 						$realY = $i + $this->vpY;
 
-						if ($realY >= $this->mapWidth) {
-							$realY = $realY - $this->mapWidth;
+						if ($realY >= $this->level->mapWidth) {
+							$realY = $realY - $this->level->mapWidth;
 						} 
 						
 						if ($y == $realY) {
@@ -396,7 +320,7 @@ class Map {
 					}
 
 					if ($playerInWindow) {
-						if ($this->vpY + 1 >= $this->mapWidth) {
+						if ($this->vpY + 1 >= $this->level->mapWidth) {
 							$this->vpY = 0;
 						} else {
 							$this->vpY++;
@@ -413,7 +337,7 @@ class Map {
 					$newX = $this->player->getX();
 					$newY = $this->player->getY() + 1;
 
-					if ($newY > $this->mapWidth - 1) {
+					if ($newY > $this->level->mapWidth - 1) {
 						$newY = 0;
 					} 
 					
@@ -463,7 +387,7 @@ class Map {
 						}
 
 						// move viewport to the right
-						if ($this->vpY + 1 >= $this->mapWidth) {
+						if ($this->vpY + 1 >= $this->level->mapWidth) {
 							$this->vpY = 0;
 						} else {
 							$this->vpY++;
@@ -561,8 +485,8 @@ class Map {
 					$newY = $this->player->getY();
 
 					// don't go below the bottom
-					if ($newX > ($this->skyHeight + $this->groundHeight) - 1) {
-						$newX = $this->skyHeight + $this->groundHeight - 1;
+					if ($newX > $this->level->mapHeight - 1) {
+						$newX = $this->level->mapHeight - 1;
 					} 
 					
 					if (!$this->player->onCoords($newX, $newY)) {
@@ -641,8 +565,8 @@ class Map {
 					$newY = $this->player->getY();
 
 					// character cannot go into the sky
-					if ($newX < $this->skyHeight) {
-						$newX = $this->skyHeight;
+					if ($newX < $this->level->skyHeight) {
+						$newX = $this->level->skyHeight;
 					}
 
 					// character cannot pass onto itself
@@ -728,11 +652,11 @@ class Map {
 
 					// coun 40 squares
 					// count out vpWidth spaces to the right
-					for ($i = 0; $i < $this->vpWidth; $i++) {
+					for ($i = 0; $i < $this->level->vpWidth; $i++) {
 						$realY = $i + $this->vpY;
 
-						if ($realY >= $this->mapWidth) {
-							$realY = $realY - $this->mapWidth;
+						if ($realY >= $this->level->mapWidth) {
+							$realY = $realY - $this->level->mapWidth;
 						} 
 						
 						if ($y == $realY) {
@@ -743,7 +667,7 @@ class Map {
 
 					if ($playerInWindow) {
 						if ($this->vpY - 1 < 0) {
-							$this->vpY = $this->mapWidth - 1;
+							$this->vpY = $this->level->mapWidth - 1;
 						} else {
 							$this->vpY--;
 						}
@@ -786,27 +710,27 @@ class Map {
 		$this->updateMeteor();
 
 		// will only add up to the maxes
-		if ($this->enableRain) {
+		if ($this->level->enableRain) {
 			$this->addRain();
 		}
 
-		if ($this->enableMinerals) {
+		if ($this->level->enableMinerals) {
 			$this->addMineral();
 		}
 
-		if ($this->enablePlants) {
+		if ($this->level->enablePlants) {
 			$this->addPlant();
 		}
 
-		if ($this->enableCrystals) {
+		if ($this->level->enableCrystals) {
 			$this->addCrystal();
 		}
 
-		if ($this->enableMeteors) {
+		if ($this->level->enableMeteors) {
 			if ($this->meteorTicker > 0) {
 				$this->meteorTicker--;
 			} else {
-				$this->meteorTicker = $this->meteorTicks;
+				$this->meteorTicker = $this->level->meteorTicks;
 				$this->addMeteor();
 			}
 		}
@@ -834,7 +758,7 @@ class Map {
 		$ys = array();
 
 		// only allow rain up to maxRain
-		if (count($existingRain) >= $this->maxRain) {
+		if (count($existingRain) >= $this->level->maxRain) {
 			return false;
 		}
 
@@ -858,25 +782,25 @@ class Map {
 		$existingMs = $this->getMineralCoords();
 	
 		// only allow up to maxMinerals
-		if (count($existingMs) >= $this->maxMinerals) {
+		if (count($existingMs) >= $this->level->maxMinerals) {
 			return false;
 		}
 
 		// add existing rocks and player coordinates
 		$existingMs = array_merge($existingMs, $this->getRockCoords(), $this->player->getCoords());
 
-		$dirtHeight = $this->mapHeight - $this->skyHeight;
+		$dirtHeight = $this->level->mapHeight - $this->level->skyHeight;
 
 		// if all squares are taken, go back
 		// this is our failsafe to prevent an infinite loop in the do/while below
-		if (count($existingMs) >= ($dirtHeight * $this->mapWidth)) {
+		if (count($existingMs) >= ($dirtHeight * $this->level->mapWidth)) {
 			return false;
 		}
 
 		// find a random unoccupied x,y value
 		do {
-			$mX = rand($this->skyHeight, $this->skyHeight + $this->groundHeight - 1);
-			$mY = rand(0, $this->mapWidth - 1);
+			$mX = rand($this->level->skyHeight, $this->level->mapHeight - 1);
+			$mY = rand(0, $this->level->mapWidth - 1);
 		} while (in_array([$mX, $mY], $existingMs));
 
 		$this->map[$mX][$mY]->setConcentration(rand(1, 5));
@@ -886,7 +810,7 @@ class Map {
 		// which dirt coords already have plants?
 		$plantCoords = $this->getPlantCoords();
 
-		if (count($plantCoords) >= $this->maxPlants) {
+		if (count($plantCoords) >= $this->level->maxPlants) {
 			return false;
 		}
 
@@ -897,26 +821,26 @@ class Map {
 		}
 
 		do {
-			$newY = rand(0, $this->mapWidth - 1);
-		} while (in_array($newY, $ys) || $this->map[$this->skyHeight][$newY] instanceof Rock);
+			$newY = rand(0, $this->level->mapWidth - 1);
+		} while (in_array($newY, $ys) || $this->map[$this->level->skyHeight][$newY] instanceof Rock);
 
 		// create the new plan
 		$plant = new Plant();
 
-		$this->map[$this->skyHeight][$newY]->addPlant($plant);
+		$this->map[$this->level->skyHeight][$newY]->addPlant($plant);
 	}
 
 	public function addRock() {
 		// look for a dirt square we can take
 		$rockCoords = $this->getRockCoords();
 
-		if (count($rockCoords) >= $this->maxRocks) {
+		if (count($rockCoords) >= $this->level->maxRocks) {
 			return false;
 		}
 		
 		do {
-			$newX = rand($this->skyHeight, $this->mapHeight - 1);
-			$newY = rand(0, $this->vpWidth - 1);
+			$newX = rand($this->level->skyHeight, $this->level->mapHeight - 1);
+			$newY = rand(0, $this->level->vpWidth - 1);
 		} while (in_array([$newX, $newY], $rockCoords));
 
 		$rock = new Rock();
@@ -929,15 +853,15 @@ class Map {
         $cCoords = $this->getCrystalCoords();
         $rockCoords = $this->getRockCoords();
 
-        if (count($cCoords) >= $this->maxCrystals) {
+        if (count($cCoords) >= $this->level->maxCrystals) {
             return false;
         }
 
         $allCoords = array_merge($cCoords, $rockCoords);
 
         do {
-            $newX = rand($this->mapHeight - 5, $this->mapHeight - 1);
-            $newY = rand(0, $this->mapWidth - 1);
+            $newX = rand($this->level->mapHeight - 5, $this->level->mapHeight - 1);
+            $newY = rand(0, $this->level->mapWidth - 1);
         } while(in_array([$newX, $newY], $allCoords));
 
         $this->map[$newX][$newY]->setCrystal(true);
@@ -961,14 +885,14 @@ class Map {
 		$this->meteor = new Meteor($dir, rand(1, 5));
 
 		// the x is 0 to start, but the Y is random
-		$this->meteor->setXY(0, rand(0, $this->mapWidth));
+		$this->meteor->setXY(0, rand(0, $this->level->mapWidth));
 	}
 
 	public function getDirtCoords() {
 		$ret = array();
 
-		for ($x = $this->skyHeight; $x < $this->mapHeight; $x++) {
-			for ($y = 0; $y < $this->mapWidth; $y++) {
+		for ($x = $this->level->skyHeight; $x < $this->level->mapHeight; $x++) {
+			for ($y = 0; $y < $this->level->mapWidth; $y++) {
 				if ($this->map[$x][$y] instanceof Dirt) {
 					$ret[] = array($x, $y);
 				}
@@ -981,8 +905,8 @@ class Map {
 	public function getToxicCoords() {
 		$ret = array();
 
-		for ($x = $this->skyHeight; $x < $this->mapHeight; $x++) {
-			for ($y = 0; $y < $this->mapWidth; $y++) {
+		for ($x = $this->level->skyHeight; $x < $this->level->mapHeight; $x++) {
+			for ($y = 0; $y < $this->level->mapWidth; $y++) {
 				if ($this->map[$x][$y] instanceof Dirt && $this->map[$x][$y]->isToxic()) {
 					$ret[] = array($x, $y);
 				}
@@ -995,8 +919,8 @@ class Map {
 	public function getRockCoords() {
 		$ret = array();
 
-		for ($x = $this->skyHeight; $x < $this->mapHeight; $x++) {
-			for ($y = 0; $y < $this->mapWidth; $y++) {
+		for ($x = $this->level->skyHeight; $x < $this->level->mapHeight; $x++) {
+			for ($y = 0; $y < $this->level->mapWidth; $y++) {
 				if ($this->map[$x][$y] instanceof Rock) {
 					$ret[] = array($x, $y);
 				}
@@ -1009,8 +933,8 @@ class Map {
     public function getCrystalCoords() {
         $ret = array();
 
-        for ($x = $this->skyHeight; $x < $this->mapHeight; $x++) {
-            for ($y = 0; $y < $this->mapWidth; $y++) {
+        for ($x = $this->level->skyHeight; $x < $this->level->mapHeight; $x++) {
+            for ($y = 0; $y < $this->level->mapWidth; $y++) {
                 if ($this->map[$x][$y] instanceof Dirt && $this->map[$x][$y]->isCrystal()) {
                     $ret[] = [$x, $y];
                 }
@@ -1118,46 +1042,46 @@ class Map {
 					$newMy = $my + $speed;
 
 					// if we are greater than the map width, loop around
-					if ($newMy >= $this->mapWidth) {
-						$newMy = $newMy - $this->mapWidth;
+					if ($newMy >= $this->level->mapWidth) {
+						$newMy = $newMy - $this->level->mapWidth;
 					}
 				} else if ($dir == "L") {
 					// we subtract the speed
 					$newMy = $my - $speed;
 
 					if ($newMy < 0) {
-						$newMy = $my + $this->mapWidth;
+						$newMy = $my + $this->level->mapWidth;
 					}
 				}
 
 				$newMx = $mx + 1;
 
-				if ($newMx >= $this->skyHeight) {
+				if ($newMx >= $this->level->skyHeight) {
 					// we've crashed!
 					$this->meteor = null;
 
 					// put the trail in!
-					$target = $this->skyHeight + $weight;
+					$target = $this->level->skyHeight + $weight;
 
-					if ($target > $this->mapHeight) {
-						$target = $this->mapHeight;
+					if ($target > $this->level->mapHeight) {
+						$target = $this->level->mapHeight;
 					}
 
-					for ($x = $this->skyHeight; $x < $target; $x++) {
+					for ($x = $this->level->skyHeight; $x < $target; $x++) {
 						if ($this->map[$x][$newMy] instanceof Dirt) {
 							$this->map[$x][$newMy]->setToxicity(rand(2, 7));
 							
 							if ($dir == "R") {
 								$newMy = $newMy + $speed;
 
-								if ($newMy > $this->mapWidth) {
-									$newMy = $newMy - $this->mapWidth;
+								if ($newMy > $this->level->mapWidth) {
+									$newMy = $newMy - $this->level->mapWidth;
 								}
 							} else {
 								$newMy = $newMy - $speed;
 
 								if ($newMy < 0) {
-									$newMy = $newMy + $this->mapWidth;
+									$newMy = $newMy + $this->level->mapWidth;
 								}
 							}
 						}
@@ -1309,7 +1233,7 @@ class Map {
         // bottom border for three screens
 		$ret .= json_decode('"\u2514"');
 
-        for ($y = 0; $y < $this->vpWidth; $y++) {
+        for ($y = 0; $y < $this->level->vpWidth; $y++) {
             $ret .= json_decode('"\u2501"');
         }
 
@@ -1332,7 +1256,7 @@ class Map {
 
 	public function __toString() {
 		// main display subroutine
-		$ret = "Mapwidth: {$this->mapWidth} Viewport Width: {$this->vpWidth} Viewport Y: {$this->vpY} ViewType: {$this->viewType}\n";
+		$ret = "Mapwidth: {$this->level->mapWidth} Viewport Width: " . $this->level->vpWidth . " Viewport Y: {$this->vpY} ViewType: {$this->viewType}\n";
 		
 		$ret .= "Player Health: " . $this->player->getLife() . " ";
 		$ret .= "X: " . $this->player->getX() . " ";
@@ -1358,7 +1282,7 @@ class Map {
 						break;
 				}
 
-				$ret .= $this->titleHeader($this->vpWidth, $txt);
+				$ret .= $this->titleHeader($this->level->vpWidth, $txt);
 
 				$ret .= " ";
 			}
@@ -1377,7 +1301,7 @@ class Map {
                 if (is_array($curMsg)) {
                     // calculate how many lines it is
                     $lines = count($curMsg);
-                    $half = floor(($this->mapHeight - $lines) / 2);
+                    $half = floor(($this->level->mapHeight - $lines) / 2);
                     
                     if ($x >= $half && $x < $half + $lines) {
                         // if we are within the viewport X
@@ -1389,11 +1313,11 @@ class Map {
                 // iterate the width of the viewport
 				// starting at vpX and going $vpWidth characters
 				// when vpy hits 30, it should be 0
-				for ($y = 0; $y < $this->vpWidth; $y++) {
+				for ($y = 0; $y < $this->level->vpWidth; $y++) {
 					$ypos = $this->vpY + $y;
 
-					if ($ypos >= $this->mapWidth) {
-						$ypos = $ypos - $this->mapWidth;
+					if ($ypos >= $this->level->mapWidth) {
+						$ypos = $ypos - $this->level->mapWidth;
 					}
 
 					// if the player has a position here, draw that
@@ -1442,11 +1366,11 @@ class Map {
 				// iterate the width of the viewport
 				// starting at vpX and going $vpWidth characters
 				// when vpy hits 30, it should be 0
-				for ($y = 0; $y < $this->vpWidth; $y++) {
+				for ($y = 0; $y < $this->level->vpWidth; $y++) {
 					$ypos = $this->vpY + $y;
 
-					if ($ypos >= $this->mapWidth) {
-						$ypos = $ypos - $this->mapWidth;
+					if ($ypos >= $this->level->mapWidth) {
+						$ypos = $ypos - $this->level->mapWidth;
 					}
 
 					// if the player has a position here, draw that
@@ -1487,11 +1411,11 @@ class Map {
 				// iterate the width of the viewport
 				// starting at vpX and going $vpWidth characters
 				// when vpy hits 30, it should be 0
-				for ($y = 0; $y < $this->vpWidth; $y++) {
+				for ($y = 0; $y < $this->level->vpWidth; $y++) {
 					$ypos = $this->vpY + $y;
 
-					if ($ypos >= $this->mapWidth) {
-						$ypos = $ypos - $this->mapWidth;
+					if ($ypos >= $this->level->mapWidth) {
+						$ypos = $ypos - $this->level->mapWidth;
 					}
 
                    if ($this->player->onCoords($x, $ypos) && in_array(3, $this->charOnScreens)) {
@@ -1561,7 +1485,7 @@ class Map {
 					break;
 			}
 
-			$ret .= $this->titleHeader($this->vpWidth, $txt);
+			$ret .= $this->titleHeader($this->level->vpWidth, $txt);
 
 			$ret .= "\n";
 
@@ -1577,7 +1501,7 @@ class Map {
                 if (is_array($curMsg)) {
                     // calculate how many lines it is
                     $lines = count($curMsg);
-                    $half = floor(($this->mapHeight - $lines) / 2);
+                    $half = floor(($this->level->mapHeight - $lines) / 2);
                     
                     if ($x >= $half && $x < $half + $lines) {
                         // if we are within the viewport X
@@ -1589,11 +1513,11 @@ class Map {
 				// iterate the width of the viewport
 				// starting at vpX and going $vpWidth characters
 				// when vpy hits 30, it should be 0
-				for ($y = 0; $y < $this->vpWidth; $y++) {
+				for ($y = 0; $y < $this->level->vpWidth; $y++) {
 					$ypos = $this->vpY + $y;
 
-					if ($ypos >= $this->mapWidth) {
-						$ypos = $ypos - $this->mapWidth;
+					if ($ypos >= $this->level->mapWidth) {
+						$ypos = $ypos - $this->level->mapWidth;
 					}
 
                      // if the player has a position here, draw that
