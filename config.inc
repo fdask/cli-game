@@ -12,11 +12,15 @@ class Config {
     // level environment setting defaults
     public static $defaultMaxRocks = 10;
     public static $defaultMaxRain = 2;
+    public static $defaultRainStrengthMin = 6;
+    public static $defaultRainStrengthMax = 9;
     public static $defaultMaxMinerals = 10;
     public static $defaultMaxPlants = 7;
     public static $defaultMaxCrystals = 5;
     public static $defaultMeteorTicks = 10;
-
+    
+    // player defaults
+    public static $defaultPlayerHealth = 1000;
 
     // color data
     public static $rainColor = 'blue';

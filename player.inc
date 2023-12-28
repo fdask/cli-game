@@ -40,7 +40,7 @@ class Player {
 
 		$this->x = $x;
 		$this->y = $y;
-		$this->life = 1000;
+		$this->life = Config::$defaultPlayerHealth;
         $this->crystals = 0;
         $this->defaultChar = "*";
 		$this->headChar = "o";
