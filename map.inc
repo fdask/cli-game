@@ -772,7 +772,7 @@ class Map {
 			$rainY = rand(0, count($this->map[0]) - 1);
 		} while (in_array($rainY, $ys));
 
-		$this->map[0][$rainY]->setWetness(rand(1, 3));
+		$this->map[0][$rainY]->setWetness(rand($this->level->rainStrengthMin, $this->level->rainStrengthMax));
 	}
 
 	/**

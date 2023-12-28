@@ -18,6 +18,10 @@ class Level {
 	// how many raindrops allowed on the map at once
 	public $maxRain;
 
+    public $rainStrengthMax;
+    
+    public $rainStrengthMin;
+
     // whether we want rocks
     public $enableRocks;
 
@@ -50,6 +54,9 @@ class Level {
 
     // an array of points of interest
     public $pointsOfInterest;
+
+    // what does the level want us to do
+    public $objectives;
 
     public function __construct($filename = null) {
         if (!is_null($filename)) {
@@ -101,6 +108,8 @@ class Level {
             'maxRocks' => $this->maxRocks,
             'enableRain' => $this->enableRain,
             'maxRain' => $this->maxRain,
+            'rainStrengthMax' => $this->rainStrengthMax,
+            'rainStrengthMin' => $this->rainStrengthMin,
             'enableMinerals' => $this->enableMinerals,
             'maxMinerals' => $this->maxMinerals,
             'enablePlants' => $this->enablePlants,
@@ -127,6 +136,8 @@ class Level {
         $this->maxRocks = isset($array['maxRocks']) ? $array['maxRocks'] : Config::$defaultMaxRocks;
         $this->enableRain = isset($array['enableRain']) ? $array['enableRain'] : false;
         $this->maxRain = isset($array['maxRain']) ? $array['maxRain'] : Config::$defaultMaxRain;
+        $this->rainStrengthMax = isset($array['rainStrengthMax']) ? $array['rainStrengthMax'] : Config::$defaultRainStrengthMax;
+        $this->rainStrengthMin = isset($array['rainStrengthMin']) ? $array['rainStrengthMin'] : Config::$defaultRainStrengthMin;
         $this->enableMinerals = isset($array['enableMinerals']) ? $array['enableMinerals'] : false;
         $this->maxMinerals = isset($array['maxMinerals']) ? $array['maxMinerals'] : Config::$defaultMaxMinerals;
         $this->enablePlants = isset($array['enablePlants']) ? $array['enablePlants'] : false;
