@@ -14,42 +14,48 @@ include 'meteor.inc';
 include 'colors.inc';
 include 'config.inc';
 include 'level.inc';
+include 'objective.inc';
 
-/* generate a default level 
-$ret = array(
-    'mapWidth' => 60,
-    'mapHeight' => 18,
-    'vpWidth' => 30,
-    'skyHeight' => 8,
-    'enableRocks' => true,
-    'maxRocks' => 15,
-    'enableRain' => true,
-    'maxRain' => 7,
-    'rainStrengthMax' => 9,
-    'rainStrengthMin' => 7,
-    'enableMinerals' => true,
-    'maxMinerals' => 10,
-    'enablePlants' => true,
-    'maxPlants' => 8,
-    'enableCrystals' => true,
-    'maxCrystals' => 15,
-    'crystalHealthBonus' => 50,
-    'enableMeteors' => true,
-    'meteorTicks' => 15,
-    'enableToxicity' => true,
-    'toxicityTicks' => 20,
-    'startToxicity' => 0,
-    'toxicityMin' => 2,
-    'toxicityMax' => 4,
-    'toxicityMultiplier' => 5
-);
+if (!(file_exists("level1.dat"))) {
+    // generate a default level 
+    $ret = array(
+        'mapWidth' => 60,
+        'mapHeight' => 18,
+        'vpWidth' => 30,
+        'skyHeight' => 8,
+        'enableRocks' => true,
+        'maxRocks' => 15,
+        'enableRain' => true,
+        'maxRain' => 7,
+        'rainStrengthMax' => 9,
+        'rainStrengthMin' => 7,
+        'enableMinerals' => true,
+        'maxMinerals' => 10,
+        'enablePlants' => true,
+        'maxPlants' => 8,
+        'enableCrystals' => true,
+        'maxCrystals' => 15,
+        'crystalHealthBonus' => 50,
+        'enableMeteors' => true,
+        'meteorTicks' => 15,
+        'meteorSpeedMin' => 2,
+        'meteorSpeedMax' => 3,
+        'enableToxicity' => true,
+        'toxicityTicks' => 20,
+        'startToxicity' => 0,
+        'toxicityMin' => 2,
+        'toxicityMax' => 4,
+        'toxicityMultiplier' => 5,
+    );
 
-$l = new Level();
-$l->takeArray($ret);
-$l->saveToJSON("level1.dat");
+    $l = new Level();
+    $l->takeArray($ret);
 
-exit;
-*/
+    $l->addObjective(new CollectObjective("health", "1200"));
+    $l->addObjective(new CollectObjective("crystals", 10));
+    
+    $l->saveToJSON("level1.dat");
+}
 
 // GAME START
 echo "\n";

@@ -3,7 +3,7 @@
 You are mycellium, the fibrous fungus network in the ground.
 
 At this point in time, your mission is to simply stay alive,
-and try for a high score.
+and try for a high score.  That, and quests.
 
 ## Environment
 
@@ -83,6 +83,12 @@ Crystals appear randomly in the depths of the soil.
 Collect as many of them as you can, as they are great
 for your score (and health!).
 
+### Portal
+
+Shown on the map as a glowing @, the portal only appears
+once all tasks for a level are complete.  See the status
+of these tasks on your journal screen 'j'.
+
 ## Mechanics
 
 ### Rain
@@ -132,6 +138,16 @@ As meteors keep falling to earth, they leave streaks of toxic
 waste in their wake.  The more dirt polluted with toxic waste,
 the more toxic overall the soil becomes.
 
+### Quests and XP
+
+Check your active quests on the journal screen, (j).
+They will be checked off when they are complete.
+
+Complete quests to receive XP and special powerups.
+
+When all objectives for a level are complete, look for
+the exit portal, marked with a '@' to proceed.
+
 ## Keys
 
 wasd - moves your character a space
@@ -147,6 +163,7 @@ zc - scroll the viewport left or right
 h - when in single view, toggles visibility of your character
     when in triple view, toggles visibility of your character on
     the selected screen
+j - show journal screen
 r - reverses your head and tail
 ? - show help screen
 n - new game

@@ -19,6 +19,8 @@ class Config {
     public static $defaultMaxCrystals = 5;
     public static $defaultCrystalHealthBonus = 50;
     public static $defaultMeteorTicks = 10;
+    public static $defaultMeteorSpeedMin = 1;
+    public static $defaultMeteorSpeedMax = 5;
     public static $defaultToxicityTicks = 20;
     public static $defaultStartToxicity = 0;
     public static $defaultToxicityMin = 1;

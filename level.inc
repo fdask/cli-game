@@ -1,5 +1,7 @@
 <?php
 class Level {
+    public $name;
+
     // how wide is the total map	
 	public $mapWidth;
 
@@ -55,6 +57,9 @@ class Level {
     // how long between meteors
     public $meteorTicks;
 
+    public $meteorSpeedMin;
+    public $meteorSpeedMax;
+
     // toxicity
     public $enableToxicity;
 
@@ -86,6 +91,10 @@ class Level {
         }
     }
 
+    public function getName() {
+        return $this->name;
+    }
+
     /**
      * adds a new point of interest object into the array
      */
@@ -109,6 +118,10 @@ class Level {
         return false;
     }
 
+    public function getObjectives() {
+        return $this->objectives;
+    }
+
     /**
      * returns a boolean indicating whether or not
      * all objectives in this level are completed.
@@ -129,6 +142,12 @@ class Level {
         }
     }
 
+    public function getObjectiveScreen() {
+        $ret = array(
+
+        );
+    }
+
     /**
      * loop through objectives, marking any complete
      */
@@ -140,6 +159,10 @@ class Level {
         }
     }
 
+    public function addObjective($obj) {
+        $this->objectives[] = $obj;
+    }
+
     /**
      * converts a level object into a json encodable array
      * 
@@ -147,6 +170,7 @@ class Level {
      */
     public function makeArray() {
         $ret = array(
+            'name' => $this->name,
             'mapWidth' => $this->mapWidth,
             'mapHeight' => $this->mapHeight,
             'vpWidth' => $this->vpWidth,
@@ -166,23 +190,26 @@ class Level {
             'crystalHealthBonus' => $this->crystalHealthBonus,
             'enableMeteors' => $this->enableMeteors,
             'meteorTicks' => $this->meteorTicks,
+            'meteorSpeedMin' => $this->meteorSpeedMin,
+            'meteorSpeedMax' => $this->meteorSpeedMax,
             'enableToxicity' => $this->enableToxicity,
             'toxicityTicks' => $this->toxicityTicks,
             'startToxicity' => $this->startToxicity,
             'toxicityMin' => $this->toxicityMin,
             'toxicityMax' => $this->toxicityMax,
             'toxicityMultiplier' => $this->toxicityMultiplier,
-            'pointsOfInterest' => $this->pointsOfInterest,
-            'objectives' => $this->objectives
+            'pointsOfInterest' => serialize($this->pointsOfInterest),
+            'objectives' => serialize($this->objectives)
         );
 
         return $ret;
     }
 
     /**
-     * takes an array and applies it to the level object
+     * takes an array and applies it to the level object 
      */
     public function takeArray($array) {
+        $this->name = isset($array['name']) ? $array['name'] : "noname";
         $this->mapWidth = isset($array['mapWidth']) ? $array['mapWidth'] : Config::$defaultMapWidth;
         $this->mapHeight = isset($array['mapHeight']) ? $array['mapHeight'] : Config::$defaultMapHeight;
         $this->vpWidth = isset($array['vpWidth']) ? $array['vpWidth'] : Config::$defaultVpWidth;
@@ -202,14 +229,16 @@ class Level {
         $this->crystalHealthBonus = isset($array['crystalHealthBonus']) ? $array['crystalHealthBonus'] : Config::$defaultCrystalHealthBonus;
         $this->enableMeteors = isset($array['enableMeteors']) ? $array['enableMeteors'] : false;
         $this->meteorTicks = isset($array['meteorTicks']) ? $array['meteorTicks'] : Config::$defaultMeteorTicks;
+        $this->meteorSpeedMin = isset($array['meteorSpeedMin']) ? $array['meteorSpeedMin'] : Config::$defaultMeteorSpeedMin;
+        $this->meteorSpeedMax = isset($array['meteorSpeedMax']) ? $array['meteorSpeedMax'] : Config::$defaultMeteorSpeedMax;
         $this->enableToxicity = isset($array['enableToxicity']) ? $array['enableToxicity'] : false;
         $this->toxicityTicks = isset($array['toxicityTicks']) ? $array['toxicityTicks'] : Config::$defaultToxicityTicks;
         $this->startToxicity = isset($array['startToxicity']) ? $array['startToxicity'] : Config::$defaultStartToxicity;
         $this->toxicityMin = isset($array['toxicityMin']) ? $array['toxicityMin'] : Config::$defaultToxicityMin;
         $this->toxicityMax = isset($array['toxicityMax']) ? $array['toxicityMax'] : Config::$defaultToxicityMax;
         $this->toxicityMultiplier = isset($array['toxicityMultiplier']) ? $array['toxicityMultiplier'] : Config::$defaultToxicityMultiplier;
-        $this->pointsOfInterest = isset($array['pointsOfInterest']) ? $array['pointsOfInterest'] : array();
-        $this->objectives = isset($array['objectives']) ? $array['objectives'] : array();
+        $this->pointsOfInterest = isset($array['pointsOfInterest']) ? unserialize($array['pointsOfInterest']) : array();
+        $this->objectives = isset($array['objectives']) ? unserialize($array['objectives']) : array();
     }
 
     /**
