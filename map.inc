@@ -101,7 +101,6 @@ class Map {
 	}
 
 	public function initialize() {
-		echo "In initialize\n";
 		// initialize the map array
 		$this->initializeMap();
 
@@ -165,9 +164,7 @@ class Map {
 		}
 
 		// add a portal to the map
-		echo "Before adding portal\n";
 		$this->addPortal();
-		echo "After adding portal\n";
 	}
 
 	private function initializeMap() {
@@ -233,7 +230,14 @@ class Map {
 					break;
 				case '9':
 					$ss = $this->player->getScoreScreen();
-					$this->mailbox->addMessageToStart($ss);
+					$cm = $this->mailbox->readCurrentMessage();
+
+					if ($cm[0] == $ss[0]) {
+						$this->mailbox->deleteCurrentMessage();
+					} else {
+						$this->mailbox->addMessageToStart($ss);
+					}
+
 					$tick = false;
 
 					break;
@@ -725,7 +729,6 @@ class Map {
 	}
 
 	private function tick() {
-		echo "in the tick\n";
 		// check for points of interest
         $this->checkPointsOfInterest();
         $this->checkObjectives();
@@ -780,59 +783,61 @@ class Map {
 			for ($x = 0; $x < count($objectives); $x++) {
 				$objective = $this->level->objectives[$x];
 
-				switch (get_class($objective)) {
-					case 'CollectObjective':
-						$complete = false;
+				if (!$objective->getCompleted()) {
+					switch (get_class($objective)) {
+						case 'CollectObjective':
+							$complete = false;
 
-						switch ($objective->what) {
-							case 'health':
-								if ($this->player->getLife() >= $objective->amount) {
-									$this->level->objectives[$x]->setCompleted();
-									$complete = true;
+							switch ($objective->what) {
+								case 'health':
+									if ($this->player->getLife() >= $objective->amount) {
+										$this->level->objectives[$x]->setCompleted();
+										$complete = true;
+									}
+									
+									break;
+								case 'crystals':
+									if ($this->player->getCrystals() >= $objective->amount) {
+										$this->level->objectives[$x]->setCompleted();
+										$complete = true;
+									}			
 
-								}
-								
-								break;
-							case 'crystals':
-								if ($this->player->getCrystals() >= $objective->amount) {
-									$this->level->objectives[$x]->setCompleted();
-									$complete = true;
-								}			
+									break;
+								case 'minerals':
+									if ($this->player->scoreMinerals >= $objective->amount) {
+										$this->level->objectives[$x]->setCompleted();
+										$complete = true;
+									}
 
-								break;
-							case 'minerals':
-								if ($this->player->scoreMinerals >= $objective->amount) {
-									$this->level->objectives[$x]->setCompleted();
-									$complete = true;
-								}
+									break;
+								case 'moves':
+									if ($this->player->scoreMoves >= $objective->amount) {
+										$this->level->objectives[$x]->setCompleted();
+										$complete = true;
+									}
 
-								break;
-							case 'moves':
-								if ($this->player->scoreMoves >= $objective->amount) {
-									$this->level->objectives[$x]->setCompleted();
-									$complete = true;
-								}
+									break;
+								case 'water':
+									if ($this->player->scoreWater >= $objective->amount) {
+										$this->level->objectives[$x]->setCompleted();
+										$complete = true;
+									}
 
-								break;
-							case 'water':
-								if ($this->player->scoreWater >= $objective->amount) {
-									$this->level->objectives[$x]->setCompleted();
-									$complete = true;
-								}
+									break;
+							}
 
-								break;
-						}
+							if ($complete) {
+								// send a message about the completed objective
+								$this->mailbox->addMessage("Objective complete! (" . $objective->getShortName() . ")");
 
-						if ($complete) {
-							// send a message about the completed objective
-							$this->mailbox->addMessage("Objective complete! (" . $objective->getShortName() . ")");
+								// get the rewards from the objects
+								$this->player->addXP($objective->getRewardXP());
+								$this->portal->setVisible();
+							}
 
-							// get the rewards from the objects
-							$this->player->addXP($objective->getRewardXP());
-						}
-
-						break;
-				}        
+							break;
+					}        
+				}
 			}
 		}
 	}
@@ -1004,10 +1009,7 @@ class Map {
 	}
 
 	public function addPortal() {
-		echo "in add portal\n";
-
 		if (is_null($this->portal)) {
-			echo "here we go!\n";
 			// add a portal object at random coords
 			$taken = array_merge($this->getRockCoords(), $this->getCrystalCoords(), $this->player->getCoords());
 
@@ -1017,9 +1019,6 @@ class Map {
 			} while (in_array([$portalX, $portalY], $taken));
 			
 			$this->portal = new Portal($portalX, $portalY);
-			$this->portal->setVisible();
-
-			var_dump($this->portal);
 		}
 	}
 
@@ -1510,9 +1509,7 @@ class Map {
                         } else {
                             $ret .= " ";
                         }
-					} 
-					
-					if ($this->portal->getXY() == [$x, $ypos] && $this->portal->isVisible()) {
+					} else if ($this->portal->getXY() == [$x, $ypos] && $this->portal->isVisible()) {
 						// player is on the portal
 						$ret .= $this->portal;
                    	} else if ($this->player->onCoords($x, $ypos) && in_array(1, $this->charOnScreens)) {
