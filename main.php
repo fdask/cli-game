@@ -36,7 +36,8 @@ $ret = array(
     'enableMeteors' => true,
     'meteorTicks' => 15,
     'enableToxicity' => true,
-    'toxicityTicks' => 20
+    'toxicityTicks' => 20,
+    'startToxicity' => 0
 );
 
 $l = new Level();

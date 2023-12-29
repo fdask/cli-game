@@ -57,6 +57,8 @@ class Level {
 
     public $toxicityTicks;
 
+    public $startToxicity;
+
     // an array of points of interest
     public $pointsOfInterest;
 
@@ -125,6 +127,7 @@ class Level {
             'meteorTicks' => $this->meteorTicks,
             'enableToxicity' => $this->enableToxicity,
             'toxicityTicks' => $this->toxicityTicks,
+            'startToxicity' => $this->startToxicity,
             'pointsOfInterest' => $this->pointsOfInterest
         );
 
@@ -155,6 +158,7 @@ class Level {
         $this->meteorTicks = isset($array['meteorTicks']) ? $array['meteorTicks'] : Config::$defaultMeteorTicks;
         $this->enableToxicity = isset($array['enableToxicity']) ? $array['enableToxicity'] : false;
         $this->toxicityTicks = isset($array['toxicityTicks']) ? $array['toxicityTicks'] : Config::$defaultToxicityTicks;
+        $this->startToxicity = isset($array['startToxicity']) ? $array['startToxicity'] : Config::$defaultStartToxicity;
         $this->pointsOfInterest = isset($array['pointsOfInterest']) ? $array['pointsOfInterest'] : array();
     }
 

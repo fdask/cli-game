@@ -149,6 +149,14 @@ class Map {
 				$this->addMeteor();
 			}
 		}
+
+		if ($this->level->enableToxicity) {
+			if ($this->level->startToxicity > 0) {
+				for ($x = 0; $x < $this->level->startToxicity; $x++) {
+					$this->addToxicWaste();
+				}
+			}
+		}
 	}
 
 	private function initializeMap() {
@@ -1092,32 +1100,34 @@ class Map {
 					// we've crashed!
 					$this->meteor = null;
 
-					// put the trail in!
-					$target = $this->level->skyHeight + $weight;
+					// put the trail in (if toxicity is enabled)
+					if ($this->level->enableToxicity) {
+						$target = $this->level->skyHeight + $weight;
 
-					if ($target > $this->level->mapHeight) {
-						$target = $this->level->mapHeight;
-					}
+						if ($target > $this->level->mapHeight) {
+							$target = $this->level->mapHeight;
+						}
 
-					for ($x = $this->level->skyHeight; $x < $target; $x++) {
-						if ($this->map[$x][$newMy] instanceof Dirt) {
-							$this->map[$x][$newMy]->setToxicity(rand(2, 7));
-							
-							if ($dir == "R") {
-								$newMy = $newMy + $speed;
+						for ($x = $this->level->skyHeight; $x < $target; $x++) {
+							if ($this->map[$x][$newMy] instanceof Dirt) {
+								$this->map[$x][$newMy]->setToxicity(rand(2, 7));
+								
+								if ($dir == "R") {
+									$newMy = $newMy + $speed;
 
-								if ($newMy > $this->level->mapWidth) {
-									$newMy = $newMy - $this->level->mapWidth;
-								}
-							} else {
-								$newMy = $newMy - $speed;
+									if ($newMy > $this->level->mapWidth) {
+										$newMy = $newMy - $this->level->mapWidth;
+									}
+								} else {
+									$newMy = $newMy - $speed;
 
-								if ($newMy < 0) {
-									$newMy = $newMy + $this->level->mapWidth;
+									if ($newMy < 0) {
+										$newMy = $newMy + $this->level->mapWidth;
+									}
 								}
 							}
 						}
-					}
+					} 
 				} else {
 					// update the positioning of the meteors
 					$this->meteor->setXY($newMx, $newMy);

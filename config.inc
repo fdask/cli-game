@@ -19,6 +19,7 @@ class Config {
     public static $defaultMaxCrystals = 5;
     public static $defaultMeteorTicks = 10;
     public static $defaultToxicityTicks = 20;
+    public static $defaultStartToxicity = 0;
     
     // player defaults
     public static $defaultPlayerHealth = 1000;
