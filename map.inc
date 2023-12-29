@@ -38,6 +38,9 @@ class Map {
 	// the level data goes here
 	public $level;
 
+	// every level has one!
+	public $portal;
+
 	public function __construct($filename = null) {
 		if (!is_null($filename)) {
 			$this->level = new Level($filename);
@@ -55,7 +58,9 @@ class Map {
 		$this->mailbox->addInstructions();
 		
 		$this->player = new Player($this->level->skyHeight, floor($this->level->vpWidth / 2));
-		
+
+		$this->portal = null;
+
 		$this->initialize();
 		$this->gameLoop();
 	}
@@ -96,6 +101,7 @@ class Map {
 	}
 
 	public function initialize() {
+		echo "In initialize\n";
 		// initialize the map array
 		$this->initializeMap();
 
@@ -157,6 +163,11 @@ class Map {
 				}
 			}
 		}
+
+		// add a portal to the map
+		echo "Before adding portal\n";
+		$this->addPortal();
+		echo "After adding portal\n";
 	}
 
 	private function initializeMap() {
@@ -714,6 +725,7 @@ class Map {
 	}
 
 	private function tick() {
+		echo "in the tick\n";
 		// check for points of interest
         $this->checkPointsOfInterest();
         $this->checkObjectives();
@@ -989,6 +1001,26 @@ class Map {
 		} while (in_array([$newX, $newY], $tw));
 
 		$this->map[$newX][$newY]->setToxicity(rand($this->level->toxicityMin, $this->level->toxicityMax));
+	}
+
+	public function addPortal() {
+		echo "in add portal\n";
+
+		if (is_null($this->portal)) {
+			echo "here we go!\n";
+			// add a portal object at random coords
+			$taken = array_merge($this->getRockCoords(), $this->getCrystalCoords(), $this->player->getCoords());
+
+			do {
+				$portalX = rand($this->level->skyHeight, $this->level->mapHeight - 1);
+				$portalY = rand(0, $this->level->mapWidth - 1);
+			} while (in_array([$portalX, $portalY], $taken));
+			
+			$this->portal = new Portal($portalX, $portalY);
+			$this->portal->setVisible();
+
+			var_dump($this->portal);
+		}
 	}
 
 	public function getDirtCoords() {
@@ -1478,7 +1510,12 @@ class Map {
                         } else {
                             $ret .= " ";
                         }
-                    } else if ($this->player->onCoords($x, $ypos) && in_array(1, $this->charOnScreens)) {
+					} 
+					
+					if ($this->portal->getXY() == [$x, $ypos] && $this->portal->isVisible()) {
+						// player is on the portal
+						$ret .= $this->portal;
+                   	} else if ($this->player->onCoords($x, $ypos) && in_array(1, $this->charOnScreens)) {
 						// if this is the x/y, get the head char
 						if ($this->player->getX() == $x && $this->player->getY() == $ypos) {
 							$ret .= Colors::fg_color(Config::$playerHeadColor, $this->player->getHeadChar());
@@ -1522,8 +1559,10 @@ class Map {
 						$ypos = $ypos - $this->level->mapWidth;
 					}
 
-					// if the player has a position here, draw that
-					if ($this->player->onCoords($x, $ypos) && in_array(2, $this->charOnScreens)) {
+					if ($this->portal->getXY() == [$x, $ypos] && $this->portal->isVisible()) {
+						// player is on the portal
+						$ret .= $this->portal;
+                   	} else if ($this->player->onCoords($x, $ypos) && in_array(2, $this->charOnScreens)) {
 						// if this is the x/y, get the head char
 						if ($this->player->getX() == $x && $this->player->getY() == $ypos) {
 							$ret .= Colors::fg_color(Config::$playerHeadColor, $this->player->getHeadChar());
@@ -1566,8 +1605,11 @@ class Map {
 					if ($ypos >= $this->level->mapWidth) {
 						$ypos = $ypos - $this->level->mapWidth;
 					}
-
-                   if ($this->player->onCoords($x, $ypos) && in_array(3, $this->charOnScreens)) {
+				
+					if ($this->portal->getXY() == [$x, $ypos] && $this->portal->isVisible()) {
+						// player is on the portal
+						$ret .= $this->portal;
+                   	} else if ($this->player->onCoords($x, $ypos) && in_array(3, $this->charOnScreens)) {
 						// if this is the x/y, get the head char
 						if ($this->player->getX() == $x && $this->player->getY() == $ypos) {
 							$ret .= Colors::fg_color(Config::$playerHeadColor, $this->player->getHeadChar());
@@ -1623,14 +1665,14 @@ class Map {
 			 * SINGLE SCREEN VIEW STARTS HERE!
 			 */
 			switch ($this->viewType) {
+				case 1: 
+					$txt = "h2o";
+					break;
 				case 2:
 					$txt = "mineral";
 					break;
 				case 3:
 					$txt = "plant";
-					break;
-				case 1: 
-					$txt = "h2o";
 					break;
 			}
 
@@ -1678,6 +1720,9 @@ class Map {
                         } else {
                             $ret .= " ";
                         }
+					} else if ($this->portal->getXY() == [$x, $ypos] && $this->portal->isVisible()) {
+						// player is on the portal
+						$ret .= $this->portal;
 					} else if ($this->player->onCoords($x, $ypos) && in_array($this->viewType, $this->charOnScreens)) {
 						// if this is the x/y, get the head char
 						if ($this->player->getX() == $x && $this->player->getY() == $ypos) {

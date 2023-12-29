@@ -15,6 +15,7 @@ include 'colors.inc';
 include 'config.inc';
 include 'level.inc';
 include 'objective.inc';
+include 'portal.inc';
 
 if (!(file_exists("level1.dat"))) {
     // generate a default level 
@@ -54,7 +55,7 @@ if (!(file_exists("level1.dat"))) {
     $l->addObjective(new CollectObjective("health", "1200"));
     $l->addObjective(new CollectObjective("crystals", 10));
     
-    $l->saveToJSON("level1.dat");
+    $l->saveToJSON(Config::$defaultLevelFile);
 }
 
 // GAME START
@@ -62,8 +63,10 @@ echo "\n";
 
 if (file_exists("rainsave")) {
     $map = unserialize(file_get_contents("rainsave"));
-    $map->gameLoop();
+    
 } else {
     $map = new Map(Config::$defaultLevelFile);
 }
+
+$map->gameLoop();
 ?>
