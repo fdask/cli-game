@@ -888,6 +888,21 @@ class Map {
 		$this->meteor->setXY(0, rand(0, $this->level->mapWidth));
 	}
 
+	public function addToxicWaste() {
+		$tw = $this->getToxicCoords();
+		$rocks = $this->getRockCoords();
+		$player = $this->player->getCoords();
+
+		$taken = array_merge($tw, $rocks, $player);
+
+		do {
+			$newX = rand($this->level->skyHeight, $this->level->mapHeight - 1);
+			$newY = rand(0, $this->level->mapWidth - 1);
+		} while (in_array([$newX, $newY], $tw));
+
+		$this->map[$newX][$newY]->setToxicity(rand(1, 9));
+	}
+
 	public function getDirtCoords() {
 		$ret = array();
 
@@ -1016,12 +1031,25 @@ class Map {
 		return false;
 	}
 
-	private function getToxicWastePercentage() {
-		$rocks = $this->getRockCoords();
+	private function getTotalToxicity() {
+		$ret = 0;
 		$toxic = $this->getToxicCoords();
+
+		foreach ($toxic as $coord) {
+			$x = $coord[0];
+			$y = $coord[1];
+
+			$ret += $this->map[$x][$y]->getToxicity();
+		}
+
+		return $ret;
+	}
+	private function getToxicWastePercentage() {
+		$tt = $this->getTotalToxicity();
+		$rocks = $this->getRockCoords();
 		$dirt = $this->getDirtCoords();
 
-		$ret = round((count($toxic) / (count($dirt) - count($rocks))) * 100, 1);
+		$ret = round(($tt / (count($dirt) - count($rocks))) * 100, 1);
 
 		return $ret;
 	}
