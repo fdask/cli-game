@@ -52,6 +52,8 @@ if (!(file_exists("level1.dat"))) {
     $l->takeArray($ret);
 
     $l->addObjective(new CollectObjective("health", "1200"));
+    $l->addObjective(new CollectObjective("crystals", 10));
+    
     $l->saveToJSON("level1.dat");
 }
 

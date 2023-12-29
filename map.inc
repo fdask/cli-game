@@ -1375,6 +1375,7 @@ class Map {
 
 	public function getLevelScreen() {
 		$ret = array(
+			" ",
 			"LEVEL: " . $this->level->getName(),
 			" ",
 			"OBJECTIVES",

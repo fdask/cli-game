@@ -39,9 +39,9 @@ class Objective {
 }
 
 class CollectObjective extends Objective {
-    public $amount;
     public $what;
-
+    public $amount;
+    
     public function __construct($what, $amount) {
         $this->amount = $amount;
         $this->what = $what;
