@@ -840,7 +840,7 @@ class Map {
 		
 		do {
 			$newX = rand($this->level->skyHeight, $this->level->mapHeight - 1);
-			$newY = rand(0, $this->level->vpWidth - 1);
+			$newY = rand(0, $this->level->mapWidth - 1);
 		} while (in_array([$newX, $newY], $rockCoords));
 
 		$rock = new Rock();
