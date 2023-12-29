@@ -46,6 +46,9 @@ class Level {
     // how many crystals to allow at once
     public $maxCrystals;
 
+    // how much health a user gets from a crystal
+    public $crystalHealthBonus;
+
     // meteors
     public $enableMeteors;
 
@@ -160,6 +163,7 @@ class Level {
             'maxPlants' => $this->maxPlants,
             'enableCrystals' => $this->enableCrystals,
             'maxCrystals' => $this->maxCrystals,
+            'crystalHealthBonus' => $this->crystalHealthBonus,
             'enableMeteors' => $this->enableMeteors,
             'meteorTicks' => $this->meteorTicks,
             'enableToxicity' => $this->enableToxicity,
@@ -195,6 +199,7 @@ class Level {
         $this->maxPlants = isset($array['maxPlants']) ? $array['maxPlants'] : Config::$defaultMaxPlants;
         $this->enableCrystals = isset($array['enableCrystals']) ? $array['enableCrystals'] : false;
         $this->maxCrystals = isset($array['maxCrystals']) ? $array['maxCrystals'] : Config::$defaultMaxCrystals;
+        $this->crystalHealthBonus = isset($array['crystalHealthBonus']) ? $array['crystalHealthBonus'] : Config::$defaultCrystalHealthBonus;
         $this->enableMeteors = isset($array['enableMeteors']) ? $array['enableMeteors'] : false;
         $this->meteorTicks = isset($array['meteorTicks']) ? $array['meteorTicks'] : Config::$defaultMeteorTicks;
         $this->enableToxicity = isset($array['enableToxicity']) ? $array['enableToxicity'] : false;

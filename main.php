@@ -33,6 +33,7 @@ $ret = array(
     'maxPlants' => 8,
     'enableCrystals' => true,
     'maxCrystals' => 15,
+    'crystalHealthBonus' => 50,
     'enableMeteors' => true,
     'meteorTicks' => 15,
     'enableToxicity' => true,
@@ -46,7 +47,6 @@ $ret = array(
 $l = new Level();
 $l->takeArray($ret);
 $l->saveToJSON("level1.dat");
-
 
 exit;
 */

@@ -296,9 +296,7 @@ class Map {
                             // remove the crystal, and add to players inventory
                             $this->player->incrCrystals();
                             $this->map[$newX][$newY]->setCrystal(false);
-
-                            // magic number
-                            $this->player->setLife($this->player->getLife() + 50);
+                            $this->player->setLife($this->player->getLife() + $this->level->crystalHealthBonus);
                         }
 					} else {
 						$tick = false;
@@ -382,8 +380,7 @@ class Map {
 						$toxicity = $this->map[$newX][$newY]->getToxicity();
 
 						if ($toxicity > 0) {
-							// magic number
-							$this->player->setLife($this->player->getLife() - ($toxicity * 10));
+							$this->player->setLife($this->player->getLife() - ($toxicity * $this->level->toxicityMultiplier));
 							$this->player->scoreToxicWaste += $toxicity;
 							$this->map[$newX][$newY]->setToxicity(0);
 						}
@@ -405,8 +402,7 @@ class Map {
                             // remove the crystal, and add to players inventory
                             $this->player->incrCrystals();
                             $this->map[$newX][$newY]->setCrystal(false);
-                            // magic number
-                            $this->player->setLife($this->player->getLife() + 50);
+                            $this->player->setLife($this->player->getLife() + $this->level->crystalHealthBonus);
                         }
 					} else {
 						$tick = false;
@@ -531,8 +527,7 @@ class Map {
 						$toxicity = $this->map[$newX][$newY]->getToxicity();
 
 						if ($toxicity > 0) {
-							// magic number
-							$this->player->setLife($this->player->getLife() - ($toxicity * 10));
+							$this->player->setLife($this->player->getLife() - ($toxicity * $this->level->toxicityMultiplier));
 							$this->player->scoreToxicWaste += $toxicity;
 							$this->map[$newX][$newY]->setToxicity(0);
 						}
@@ -548,8 +543,7 @@ class Map {
                             // remove the crystal, and add to players inventory
                             $this->player->incrCrystals();
                             $this->map[$newX][$newY]->setCrystal(false);
-                            // magic number
-                            $this->player->setLife($this->player->getLife() + 50);
+                            $this->player->setLife($this->player->getLife() + $this->level->crystalHealthBonus);
                         }
 					} else {
 						$tick = false;
@@ -615,8 +609,7 @@ class Map {
 						$toxicity = $this->map[$newX][$newY]->getToxicity();
 
 						if ($toxicity > 0) {
-							// magic number
-							$this->player->setLife($this->player->getLife() - ($toxicity * 10));
+							$this->player->setLife($this->player->getLife() - ($toxicity * $this->level->toxicityMultiplier));
 							$this->player->scoreToxicWaste += $toxicity;
 							$this->map[$newX][$newY]->setToxicity(0);
 						}
@@ -632,8 +625,7 @@ class Map {
                             // remove the crystal, and add to players inventory
                             $this->player->incrCrystals();
                             $this->map[$newX][$newY]->setCrystal(false);
-                            // magic number
-                            $this->player->setLife($this->player->getLife() + 50);
+                            $this->player->setLife($this->player->getLife() + $this->level->crystalHealthBonus);
                         }
 					} else {
 						$tick = false;

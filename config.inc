@@ -17,6 +17,7 @@ class Config {
     public static $defaultMaxMinerals = 10;
     public static $defaultMaxPlants = 7;
     public static $defaultMaxCrystals = 5;
+    public static $defaultCrystalHealthBonus = 50;
     public static $defaultMeteorTicks = 10;
     public static $defaultToxicityTicks = 20;
     public static $defaultStartToxicity = 0;
