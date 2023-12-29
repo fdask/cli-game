@@ -62,6 +62,9 @@ class Level {
     public $toxicityMin;
     public $toxicityMax;
 
+    // how much damage done to player
+    public $toxicityMultiplier;
+
     // an array of points of interest
     public $pointsOfInterest;
 
@@ -104,6 +107,37 @@ class Level {
     }
 
     /**
+     * returns a boolean indicating whether or not
+     * all objectives in this level are completed.
+     */
+    public function objectivesComplete() {
+        if (empty($this->objectives)) {
+            return true;
+        } else {
+            $ret = true;
+
+            foreach ($this->objectives as $objective) {
+                if (!$objective->completed) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+    }
+
+    /**
+     * loop through objectives, marking any complete
+     */
+    public function checkObjectives() {
+        if (!empty($this->objectives)) {
+            foreach ($this->objectives as $objective) {
+                // check the objectives and mark complete here
+            }
+        }
+    }
+
+    /**
      * converts a level object into a json encodable array
      * 
      * there has to be an easier way
@@ -133,7 +167,9 @@ class Level {
             'startToxicity' => $this->startToxicity,
             'toxicityMin' => $this->toxicityMin,
             'toxicityMax' => $this->toxicityMax,
-            'pointsOfInterest' => $this->pointsOfInterest
+            'toxicityMultiplier' => $this->toxicityMultiplier,
+            'pointsOfInterest' => $this->pointsOfInterest,
+            'objectives' => $this->objectives
         );
 
         return $ret;
@@ -166,7 +202,9 @@ class Level {
         $this->startToxicity = isset($array['startToxicity']) ? $array['startToxicity'] : Config::$defaultStartToxicity;
         $this->toxicityMin = isset($array['toxicityMin']) ? $array['toxicityMin'] : Config::$defaultToxicityMin;
         $this->toxicityMax = isset($array['toxicityMax']) ? $array['toxicityMax'] : Config::$defaultToxicityMax;
+        $this->toxicityMultiplier = isset($array['toxicityMultiplier']) ? $array['toxicityMultiplier'] : Config::$defaultToxicityMultiplier;
         $this->pointsOfInterest = isset($array['pointsOfInterest']) ? $array['pointsOfInterest'] : array();
+        $this->objectives = isset($array['objectives']) ? $array['objectives'] : array();
     }
 
     /**

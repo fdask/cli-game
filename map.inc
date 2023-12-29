@@ -274,8 +274,7 @@ class Map {
 						$toxicity = $this->map[$newX][$newY]->getToxicity();
 
 						if ($toxicity > 0) {
-							// magic number
-							$this->player->setLife($this->player->getLife() - ($toxicity * 10));
+							$this->player->setLife($this->player->getLife() - ($toxicity * $this->level->toxicityMultiplier));
 							$this->player->scoreToxicWaste += $toxicity;
 							$this->map[$newX][$newY]->setToxicity(0);
 						}

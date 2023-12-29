@@ -39,7 +39,8 @@ $ret = array(
     'toxicityTicks' => 20,
     'startToxicity' => 0,
     'toxicityMin' => 2,
-    'toxicityMax' => 4
+    'toxicityMax' => 4,
+    'toxicityMultiplier' => 5
 );
 
 $l = new Level();

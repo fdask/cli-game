@@ -22,7 +22,8 @@ class Config {
     public static $defaultStartToxicity = 0;
     public static $defaultToxicityMin = 1;
     public static $defaultToxicityMax = 9;
-    
+    public static $defaultToxicityMultiplier = 10;
+
     // player defaults
     public static $defaultPlayerHealth = 1000;
 
