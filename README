@@ -6,4 +6,4 @@ If rendering is slow try the following settings in your settings.json.
 
 `"terminal.integrated.allowChords": false,
 "terminal.integratedexperimentalLinkProvider": false,
-"terminal.integrated.rendererType": "auto"``
+"terminal.integrated.rendererType": "experimentalWebgl"``
