@@ -91,7 +91,6 @@ class Map {
         }
     }
 
-
 	public function save() {
 		file_put_contents("rainsave", serialize($this));
 	}
@@ -746,6 +745,10 @@ class Map {
 		for ($x = $x1; $x < $x2; $x++) {
 			for ($y = $y1; $y < $y2; $y++) {
 				$this->map[$x][$y] = new $fillObj;
+
+				if ($fillObj == "Dirt") {
+					$this->map[$x][$y]->setToxicTicks($this->level->toxicityTicks);
+				}
 			}
 		}	
 	}
@@ -1044,6 +1047,7 @@ class Map {
 
 		return $ret;
 	}
+
 	private function getToxicWastePercentage() {
 		$tt = $this->getTotalToxicity();
 		$rocks = $this->getRockCoords();

@@ -25,15 +25,13 @@ class Dirt {
 	// int level of toxicity
 	public $toxicity;
 
-	public function __construct($rocked = false) {
+	public function __construct() {
 		$this->setWetness(0);
 		$this->setConcentration(0);
 		$this->defaultChar = ".";
 		$this->plant = null;
         $this->crystal = false;
 		$this->toxicity = 0;
-		$this->toxicTicks = 20;
-		$this->tticker = $this->toxicTicks;
 	}
 
 	public function isToxic() {
@@ -46,6 +44,11 @@ class Dirt {
 
 	public function getToxicity() {
 		return $this->toxicity;
+	}
+
+	public function setToxicTicks($tt) {
+		$this->toxicTicks = $tt;
+		$this->tticker = $this->toxicTicks;
 	}
 
 	public function tick() {

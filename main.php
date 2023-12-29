@@ -34,12 +34,15 @@ $ret = array(
     'enableCrystals' => true,
     'maxCrystals' => 15,
     'enableMeteors' => true,
-    'meteorTicks' => 15
+    'meteorTicks' => 15,
+    'enableToxicity' => true,
+    'toxicityTicks' => 20
 );
 
 $l = new Level();
 $l->takeArray($ret);
 $l->saveToJSON("level1.dat");
+
 
 exit;
 */

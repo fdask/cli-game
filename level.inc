@@ -52,6 +52,11 @@ class Level {
     // how long between meteors
     public $meteorTicks;
 
+    // toxicity
+    public $enableToxicity;
+
+    public $toxicityTicks;
+
     // an array of points of interest
     public $pointsOfInterest;
 
@@ -118,6 +123,8 @@ class Level {
             'maxCrystals' => $this->maxCrystals,
             'enableMeteors' => $this->enableMeteors,
             'meteorTicks' => $this->meteorTicks,
+            'enableToxicity' => $this->enableToxicity,
+            'toxicityTicks' => $this->toxicityTicks,
             'pointsOfInterest' => $this->pointsOfInterest
         );
 
@@ -146,6 +153,8 @@ class Level {
         $this->maxCrystals = isset($array['maxCrystals']) ? $array['maxCrystals'] : Config::$defaultMaxCrystals;
         $this->enableMeteors = isset($array['enableMeteors']) ? $array['enableMeteors'] : false;
         $this->meteorTicks = isset($array['meteorTicks']) ? $array['meteorTicks'] : Config::$defaultMeteorTicks;
+        $this->enableToxicity = isset($array['enableToxicity']) ? $array['enableToxicity'] : false;
+        $this->toxicityTicks = isset($array['toxicityTicks']) ? $array['toxicityTicks'] : Config::$defaultToxicityTicks;
         $this->pointsOfInterest = isset($array['pointsOfInterest']) ? $array['pointsOfInterest'] : array();
     }
 

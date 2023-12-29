@@ -18,6 +18,7 @@ class Config {
     public static $defaultMaxPlants = 7;
     public static $defaultMaxCrystals = 5;
     public static $defaultMeteorTicks = 10;
+    public static $defaultToxicityTicks = 20;
     
     // player defaults
     public static $defaultPlayerHealth = 1000;
