@@ -260,6 +260,10 @@ class Map {
 							break;
 						}
 
+						if (!is_null($this->portal) && $this->portal->getXY() == [$newX, $newY] && $this->portal->isVisible()) {
+							$this->gameOver();
+						}
+
 						$this->player->setY($newY);
 						
 						if ($c == 'a') {
@@ -365,6 +369,10 @@ class Map {
                             $tick = false;
 							break;
 						} 
+
+						if (!is_null($this->portal) && $this->portal->getXY() == [$newX, $newY] && $this->portal->isVisible()) {
+							$this->gameOver();
+						}
 
 						$this->player->setY($newY);
 						
@@ -526,6 +534,10 @@ class Map {
 							break;
 						} 
 
+						if (!is_null($this->portal) && $this->portal->getXY() == [$newX, $newY] && $this->portal->isVisible()) {
+							$this->gameOver();
+						}
+
 						$this->player->setX($newX);
 
 						if ($c == 's') {
@@ -605,6 +617,10 @@ class Map {
 							$tick = false;
 
 							break;
+						}
+
+						if (!is_null($this->portal) && $this->portal->getXY() == [$newX, $newY] && $this->portal->isVisible()) {
+							$this->gameOver();
 						}
 
 						$this->player->setX($newX);
@@ -1223,7 +1239,7 @@ class Map {
 								if ($dir == "R") {
 									$newMy = $newMy + $speed;
 
-									if ($newMy > $this->level->mapWidth) {
+									if ($newMy >= $this->level->mapWidth) {
 										$newMy = $newMy - $this->level->mapWidth;
 									}
 								} else {
