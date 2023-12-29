@@ -26,6 +26,9 @@ class Player {
 	// what character for the head of the char
 	private $headChar;
 
+	// our experience points
+	private $xp;
+
 	// the players stats
 	public $scoreWater;
 	public $scoreMinerals;
@@ -64,6 +67,7 @@ class Player {
 		$this->scoreGrown = 0;
 		$this->scoreShrink = 0;
 		$this->scoreCrystals = 0;
+		$this->xp = 0;
 	}
 
 	public function calculateScore() {
@@ -82,7 +86,9 @@ class Player {
 			" ",
 			"Moves: " . $this->scoreMoves,
 			"Grown: " . $this->scoreGrown,
-			"Shrunk: " . $this->scoreShrink
+			"Shrunk: " . $this->scoreShrink,
+			" ",
+			"XP: " . $this->xp
 		);
 
 		return $scoreMsg;
@@ -251,5 +257,13 @@ class Player {
 		}
 
 		return false;
+	}
+
+	public function getXP() {
+		return $this->xp;
+	}
+
+	public function setXP($xp) {
+		$this->xp = $xp;
 	}
 }
