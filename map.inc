@@ -444,6 +444,20 @@ class Map {
 					}
 
 					break;
+				case 'j':
+					// show the level screen journal if we aren't already
+					$curMsg = $this->mailbox->readCurrentMessage();
+					$levelScreen = $this->getLevelScreen();
+
+					if (is_array($curMsg) && $curMsg[0] == $levelScreen[0]) {
+						$this->mailbox->deleteCurrentMessage();
+					} else {
+						$this->mailbox->addMessageToStart($this->getLevelScreen());
+					}
+					
+					$tick = false;
+
+					break;
 				case 'm':
 					// delete the current message
 					$this->mailbox->deleteCurrentMessage();
@@ -702,7 +716,7 @@ class Map {
 	private function tick() {
 		// check for points of interest
         $this->checkPointsOfInterest();
-        
+        $this->checkObjectives();
     	$this->updateRain();
 		$this->updatePlants();
 		$this->updateMeteor();
@@ -738,6 +752,77 @@ class Map {
 
 	    // redraw the screen
 		echo $this;
+	}
+
+	/**
+	 * loops through the objectives array of the level object
+	 * 
+	 * any objectives that are complete, will be marked as such
+	 * a message sent to player
+	 * and rewards taken
+	 */
+	public function checkObjectives() {
+		$objectives = $this->level->getObjectives();
+
+		if (!empty($objectives)) {
+			for ($x = 0; $x < count($objectives); $x++) {
+				$objective = $this->level->objectives[$x];
+
+				switch (get_class($objective)) {
+					case 'CollectObjective':
+						$complete = false;
+
+						switch ($objective->what) {
+							case 'health':
+								if ($this->player->getLife() >= $objective->amount) {
+									$this->level->objectives[$x]->setCompleted();
+									$complete = true;
+
+								}
+								
+								break;
+							case 'crystals':
+								if ($this->player->getCrystals() >= $objective->amount) {
+									$this->level->objectives[$x]->setCompleted();
+									$complete = true;
+								}			
+
+								break;
+							case 'minerals':
+								if ($this->player->scoreMinerals >= $objective->amount) {
+									$this->level->objectives[$x]->setCompleted();
+									$complete = true;
+								}
+
+								break;
+							case 'moves':
+								if ($this->player->scoreMoves >= $objective->amount) {
+									$this->level->objectives[$x]->setCompleted();
+									$complete = true;
+								}
+
+								break;
+							case 'water':
+								if ($this->player->scoreWater >= $objective->amount) {
+									$this->level->objectives[$x]->setCompleted();
+									$complete = true;
+								}
+
+								break;
+						}
+
+						if ($complete) {
+							// send a message about the completed objective
+							$this->mailbox->addMessage("Objective complete! (" . $objective->getShortName() . ")");
+
+							// get the rewards from the objects
+							$this->player->addXP($objective->getRewardXP());
+						}
+
+						break;
+				}        
+			}
+		}
 	}
 
 	public function fillMap($x1, $y1, $x2, $y2, $fillObj) {
@@ -854,12 +939,13 @@ class Map {
         // look for a dirt square we can take
         $cCoords = $this->getCrystalCoords();
         $rockCoords = $this->getRockCoords();
+		$player = $this->player->getCoords();
 
         if (count($cCoords) >= $this->level->maxCrystals) {
             return false;
         }
 
-        $allCoords = array_merge($cCoords, $rockCoords);
+        $allCoords = array_merge($cCoords, $rockCoords, $player);
 
         do {
             $newX = rand($this->level->mapHeight - 5, $this->level->mapHeight - 1);
@@ -884,10 +970,10 @@ class Map {
 		}
 
 		// add a new meteor of speed 1.
-		$this->meteor = new Meteor($dir, rand(1, 5));
+		$this->meteor = new Meteor($dir, rand($this->level->meteorSpeedMin, $this->level->meteorSpeedMax));
 
 		// the x is 0 to start, but the Y is random
-		$this->meteor->setXY(0, rand(0, $this->level->mapWidth));
+		$this->meteor->setXY(0, rand(0, $this->level->mapWidth - 1));
 	}
 
 	public function addToxicWaste() {
@@ -1285,6 +1371,35 @@ class Map {
 		} else {
 			return "$m/-$mx";
 		}
+	}
+
+	public function getLevelScreen() {
+		$ret = array(
+			"LEVEL: " . $this->level->getName(),
+			" ",
+			"OBJECTIVES",
+			" "
+		);
+
+		$objectives = $this->level->getObjectives();
+
+		foreach ($objectives as $objective) {
+			$tmp = "[";
+
+			if ($objective->getCompleted()) {
+				$tmp .= "X";
+			} else {
+				$tmp .= " ";
+			}
+
+			$tmp .= "] - " . $objective->getShortName();
+
+			$ret[] = $tmp;
+		}
+
+		$ret[] = " ";
+
+		return $ret;		
 	}
 
 	public function __toString() {

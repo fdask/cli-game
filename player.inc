@@ -171,6 +171,7 @@ class Player {
         return false;
     }
 
+	
 	public function getSize() {
 		return count($this->coords);
 	}
@@ -263,6 +264,10 @@ class Player {
 		return $this->xp;
 	}
 
+	public function addXP($add) {
+		$this->xp = $this->xp + $add;
+	}
+	
 	public function setXP($xp) {
 		$this->xp = $xp;
 	}
