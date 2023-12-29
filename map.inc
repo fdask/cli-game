@@ -911,7 +911,7 @@ class Map {
 			$newY = rand(0, $this->level->mapWidth - 1);
 		} while (in_array([$newX, $newY], $tw));
 
-		$this->map[$newX][$newY]->setToxicity(rand(1, 9));
+		$this->map[$newX][$newY]->setToxicity(rand($this->level->toxicityMin, $this->level->toxicityMax));
 	}
 
 	public function getDirtCoords() {
@@ -1110,7 +1110,7 @@ class Map {
 
 						for ($x = $this->level->skyHeight; $x < $target; $x++) {
 							if ($this->map[$x][$newMy] instanceof Dirt) {
-								$this->map[$x][$newMy]->setToxicity(rand(2, 7));
+								$this->map[$x][$newMy]->setToxicity(rand($this->level->toxicityMin, $this->level->toxicityMax));
 								
 								if ($dir == "R") {
 									$newMy = $newMy + $speed;

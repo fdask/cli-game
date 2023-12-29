@@ -59,6 +59,9 @@ class Level {
 
     public $startToxicity;
 
+    public $toxicityMin;
+    public $toxicityMax;
+
     // an array of points of interest
     public $pointsOfInterest;
 
@@ -128,6 +131,8 @@ class Level {
             'enableToxicity' => $this->enableToxicity,
             'toxicityTicks' => $this->toxicityTicks,
             'startToxicity' => $this->startToxicity,
+            'toxicityMin' => $this->toxicityMin,
+            'toxicityMax' => $this->toxicityMax,
             'pointsOfInterest' => $this->pointsOfInterest
         );
 
@@ -159,6 +164,8 @@ class Level {
         $this->enableToxicity = isset($array['enableToxicity']) ? $array['enableToxicity'] : false;
         $this->toxicityTicks = isset($array['toxicityTicks']) ? $array['toxicityTicks'] : Config::$defaultToxicityTicks;
         $this->startToxicity = isset($array['startToxicity']) ? $array['startToxicity'] : Config::$defaultStartToxicity;
+        $this->toxicityMin = isset($array['toxicityMin']) ? $array['toxicityMin'] : Config::$defaultToxicityMin;
+        $this->toxicityMax = isset($array['toxicityMax']) ? $array['toxicityMax'] : Config::$defaultToxicityMax;
         $this->pointsOfInterest = isset($array['pointsOfInterest']) ? $array['pointsOfInterest'] : array();
     }
 

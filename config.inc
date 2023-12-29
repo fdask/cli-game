@@ -20,6 +20,8 @@ class Config {
     public static $defaultMeteorTicks = 10;
     public static $defaultToxicityTicks = 20;
     public static $defaultStartToxicity = 0;
+    public static $defaultToxicityMin = 1;
+    public static $defaultToxicityMax = 9;
     
     // player defaults
     public static $defaultPlayerHealth = 1000;
