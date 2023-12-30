@@ -107,7 +107,7 @@ class Map {
 		// fill in the sky
 		$this->fillMap(0, 0, $this->level->skyHeight, $this->level->mapWidth, "Sky");
 
-		if ($this->level->enableRain) {
+		if ($this->level->enableRain && $this->level->rainAtStart) {
 			// add in random rains up to maxRain
 			for ($x = 0; $x < $this->level->maxRain; $x++) {
 				$this->addRain();
@@ -117,7 +117,7 @@ class Map {
 		// fill in the dirt
 		$this->fillMap($this->level->skyHeight, 0, $this->level->mapHeight, $this->level->mapWidth, "Dirt");		
 
-		if ($this->level->enableMinerals) {
+		if ($this->level->enableMinerals && $this->level->mineralsAtStart) {
 			// add in random minerals up to maxMinerals
 			for ($x = 0; $x < $this->level->maxMinerals; $x++) {
 				$this->addMineral();
@@ -125,20 +125,20 @@ class Map {
 		}
 
 		// add in plants up to maxPlants
-		if ($this->level->enablePlants) {
+		if ($this->level->enablePlants && $this->level->plantsAtStart) {
 			for ($x = 0; $x < $this->level->maxPlants; $x++) {
 				$this->addPlant();
 			}
 		}
 
-		if ($this->level->enableRocks) {
+		if ($this->level->enableRocks && $this->level->rocksAtStart) {
 			// add in the rocks
 			for ($x = 0; $x < $this->level->maxRocks; $x++) {
 				$this->addRock();
 			}
 		}
 
-		if ($this->level->enableCrystals) {
+		if ($this->level->enableCrystals && $this->level->crystalsAtStart) {
 			// add in the crystals
 			for ($x = 0; $x < $this->level->maxCrystals; $x++) {
 				$this->addCrystal();
@@ -254,6 +254,13 @@ class Map {
 					
 					$tick = $this->playerMove($newX, $newY, false, $c == 'D');
 
+					// move viewport left
+					if ($this->vpY - 1 < 0) {
+						$this->vpY = $this->level->mapWidth - 1;
+					} else {
+						$this->vpY--;
+					}
+
 					break;
 				case 'c':
 					$playerInWindow = false;
@@ -298,6 +305,13 @@ class Map {
 					} 
 					
 					$tick = $this->playerMove($newX, $newY, false, $c == 'D');
+
+					// scroll viewprot to the right
+					if ($this->vpY + 1 >= $this->level->mapWidth) {
+						$this->vpY = 0;
+					} else {
+						$this->vpY++;
+					}
 
 					break;
 				case 'g':
@@ -781,15 +795,18 @@ class Map {
 	public function addRock() {
 		// look for a dirt square we can take
 		$rockCoords = $this->getRockCoords();
+		$playerCoords = $this->player->getCoords();
 
 		if (count($rockCoords) >= $this->level->maxRocks) {
 			return false;
 		}
 		
+		$taken = array_merge($rockCoords, $playerCoords);
+
 		do {
 			$newX = rand($this->level->skyHeight, $this->level->mapHeight - 1);
 			$newY = rand(0, $this->level->mapWidth - 1);
-		} while (in_array([$newX, $newY], $rockCoords));
+		} while (in_array([$newX, $newY], $taken));
 
 		$rock = new Rock();
 

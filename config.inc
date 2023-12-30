@@ -11,13 +11,23 @@ class Config {
 
     // level environment setting defaults
     public static $defaultMaxRocks = 10;
+    public static $defaultRocksAtStart = true;
+    
     public static $defaultMaxRain = 2;
     public static $defaultRainStrengthMin = 6;
     public static $defaultRainStrengthMax = 9;
+    public static $defaultRainAtStart = true;
+
     public static $defaultMaxMinerals = 10;
+    public static $defaultMineralsAtStart = true;
+
     public static $defaultMaxPlants = 7;
+    public static $defaultPlantsAtStart = true;
+    
     public static $defaultMaxCrystals = 5;
     public static $defaultCrystalHealthBonus = 50;
+    public static $defaultCrystalsAtStart = true;
+
     public static $defaultMeteorTicks = 10;
     public static $defaultMeteorSpeedMin = 1;
     public static $defaultMeteorSpeedMax = 5;
