@@ -26,6 +26,11 @@ class Portal {
         }
     }
 
+    public function setXY($x, $y) {
+        $this->x = $x;
+        $this->y = $y;
+    }
+
     public function getXY() {
         return [$this->x, $this->y];
     }

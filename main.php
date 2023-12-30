@@ -26,7 +26,7 @@ if (!(file_exists("level1.dat"))) {
         'skyHeight' => 8,
         'enableRocks' => true,
         'maxRocks' => 15,
-        'rocksAtStart' => true,
+        'rocksAtStart' => false,
         'enableRain' => true,
         'maxRain' => 7,
         'rainStrengthMax' => 9,
@@ -52,6 +52,22 @@ if (!(file_exists("level1.dat"))) {
         'toxicityMin' => 2,
         'toxicityMax' => 4,
         'toxicityMultiplier' => 5,
+        'map' => array(
+            "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD",
+            "DDDDDDDDDRRRRRDDDDDDDDDDDRRRRRRDDDDDDDDDDDDD",
+            "DDDDDDDDDDDDDDDRRRRRRRRDDDDDDDDDTTTTTTTTDDDD",
+            "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD",
+            "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD",
+            "DDDDDDDDDDDDDDDDDDDDDDDDTDDDDDDDDDDDDDDDDDDD",
+            "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD",
+            "DDDDDDDDDDDDDDDDDDTDDDDDDDDDDDDDDDDDDDDDDDDD",
+            "DDDDDDDRRRDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD",
+            "DDDDDDDRDRDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD",
+            "DDDDDDDRRRDDDDDTDDDDDDDDDDDDDDDDDDDDDDDDDDDD",
+            "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD",
+            "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD",
+            "DDDDDDDDDDDDDDDDDDTDDDDDDDDDDDDDDDDDDDDDDDDD"
+        )
     );
 
     $l = new Level();

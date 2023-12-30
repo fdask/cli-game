@@ -117,6 +117,8 @@ class Map {
 		// fill in the dirt
 		$this->fillMap($this->level->skyHeight, 0, $this->level->mapHeight, $this->level->mapWidth, "Dirt");		
 
+		$this->parseMap();
+
 		if ($this->level->enableMinerals && $this->level->mineralsAtStart) {
 			// add in random minerals up to maxMinerals
 			for ($x = 0; $x < $this->level->maxMinerals; $x++) {
@@ -174,6 +176,48 @@ class Map {
 		for ($x = 0; $x < ($this->level->mapHeight); $x++) {
 			for ($y = 0; $y < $this->level->mapWidth; $y++) {
 				$this->map[$x][$y] = false;
+			}
+		}
+	}
+
+	/** 
+	 * takes map data from the level
+	 * and applies it to the actual map
+	 */
+	private function parseMap() {
+		$lmap = $this->level->getMap();
+
+		if (!is_null($lmap)) {
+			for ($x = 0; $x < count($lmap); $x++) {
+				$splitY = str_split($lmap[$x]);
+
+				for ($y = 0; $y < count($splitY); $y++) {
+					$withSkyX = $x + ($this->level->skyHeight);
+
+					switch ($splitY[$y]) {
+						case 'D':
+							// dirt
+							$this->map[$withSkyX][$y] = new Dirt;
+
+							break;
+						case 'R':
+							// rocks
+							$this->map[$withSkyX][$y] = new Rock;
+
+							break;
+						case 'P':
+							// exit portal
+							$this->portal->setXY($withSkyX, $y);
+							
+							break;
+						case 'T':
+							// toxic waste
+							$this->map[$withSkyX][$y] = new Dirt;
+							$this->map[$withSkyX][$y]->setToxicity(rand($this->level->toxicityMin, $this->level->toxicityMax));
+
+							break;
+					}
+				}
 			}
 		}
 	}
@@ -943,8 +987,8 @@ class Map {
 		$ret = array();
 
 		// scan the dirt for existing minerals
-		for ($x = 0; $x < count($this->map); $x++) {
-			for ($y = 0; $y < count($this->map[0]); $y++) {
+		for ($x = 0; $x < $this->level->mapHeight; $x++) {
+			for ($y = 0; $y < $this->level->mapWidth; $y++) {
 				if ($this->map[$x][$y] instanceof Dirt && ($this->map[$x][$y]->hasMinerals())) {
 					$ret[] = [$x, $y];
 				}
@@ -957,8 +1001,8 @@ class Map {
 	private function getPlantCoords() {
 		$ret = array();
 
-		for ($x = 0; $x < count($this->map); $x++) {
-			for ($y = 0; $y < count($this->map[0]); $y++) {
+		for ($x = 0; $x < $this->level->mapHeight; $x++) {
+			for ($y = 0; $y < $this->level->mapWidth; $y++) {
 				if ($this->map[$x][$y] instanceof Dirt && $this->map[$x][$y]->hasPlant()) {
 					$ret[] = [$x, $y];
 				}
@@ -971,8 +1015,8 @@ class Map {
 	private function getRainCoords() {
 		$ret = array();
 
-		for ($x = 0; $x < count($this->map); $x++) {
-			for ($y = 0; $y < count($this->map[0]); $y++) {
+		for ($x = 0; $x < $this->level->mapHeight; $x++) {
+			for ($y = 0; $y < $this->level->mapWidth; $y++) {
 				if ($this->map[$x][$y] instanceof Rock) {
 					continue;
 				} else if ($this->map[$x][$y]->isWet()) {
@@ -988,8 +1032,8 @@ class Map {
 		$ret = array();
 
 		// scan the skies for existing rain
-		for ($x = 0; $x < count($this->map); $x++) {
-			for ($y = 0; $y < count($this->map[0]); $y++) {
+		for ($x = 0; $x < $this->level->mapHeight; $x++) {
+			for ($y = 0; $y < $this->level->mapWidth; $y++) {
 				if ($this->map[$x][$y] instanceof Sky) {
 					if ($this->map[$x][$y]->isWet()) {
 						$ret[] = [$x, $y];
@@ -1331,7 +1375,7 @@ class Map {
 			$ret .= "\n";
 
             // iterate the height of the map
-			for ($x = 0; $x < count($this->map); $x++) {
+			for ($x = 0; $x < $this->level->mapHeight; $x++) {
 				// vertical left line
 				$ret .= json_decode('"\u2502"');
 
@@ -1539,7 +1583,7 @@ class Map {
 			$ret .= "\n";
 
 			// all the map lines
-			for ($x = 0; $x < count($this->map); $x++) {
+			for ($x = 0; $x < $this->level->mapHeight; $x++) {
 				// vertical left line
 				$ret .= json_decode('"\u2502"');
 
@@ -1630,6 +1674,8 @@ class Map {
 					$ret .= " EOF";
 				}
             } 
+
+			echo "Sky height is {$this->level->skyHeight}\n";
 		}
 
 		$ret .= "\n";
