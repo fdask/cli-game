@@ -38,6 +38,9 @@ class Map {
 	// the level data goes here
 	public $level;
 
+	// every level has one!
+	public $portal;
+
 	public function __construct($filename = null) {
 		if (!is_null($filename)) {
 			$this->level = new Level($filename);
@@ -55,7 +58,9 @@ class Map {
 		$this->mailbox->addInstructions();
 		
 		$this->player = new Player($this->level->skyHeight, floor($this->level->vpWidth / 2));
-		
+
+		$this->portal = null;
+
 		$this->initialize();
 		$this->gameLoop();
 	}
@@ -157,6 +162,9 @@ class Map {
 				}
 			}
 		}
+
+		// add a portal to the map
+		$this->addPortal();
 	}
 
 	private function initializeMap() {
@@ -222,7 +230,14 @@ class Map {
 					break;
 				case '9':
 					$ss = $this->player->getScoreScreen();
-					$this->mailbox->addMessageToStart($ss);
+					$cm = $this->mailbox->readCurrentMessage();
+
+					if ($cm[0] == $ss[0]) {
+						$this->mailbox->deleteCurrentMessage();
+					} else {
+						$this->mailbox->addMessageToStart($ss);
+					}
+
 					$tick = false;
 
 					break;
@@ -243,6 +258,10 @@ class Map {
                             $tick = false;
 
 							break;
+						}
+
+						if (!is_null($this->portal) && $this->portal->getXY() == [$newX, $newY] && $this->portal->isVisible()) {
+							$this->gameOver();
 						}
 
 						$this->player->setY($newY);
@@ -350,6 +369,10 @@ class Map {
                             $tick = false;
 							break;
 						} 
+
+						if (!is_null($this->portal) && $this->portal->getXY() == [$newX, $newY] && $this->portal->isVisible()) {
+							$this->gameOver();
+						}
 
 						$this->player->setY($newY);
 						
@@ -511,6 +534,10 @@ class Map {
 							break;
 						} 
 
+						if (!is_null($this->portal) && $this->portal->getXY() == [$newX, $newY] && $this->portal->isVisible()) {
+							$this->gameOver();
+						}
+
 						$this->player->setX($newX);
 
 						if ($c == 's') {
@@ -590,6 +617,10 @@ class Map {
 							$tick = false;
 
 							break;
+						}
+
+						if (!is_null($this->portal) && $this->portal->getXY() == [$newX, $newY] && $this->portal->isVisible()) {
+							$this->gameOver();
 						}
 
 						$this->player->setX($newX);
@@ -768,59 +799,61 @@ class Map {
 			for ($x = 0; $x < count($objectives); $x++) {
 				$objective = $this->level->objectives[$x];
 
-				switch (get_class($objective)) {
-					case 'CollectObjective':
-						$complete = false;
+				if (!$objective->getCompleted()) {
+					switch (get_class($objective)) {
+						case 'CollectObjective':
+							$complete = false;
 
-						switch ($objective->what) {
-							case 'health':
-								if ($this->player->getLife() >= $objective->amount) {
-									$this->level->objectives[$x]->setCompleted();
-									$complete = true;
+							switch ($objective->what) {
+								case 'health':
+									if ($this->player->getLife() >= $objective->amount) {
+										$this->level->objectives[$x]->setCompleted();
+										$complete = true;
+									}
+									
+									break;
+								case 'crystals':
+									if ($this->player->getCrystals() >= $objective->amount) {
+										$this->level->objectives[$x]->setCompleted();
+										$complete = true;
+									}			
 
-								}
-								
-								break;
-							case 'crystals':
-								if ($this->player->getCrystals() >= $objective->amount) {
-									$this->level->objectives[$x]->setCompleted();
-									$complete = true;
-								}			
+									break;
+								case 'minerals':
+									if ($this->player->scoreMinerals >= $objective->amount) {
+										$this->level->objectives[$x]->setCompleted();
+										$complete = true;
+									}
 
-								break;
-							case 'minerals':
-								if ($this->player->scoreMinerals >= $objective->amount) {
-									$this->level->objectives[$x]->setCompleted();
-									$complete = true;
-								}
+									break;
+								case 'moves':
+									if ($this->player->scoreMoves >= $objective->amount) {
+										$this->level->objectives[$x]->setCompleted();
+										$complete = true;
+									}
 
-								break;
-							case 'moves':
-								if ($this->player->scoreMoves >= $objective->amount) {
-									$this->level->objectives[$x]->setCompleted();
-									$complete = true;
-								}
+									break;
+								case 'water':
+									if ($this->player->scoreWater >= $objective->amount) {
+										$this->level->objectives[$x]->setCompleted();
+										$complete = true;
+									}
 
-								break;
-							case 'water':
-								if ($this->player->scoreWater >= $objective->amount) {
-									$this->level->objectives[$x]->setCompleted();
-									$complete = true;
-								}
+									break;
+							}
 
-								break;
-						}
+							if ($complete) {
+								// send a message about the completed objective
+								$this->mailbox->addMessage("Objective complete! (" . $objective->getShortName() . ")");
 
-						if ($complete) {
-							// send a message about the completed objective
-							$this->mailbox->addMessage("Objective complete! (" . $objective->getShortName() . ")");
+								// get the rewards from the objects
+								$this->player->addXP($objective->getRewardXP());
+								$this->portal->setVisible();
+							}
 
-							// get the rewards from the objects
-							$this->player->addXP($objective->getRewardXP());
-						}
-
-						break;
-				}        
+							break;
+					}        
+				}
 			}
 		}
 	}
@@ -989,6 +1022,20 @@ class Map {
 		} while (in_array([$newX, $newY], $tw));
 
 		$this->map[$newX][$newY]->setToxicity(rand($this->level->toxicityMin, $this->level->toxicityMax));
+	}
+
+	public function addPortal() {
+		if (is_null($this->portal)) {
+			// add a portal object at random coords
+			$taken = array_merge($this->getRockCoords(), $this->getCrystalCoords(), $this->player->getCoords());
+
+			do {
+				$portalX = rand($this->level->skyHeight, $this->level->mapHeight - 1);
+				$portalY = rand(0, $this->level->mapWidth - 1);
+			} while (in_array([$portalX, $portalY], $taken));
+			
+			$this->portal = new Portal($portalX, $portalY);
+		}
 	}
 
 	public function getDirtCoords() {
@@ -1192,7 +1239,7 @@ class Map {
 								if ($dir == "R") {
 									$newMy = $newMy + $speed;
 
-									if ($newMy > $this->level->mapWidth) {
+									if ($newMy >= $this->level->mapWidth) {
 										$newMy = $newMy - $this->level->mapWidth;
 									}
 								} else {
@@ -1478,7 +1525,10 @@ class Map {
                         } else {
                             $ret .= " ";
                         }
-                    } else if ($this->player->onCoords($x, $ypos) && in_array(1, $this->charOnScreens)) {
+					} else if ($this->portal->getXY() == [$x, $ypos] && $this->portal->isVisible()) {
+						// player is on the portal
+						$ret .= $this->portal;
+                   	} else if ($this->player->onCoords($x, $ypos) && in_array(1, $this->charOnScreens)) {
 						// if this is the x/y, get the head char
 						if ($this->player->getX() == $x && $this->player->getY() == $ypos) {
 							$ret .= Colors::fg_color(Config::$playerHeadColor, $this->player->getHeadChar());
@@ -1522,8 +1572,10 @@ class Map {
 						$ypos = $ypos - $this->level->mapWidth;
 					}
 
-					// if the player has a position here, draw that
-					if ($this->player->onCoords($x, $ypos) && in_array(2, $this->charOnScreens)) {
+					if ($this->portal->getXY() == [$x, $ypos] && $this->portal->isVisible()) {
+						// player is on the portal
+						$ret .= $this->portal;
+                   	} else if ($this->player->onCoords($x, $ypos) && in_array(2, $this->charOnScreens)) {
 						// if this is the x/y, get the head char
 						if ($this->player->getX() == $x && $this->player->getY() == $ypos) {
 							$ret .= Colors::fg_color(Config::$playerHeadColor, $this->player->getHeadChar());
@@ -1566,8 +1618,11 @@ class Map {
 					if ($ypos >= $this->level->mapWidth) {
 						$ypos = $ypos - $this->level->mapWidth;
 					}
-
-                   if ($this->player->onCoords($x, $ypos) && in_array(3, $this->charOnScreens)) {
+				
+					if ($this->portal->getXY() == [$x, $ypos] && $this->portal->isVisible()) {
+						// player is on the portal
+						$ret .= $this->portal;
+                   	} else if ($this->player->onCoords($x, $ypos) && in_array(3, $this->charOnScreens)) {
 						// if this is the x/y, get the head char
 						if ($this->player->getX() == $x && $this->player->getY() == $ypos) {
 							$ret .= Colors::fg_color(Config::$playerHeadColor, $this->player->getHeadChar());
@@ -1623,14 +1678,14 @@ class Map {
 			 * SINGLE SCREEN VIEW STARTS HERE!
 			 */
 			switch ($this->viewType) {
+				case 1: 
+					$txt = "h2o";
+					break;
 				case 2:
 					$txt = "mineral";
 					break;
 				case 3:
 					$txt = "plant";
-					break;
-				case 1: 
-					$txt = "h2o";
 					break;
 			}
 
@@ -1678,6 +1733,9 @@ class Map {
                         } else {
                             $ret .= " ";
                         }
+					} else if ($this->portal->getXY() == [$x, $ypos] && $this->portal->isVisible()) {
+						// player is on the portal
+						$ret .= $this->portal;
 					} else if ($this->player->onCoords($x, $ypos) && in_array($this->viewType, $this->charOnScreens)) {
 						// if this is the x/y, get the head char
 						if ($this->player->getX() == $x && $this->player->getY() == $ypos) {
