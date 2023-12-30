@@ -299,10 +299,12 @@ class Map {
 					$tick = $this->playerMove($newX, $newY, false, $c == 'D');
 
 					// move viewport left
-					if ($this->vpY - 1 < 0) {
-						$this->vpY = $this->level->mapWidth - 1;
-					} else {
-						$this->vpY--;
+					if ($tick) {
+						if ($this->vpY - 1 < 0) {
+							$this->vpY = $this->level->mapWidth - 1;
+						} else {
+							$this->vpY--;
+						}
 					}
 
 					break;
@@ -350,11 +352,13 @@ class Map {
 					
 					$tick = $this->playerMove($newX, $newY, false, $c == 'D');
 
-					// scroll viewprot to the right
-					if ($this->vpY + 1 >= $this->level->mapWidth) {
-						$this->vpY = 0;
-					} else {
-						$this->vpY++;
+					if ($tick) {
+						// scroll viewprot to the right
+						if ($this->vpY + 1 >= $this->level->mapWidth) {
+							$this->vpY = 0;
+						} else {
+							$this->vpY++;
+						}
 					}
 
 					break;
