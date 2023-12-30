@@ -252,7 +252,9 @@ class Map {
 						$newY = $this->level->mapWidth - 1;
 					} 
 					
-					// dont let player move onto themselves
+					$tick = $this->playerMove($newX, $newY, false, $c == 'D');
+
+					/* dont let player move onto themselves
 					if (!$this->player->onCoords($newX, $newY)) {
 						if ($this->map[$newX][$newY] instanceof Rock) {
                             $tick = false;
@@ -320,6 +322,7 @@ class Map {
 					} else {
 						$tick = false;
 					}
+					*/
 
 					break;
 				case 'c':
@@ -364,6 +367,9 @@ class Map {
 						$newY = 0;
 					} 
 					
+					$tick = $this->playerMove($newX, $newY, false, $c == 'D');
+
+					/*
 					if (!$this->player->onCoords($newX, $newY)) {
 						if ($this->map[$newX][$newY] instanceof Rock) {
                             $tick = false;
@@ -376,6 +382,8 @@ class Map {
 
 						$this->player->setY($newY);
 						
+						$tick = $this->playerMove($newX, $newY, $c == 'D');
+
 						if ($c == 'd') {
 							$this->player->coordPop();
 						} else {
@@ -430,6 +438,7 @@ class Map {
 					} else {
 						$tick = false;
 					}
+					*/
 					
 					break;
 				case 'g':
@@ -528,6 +537,9 @@ class Map {
 						$newX = $this->level->mapHeight - 1;
 					} 
 					
+					$tick = $this->playerMove($newX, $newY, true, $c == 'S');
+					
+					/*
 					if (!$this->player->onCoords($newX, $newY)) {
 						if ($this->map[$newX][$newY] instanceof Rock) {
                             $tick = false;
@@ -589,6 +601,7 @@ class Map {
 					} else {
 						$tick = false;
 					}
+					*/
 
 					break;
 				case 't':
@@ -610,6 +623,9 @@ class Map {
 						$newX = $this->level->skyHeight;
 					}
 
+					$tick = $this->playerMove($newX, $newY, true, $c == 'W');
+
+					/*
 					// character cannot pass onto itself
 					if (!$this->player->onCoords($newX, $newY)) {
 						// character cannot go through a rock
@@ -675,6 +691,7 @@ class Map {
 					} else {
 						$tick = false;
 					}
+					*/
 
 					break;
 				case 'x':
@@ -730,6 +747,79 @@ class Map {
 				echo $this;
 			}
 		}
+	}
+
+	public function playerMove($newX, $newY, $setX = false, $grow = false) {
+		// character cannot pass onto itself
+		if (!$this->player->onCoords($newX, $newY)) {
+			// character cannot go through a rock
+			if ($this->map[$newX][$newY] instanceof Rock) {
+				return false;
+			}
+
+			if (!is_null($this->portal) && $this->portal->getXY() == [$newX, $newY] && $this->portal->isVisible()) {
+				$this->gameOver();
+			}
+
+			// set the X or the Y
+			if ($setX) {
+				$this->player->setX($newX);
+			} else {
+				$this->player->setY($newY);
+			}
+
+			if (!$grow) {
+				$this->player->coordPop();
+			} else {
+				$this->player->scoreGrown++;
+			}
+
+			// collect rain
+			$wetness = $this->map[$newX][$newY]->getWetness();
+
+			if ($wetness > 0) {
+				$this->player->incrMoisture($wetness);
+				$this->map[$newX][$newY]->setWetness(0);
+			}
+
+			$this->checkPlayerMoisture();
+			
+			// collect minerals 
+			$concentration = $this->map[$newX][$newY]->getConcentration();
+
+			if ($concentration > 0) {
+				$this->player->setLife($concentration + $this->player->getLife());
+				$this->player->scoreMinerals += $concentration;
+				$this->map[$newX][$newY]->setConcentration(0);
+			}
+			
+			// collect toxicity
+			$toxicity = $this->map[$newX][$newY]->getToxicity();
+
+			if ($toxicity > 0) {
+				$this->player->setLife($this->player->getLife() - ($toxicity * $this->level->toxicityMultiplier));
+				$this->player->scoreToxicWaste += $toxicity;
+				$this->map[$newX][$newY]->setToxicity(0);
+			}
+			
+			// upkeep tax
+			if ($this->player->decrLife() < 0) {
+				$this->gameOver();
+			}
+
+			// check if we're on a crystal square.
+			// if so, take it.
+			if ($this->map[$newX][$newY] instanceof Dirt && $this->map[$newX][$newY]->isCrystal()) {
+				// remove the crystal, and add to players inventory
+				$this->player->incrCrystals();
+				$this->map[$newX][$newY]->setCrystal(false);
+				$this->player->setLife($this->player->getLife() + $this->level->crystalHealthBonus);
+			}
+		} else {
+			return false;
+		}
+
+		return true;
 	}
 
 	public function checkPlayerMoisture() {
