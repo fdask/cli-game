@@ -21,7 +21,7 @@ if (!(file_exists("level1.dat"))) {
     // generate a default level 
     $ret = array(
         'mapWidth' => 60,
-        'mapHeight' => 18,
+        'mapHeight' => 22,
         'vpWidth' => 30,
         'skyHeight' => 8,
         'enableRocks' => true,
@@ -67,7 +67,8 @@ if (!(file_exists("level1.dat"))) {
             "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD",
             "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD",
             "DDDDDDDDDDDDDDDDDDTDDDDDDDDDDDDDDDDDDDDDDDDD"
-        )
+        ),
+        'nextLevel' => "level2.dat"
     );
 
     $l = new Level();
@@ -77,6 +78,15 @@ if (!(file_exists("level1.dat"))) {
     $l->addObjective(new CollectObjective("crystals", 10));
     
     $l->saveToJSON(Config::$defaultLevelFile);
+}
+
+// create level 2.
+if (!file_exists("level2.dat")) {
+    $ret = array();
+
+    $l = new Level();
+    $l->takeArray($ret);
+    $l->saveToJSON("level2.dat");
 }
 
 // GAME START

@@ -59,6 +59,12 @@ class Player {
 		$this->moistureTicker = $this->moistureTicks;
 	}
 
+	public function reset($x, $y) {
+		// reset moisture ticker
+		$this->setMoisture(0);
+		$this->coords = array([$x, $y]);
+	}
+
 	public function resetScore() {
 		$this->scoreWater = 0;
 		$this->scoreMinerals = 0;

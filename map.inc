@@ -48,21 +48,25 @@ class Map {
 			$this->level = new Level();
 		}
 
-		// screen settings
-		$this->viewType = 1;
-        $this->vpY = 0;
-		$this->threeScreen = false;
-		$this->charOnScreens = array(1, 2, 3);
-
 		$this->mailbox = new Mailbox();
 		$this->mailbox->addInstructions();
 		
 		$this->player = new Player($this->level->skyHeight, floor($this->level->vpWidth / 2));
 
+		$this->reset();
+		$this->gameLoop();
+	}
+
+	public function reset() {
+		// screen settings
+		$this->viewType = 1;
+		$this->vpY = 0;
+		$this->threeScreen = false;
+		$this->charOnScreens = array(1, 2, 3);
+
 		$this->portal = null;
 
 		$this->initialize();
-		$this->gameLoop();
 	}
 
     public function checkPointsOfInterest() {
@@ -548,7 +552,20 @@ class Map {
 
 			// character has landed on the portal
 			if (!is_null($this->portal) && $this->portal->getXY() == [$newX, $newY] && $this->portal->isVisible()) {
-				$this->gameOver();
+				// load the next map
+				$nl = $this->level->getNextLevel();
+
+				if (!is_null($nl)) {
+					// load it
+					$this->level = null;
+					$this->level = new Level($nl);
+
+					$this->reset();
+					$this->player->reset($this->level->playerStartX, $this->level->playerStartY);
+					//$this->gameLoop();
+				} else {
+					$this->gameOver();
+				}
 			}
 
 			// set the X or the Y

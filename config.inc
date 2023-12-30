@@ -5,7 +5,8 @@ class Config {
 
     // basic map settings
     public static $defaultSkyHeight = 10;
-    public static $defaultGroundHeight = 15;
+    public static $defaultMapHeight = 25;
+    //public static $defaultGroundHeight = 15;
     public static $defaultVpWidth = 30;
     public static $defaultMapWidth = 60;
 

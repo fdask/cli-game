@@ -1,4 +1,4 @@
 jwallace.code-workspace
 rainsave
 vendor
-level1.dat
+level[0-9].dat

@@ -89,6 +89,11 @@ class Level {
     // lay out a map
     public $map;
 
+    public $nextLevel;
+
+    public $playerStartX;
+    public $playerStartY;
+
     public function __construct($filename = null) {
         if (!is_null($filename)) {
             if (file_exists($filename)) {
@@ -99,6 +104,20 @@ class Level {
                 $this->takeArray($array);
             }
         }
+
+        $this->completed = false;
+    }
+
+    public function getPlayerStart() {
+        return [$this->playerStartX, $this->playerStartY];
+    }
+
+    public function getNextLevel() {
+        return $this->nextLevel;
+    }
+
+    public function setNextLevel($nl) {
+        $this->nextLevel = $nl;
     }
 
     public function setCompleted() {
@@ -108,7 +127,7 @@ class Level {
     public function getCompleted() {
         return $this->completed;
     }
-    
+
     public function getMap() {
         return $this->map;
     }
@@ -190,6 +209,9 @@ class Level {
     public function makeArray() {
         $ret = array(
             'name' => $this->name,
+            'playerStartX' => $this->playerStartX,
+            'playerStartY' => $this->playerStartY,
+            'nextLevel' => $this->nextLevel,
             'mapWidth' => $this->mapWidth,
             'mapHeight' => $this->mapHeight,
             'vpWidth' => $this->vpWidth,
@@ -235,6 +257,7 @@ class Level {
      */
     public function takeArray($array) {
         $this->name = isset($array['name']) ? $array['name'] : "noname";
+        $this->nextLevel = isset($array['nextLevel']) ? $array['nextLevel'] : null;
         $this->mapWidth = isset($array['mapWidth']) ? $array['mapWidth'] : Config::$defaultMapWidth;
         $this->mapHeight = isset($array['mapHeight']) ? $array['mapHeight'] : Config::$defaultMapHeight;
         $this->vpWidth = isset($array['vpWidth']) ? $array['vpWidth'] : Config::$defaultVpWidth;
@@ -272,6 +295,9 @@ class Level {
         $this->objectives = isset($array['objectives']) ? unserialize($array['objectives']) : array();
 
         $this->map = isset($array['map']) ? $array['map'] : null;
+
+        $this->playerStartX = isset($array['playerStartX']) ? $array['playerStartX'] : 0;
+        $this->playerStartY = isset($array['playerStartY']) ? $array['playerStartY'] : $this->skyHeight;
     }
 
     /**
