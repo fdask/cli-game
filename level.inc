@@ -83,6 +83,9 @@ class Level {
     // what does the level want us to do
     public $objectives;
 
+    // lay out a map
+    public $map;
+
     public function __construct($filename = null) {
         if (!is_null($filename)) {
             if (file_exists($filename)) {
@@ -93,6 +96,18 @@ class Level {
                 $this->takeArray($array);
             }
         }
+    }
+
+    public function getMap() {
+        return $this->map;
+    }
+
+    public function setMap($array) {
+        $this->map = $array;
+
+        // adjust the width based on the map
+        $this->mapWidth = count($array[0]);
+        $this->mapHeight = count($array) + $this->skyHeight;
     }
 
     public function getName() {
@@ -208,7 +223,8 @@ class Level {
             'toxicityMax' => $this->toxicityMax,
             'toxicityMultiplier' => $this->toxicityMultiplier,
             'pointsOfInterest' => serialize($this->pointsOfInterest),
-            'objectives' => serialize($this->objectives)
+            'objectives' => serialize($this->objectives),
+            'map' => $this->map
         );
 
         return $ret;
@@ -254,6 +270,8 @@ class Level {
         
         $this->pointsOfInterest = isset($array['pointsOfInterest']) ? unserialize($array['pointsOfInterest']) : array();
         $this->objectives = isset($array['objectives']) ? unserialize($array['objectives']) : array();
+
+        $this->map = isset($array['map']) ? $array['map'] : null;
     }
 
     /**
