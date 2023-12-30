@@ -735,16 +735,20 @@ class Map {
 							if ($complete) {
 								// send a message about the completed objective
 								$this->mailbox->addMessage("Objective complete! (" . $objective->getShortName() . ")");
-
-								// get the rewards from the objects
 								$this->player->addXP($objective->getRewardXP());
-								$this->portal->setVisible();
 							}
 
 							break;
 					}        
 				}
 			}
+		}
+
+		// check if all objectives are complete
+		if ($this->level->objectivesComplete() && !$this->level->getCompleted()) {
+			$this->level->setCompleted();
+			$this->mailbox->addMessage("Portal has been revealed!");
+			$this->portal->setVisible();
 		}
 	}
 

@@ -2,6 +2,9 @@
 class Level {
     public $name;
 
+    // whether we've finished the level or not
+    public $completed;
+
     // how wide is the total map	
 	public $mapWidth;
 
@@ -98,6 +101,14 @@ class Level {
         }
     }
 
+    public function setCompleted() {
+        $this->completed = true;
+    }
+
+    public function getCompleted() {
+        return $this->completed;
+    }
+    
     public function getMap() {
         return $this->map;
     }
@@ -165,17 +176,6 @@ class Level {
         $ret = array(
 
         );
-    }
-
-    /**
-     * loop through objectives, marking any complete
-     */
-    public function checkObjectives() {
-        if (!empty($this->objectives)) {
-            foreach ($this->objectives as $objective) {
-                // check the objectives and mark complete here
-            }
-        }
     }
 
     public function addObjective($obj) {
