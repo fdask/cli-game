@@ -484,17 +484,20 @@ class Map {
 				return false;
 			}
 
+			// character has landed on the portal
 			if (!is_null($this->portal) && $this->portal->getXY() == [$newX, $newY] && $this->portal->isVisible()) {
 				$this->gameOver();
 			}
 
 			// set the X or the Y
+			// (records a move in the player class)
 			if ($setX) {
 				$this->player->setX($newX);
 			} else {
 				$this->player->setY($newY);
 			}
 
+			// are we growing, or moving
 			if (!$grow) {
 				$this->player->coordPop();
 			} else {
@@ -502,45 +505,53 @@ class Map {
 			}
 
 			// collect rain
-			$wetness = $this->map[$newX][$newY]->getWetness();
+			if ($this->level->enableRain) {
+				$wetness = $this->map[$newX][$newY]->getWetness();
 
-			if ($wetness > 0) {
-				$this->player->incrMoisture($wetness);
-				$this->map[$newX][$newY]->setWetness(0);
+				if ($wetness > 0) {
+					$this->player->incrMoisture($wetness);
+					$this->map[$newX][$newY]->setWetness(0);
+				}
+
+				// did we get too dry or wet?
+				$this->checkPlayerMoisture();
 			}
 
-			$this->checkPlayerMoisture();
-			
 			// collect minerals 
-			$concentration = $this->map[$newX][$newY]->getConcentration();
+			if ($this->level->enableMinerals) {
+				$concentration = $this->map[$newX][$newY]->getConcentration();
 
-			if ($concentration > 0) {
-				$this->player->setLife($concentration + $this->player->getLife());
-				$this->player->scoreMinerals += $concentration;
-				$this->map[$newX][$newY]->setConcentration(0);
+				if ($concentration > 0) {
+					$this->player->setLife($concentration + $this->player->getLife());
+					$this->player->scoreMinerals += $concentration;
+					$this->map[$newX][$newY]->setConcentration(0);
+				}
 			}
 			
 			// collect toxicity
-			$toxicity = $this->map[$newX][$newY]->getToxicity();
+			if ($this->level->enableToxicity) {
+				$toxicity = $this->map[$newX][$newY]->getToxicity();
 
-			if ($toxicity > 0) {
-				$this->player->setLife($this->player->getLife() - ($toxicity * $this->level->toxicityMultiplier));
-				$this->player->scoreToxicWaste += $toxicity;
-				$this->map[$newX][$newY]->setToxicity(0);
+				if ($toxicity > 0) {
+					$this->player->setLife($this->player->getLife() - ($toxicity * $this->level->toxicityMultiplier));
+					$this->player->scoreToxicWaste += $toxicity;
+					$this->map[$newX][$newY]->setToxicity(0);
+				}
 			}
 			
-			// upkeep tax
-			if ($this->player->decrLife() < 0) {
-				$this->gameOver();
+			// collect crystal
+			if ($this->level->enableCrystals) {
+				if ($this->map[$newX][$newY] instanceof Dirt && $this->map[$newX][$newY]->isCrystal()) {
+					// remove the crystal, and add to players inventory
+					$this->player->incrCrystals();
+					$this->map[$newX][$newY]->setCrystal(false);
+					$this->player->setLife($this->player->getLife() + $this->level->crystalHealthBonus);
+				}
 			}
 
-			// check if we're on a crystal square.
-			// if so, take it.
-			if ($this->map[$newX][$newY] instanceof Dirt && $this->map[$newX][$newY]->isCrystal()) {
-				// remove the crystal, and add to players inventory
-				$this->player->incrCrystals();
-				$this->map[$newX][$newY]->setCrystal(false);
-				$this->player->setLife($this->player->getLife() + $this->level->crystalHealthBonus);
+			// upkeep tax (health decrement)
+			if ($this->player->decrLife() < 0) {
+				$this->gameOver();
 			}
 		} else {
 			return false;
