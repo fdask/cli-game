@@ -260,7 +260,7 @@ class Map {
 					} else {
 						$this->vpY--;
 					}
-					
+
 					break;
 				case 'c':
 					$playerInWindow = false;
@@ -795,15 +795,18 @@ class Map {
 	public function addRock() {
 		// look for a dirt square we can take
 		$rockCoords = $this->getRockCoords();
+		$playerCoords = $this->player->getCoords();
 
 		if (count($rockCoords) >= $this->level->maxRocks) {
 			return false;
 		}
 		
+		$taken = array_merge($rockCoords, $playerCoords);
+
 		do {
 			$newX = rand($this->level->skyHeight, $this->level->mapHeight - 1);
 			$newY = rand(0, $this->level->mapWidth - 1);
-		} while (in_array([$newX, $newY], $rockCoords));
+		} while (in_array([$newX, $newY], $taken));
 
 		$rock = new Rock();
 
