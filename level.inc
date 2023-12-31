@@ -26,6 +26,8 @@ class Level {
     public $rainStrengthMin;
     public $rainAtStart;
 
+    public $enableMoisture;
+
     // whether we want rocks
     public $enableRocks;
 
@@ -36,6 +38,8 @@ class Level {
     // mineral settings
 	public $enableMinerals;
     public $mineralsAtStart;
+    public $mineralConcentrationMin;
+    public $mineralConcentrationMax;
 
 	// how many mineral spaces to allow on the map at once
 	public $maxMinerals;
@@ -55,7 +59,7 @@ class Level {
 
     // how much health a user gets from a crystal
     public $crystalHealthBonus;
-
+    public $crystalDepth;
     public $crystalsAtStart;
 
     // meteors
@@ -224,9 +228,12 @@ class Level {
             'rainStrengthMax' => $this->rainStrengthMax,
             'rainStrengthMin' => $this->rainStrengthMin,
             'rainAtStart' => $this->rainAtStart,
+            'enableMoisture' => $this->enableMoisture,
             'enableMinerals' => $this->enableMinerals,
             'maxMinerals' => $this->maxMinerals,
             'mineralsAtStart' => $this->mineralsAtStart,
+            'mineralConcentrationMin' => $this->mineralConcentrationMin,
+            'mineralConcentrationMax' => $this->mineralConcentrationMax,
             'enablePlants' => $this->enablePlants,
             'maxPlants' => $this->maxPlants,
             'plantsAtStart' => $this->plantsAtStart,
@@ -234,6 +241,7 @@ class Level {
             'maxCrystals' => $this->maxCrystals,
             'crystalHealthBonus' => $this->crystalHealthBonus,
             'crystalsAtStart' => $this->crystalsAtStart,
+            'crystalDepth' => $this->crystalDepth,
             'enableMeteors' => $this->enableMeteors,
             'meteorTicks' => $this->meteorTicks,
             'meteorSpeedMin' => $this->meteorSpeedMin,
@@ -270,14 +278,18 @@ class Level {
         $this->rainStrengthMax = isset($array['rainStrengthMax']) ? $array['rainStrengthMax'] : Config::$defaultRainStrengthMax;
         $this->rainStrengthMin = isset($array['rainStrengthMin']) ? $array['rainStrengthMin'] : Config::$defaultRainStrengthMin;
         $this->rainAtStart = isset($array['rainAtStart']) ? $array['rainAtStart'] : Config::$defaultRainAtStart;
+        $this->enableMoisture = isset($array['enableMoisture']) ? $array['enableMoisture'] : Config::$defaultEnableMoisture;
         $this->enableMinerals = isset($array['enableMinerals']) ? $array['enableMinerals'] : false;
         $this->maxMinerals = isset($array['maxMinerals']) ? $array['maxMinerals'] : Config::$defaultMaxMinerals;
         $this->mineralsAtStart = isset($array['mineralsAtStart']) ? $array['mineralsAtStart'] : Config::$defaultMineralsAtStart;
+        $this->mineralConcentrationMin = isset($array['mineralConcentrationMin']) ? $array['mineralConcentrationMin'] : Config::$defaultMineralConcentrationMin;
+        $this->mineralConcentrationMax = isset($array['mineralConcentrationMax']) ? $array['mineralConcentrationMax'] : Config::$defaultMineralConcentrationMax;
         $this->enablePlants = isset($array['enablePlants']) ? $array['enablePlants'] : false;
         $this->maxPlants = isset($array['maxPlants']) ? $array['maxPlants'] : Config::$defaultMaxPlants;
         $this->plantsAtStart = isset($array['plantsAtStart']) ? $array['plantsAtStart'] : Config::$defaultPlantsAtStart;
         $this->enableCrystals = isset($array['enableCrystals']) ? $array['enableCrystals'] : false;
         $this->maxCrystals = isset($array['maxCrystals']) ? $array['maxCrystals'] : Config::$defaultMaxCrystals;
+        $this->crystalDepth = isset($array['crystalDepth']) ? $array['crystalDepth'] : Config::$defaultCrystalDepth;
         $this->crystalHealthBonus = isset($array['crystalHealthBonus']) ? $array['crystalHealthBonus'] : Config::$defaultCrystalHealthBonus;
         $this->crystalsAtStart = isset($array['crystalsAtStart']) ? $array['crystalsAtStart'] : Config::$defaultCrystalsAtStart;
         $this->enableMeteors = isset($array['enableMeteors']) ? $array['enableMeteors'] : false;
