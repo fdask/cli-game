@@ -73,31 +73,33 @@ class Map {
         // using the x, y of the player, 
         // lets figure out if any of the current 
         // points of interests apply
-        foreach ($this->level->pointsOfInterest as $poi) {
-            if ($poi instanceof messageX && $this->player->getX() == $poi->getX()) {
-                $msg = $poi->getMessage();
+		if (is_array($this->level->pointsOfInterest) && !empty($this->level->pointsOfInterest)) {
+			foreach ($this->level->pointsOfInterest as $poi) {
+				if ($poi instanceof messageX && $this->player->getX() == $poi->getX()) {
+					$msg = $poi->getMessage();
 
-                // add the message to the mailbox
-                $this->mailbox->addMessage($msg);
-                $poi->setDisplayed();
-            } else if ($poi instanceof messageY && $this->player->getY() == $poi->getY()) {
-                $msg = $poi->getMessage();
+					// add the message to the mailbox
+					$this->mailbox->addMessage($msg);
+					$poi->setDisplayed();
+				} else if ($poi instanceof messageY && $this->player->getY() == $poi->getY()) {
+					$msg = $poi->getMessage();
 
-                // add the message to the mailbox
-                $this->mailbox->addMessage($msg);
-                $poi->setDisplayed();
-            } else if ($poi instanceof messageXY && [$this->player->getX(), $this->player->getY()] == $poi->getXY()) {
-                $msg = $poi->getMessage();
+					// add the message to the mailbox
+					$this->mailbox->addMessage($msg);
+					$poi->setDisplayed();
+				} else if ($poi instanceof messageXY && [$this->player->getX(), $this->player->getY()] == $poi->getXY()) {
+					$msg = $poi->getMessage();
 
-                // add the message to the mailbox
-                $this->mailbox->addMessage($msg);
-                $poi->setDisplayed();
-            }
+					// add the message to the mailbox
+					$this->mailbox->addMessage($msg);
+					$poi->setDisplayed();
+				}
 
-            if ($poi->getDisplayed()) {
-                $this->removePointOfInterest($poi);
-            }
-        }
+				if ($poi->getDisplayed()) {
+					$this->removePointOfInterest($poi);
+				}
+			}
+		}
     }
 
 	public function save() {
@@ -123,9 +125,13 @@ class Map {
 
 		$this->parseMap();
 
+		$dirtSize = count($this->getDirtCoords());
+
 		if ($this->level->enableMinerals && $this->level->mineralsAtStart) {
-			// add in random minerals up to maxMinerals
-			for ($x = 0; $x < $this->level->maxMinerals; $x++) {
+			$mineralCount = 0;
+
+			while (($mineralCount / $dirtSize) < ($this->level->maxMinerals / 100)) {
+				$mineralCount++;
 				$this->addMineral();
 			}
 		}
@@ -138,15 +144,20 @@ class Map {
 		}
 
 		if ($this->level->enableRocks && $this->level->rocksAtStart) {
-			// add in the rocks
-			for ($x = 0; $x < $this->level->maxRocks; $x++) {
+			// add in the rocks (up to maxRocks %)
+			$rockCount = 0;
+
+			while (($rockCount / $dirtSize) < ($this->level->maxRocks / 100)) {
+				$rockCount++;
 				$this->addRock();
 			}
 		}
 
 		if ($this->level->enableCrystals && $this->level->crystalsAtStart) {
-			// add in the crystals
-			for ($x = 0; $x < $this->level->maxCrystals; $x++) {
+			$crystalCount = 0;
+
+			while (($crystalCount / $dirtSize) < ($this->level->maxCrystals / 100)) {
+				$crystalCount++;
 				$this->addCrystal();
 			}
 		}
@@ -163,7 +174,11 @@ class Map {
 
 		if ($this->level->enableToxicity) {
 			if ($this->level->startToxicity > 0) {
-				for ($x = 0; $x < $this->level->startToxicity; $x++) {
+				// start toxicity is a percent age of the soil.
+				$twCount = 0;
+
+				while (($twCount / $dirtSize) < ($this->level->startToxicity / 100)) {
+					$twCount++;
 					$this->addToxicWaste();
 				}
 			}
@@ -558,12 +573,18 @@ class Map {
 				if (!is_null($nl)) {
 					// load it
 					$this->level = null;
-					$this->level = new Level($nl);
-
+					
+					if ($nl == "generate") {
+						$this->level = new Level();
+						$this->level->takeArray(levelGenerator::generate());
+					} else {
+						$this->level = new Level($nl);
+					}
+				
 					$this->reset();
 					$this->player->reset($this->level->playerStartX, $this->level->playerStartY);
-					//$this->gameLoop();
 				} else {
+					// we are out of levels to play
 					$this->gameOver();
 				}
 			}
@@ -834,7 +855,7 @@ class Map {
 			$mY = rand(0, $this->level->mapWidth - 1);
 		} while (in_array([$mX, $mY], $existingMs));
 
-		$this->map[$mX][$mY]->setConcentration(rand(1, 5));
+		$this->map[$mX][$mY]->setConcentration(rand($this->level->mineralConcentrationMin, $this->level->mineralConcentrationMax));
 	}
 
 	private function addPlant() {
@@ -865,8 +886,9 @@ class Map {
 		// look for a dirt square we can take
 		$rockCoords = $this->getRockCoords();
 		$playerCoords = $this->player->getCoords();
+		$dirtCoords = $this->getDirtCoords();
 
-		if (count($rockCoords) >= $this->level->maxRocks) {
+		if (count($rockCoords) >= count($dirtCoords)) {
 			return false;
 		}
 		
@@ -887,15 +909,18 @@ class Map {
         $cCoords = $this->getCrystalCoords();
         $rockCoords = $this->getRockCoords();
 		$player = $this->player->getCoords();
+		
+		$rows = $this->level->crystalDepth;
+		$dirtSquares = $rows * $this->mapWidth;
 
-        if (count($cCoords) >= $this->level->maxCrystals) {
+        if (count($cCoords) >= $dirtSquares - count($player) - count($rockCoords)) {
             return false;
         }
 
         $allCoords = array_merge($cCoords, $rockCoords, $player);
 
         do {
-            $newX = rand($this->level->mapHeight - 5, $this->level->mapHeight - 1);
+            $newX = rand($this->level->mapHeight - $rows, $this->level->mapHeight - 1);
             $newY = rand(0, $this->level->mapWidth - 1);
         } while(in_array([$newX, $newY], $allCoords));
 
@@ -930,10 +955,17 @@ class Map {
 
 		$taken = array_merge($tw, $rocks, $player);
 
+		$dirtCoords = $this->getDirtCoords();
+		$rows = $this->level->mapHeight - $this->level->skyHeight - 1;
+
+		if (count($taken) >= $rows * $this->mapWidth) {
+			return false;
+		}
+		
 		do {
 			$newX = rand($this->level->skyHeight, $this->level->mapHeight - 1);
 			$newY = rand(0, $this->level->mapWidth - 1);
-		} while (in_array([$newX, $newY], $tw));
+		} while (in_array([$newX, $newY], $taken));
 
 		$this->map[$newX][$newY]->setToxicity(rand($this->level->toxicityMin, $this->level->toxicityMax));
 	}
@@ -1371,10 +1403,19 @@ class Map {
 		$ret .= "Player Health: " . $this->player->getLife() . " ";
 		$ret .= "X: " . $this->player->getX() . " ";
 		$ret .= "Y: " . $this->player->getY() . " ";
-		$ret .= "Crystals: " . $this->player->getCrystals() . " ";
-		$ret .= "TW%: " . $this->getToxicWastePercentage() . " ";
-		$ret .= "Moisture: " . $this->moistureDisplay() . " ";
-		
+
+		if ($this->level->enableCrystals) {
+			$ret .= "Crystals: " . $this->player->getCrystals() . " ";
+		}
+
+		if ($this->level->enableToxicity) {
+			$ret .= "TW%: " . $this->getToxicWastePercentage() . " ";
+		}
+
+		if ($this->level->enableMoisture) {
+			$ret .= "Moisture: " . $this->moistureDisplay() . " ";
+		}
+
 		$ret .= "\n";
 
 		if ($this->threeScreen) {

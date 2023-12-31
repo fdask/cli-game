@@ -1,7 +1,7 @@
 <?php
 class Config {
     // initial map
-    public static $defaultLevelFile = "level1.dat";
+    public static $defaultLevelFile = "level3.dat";
 
     // basic map settings
     public static $defaultSkyHeight = 10;
@@ -18,9 +18,15 @@ class Config {
     public static $defaultRainStrengthMin = 6;
     public static $defaultRainStrengthMax = 9;
     public static $defaultRainAtStart = true;
-
+    
+    public static $defaultEnableMoisture = false;
+    public static $defaultMoistureMax = 5;
+    public static $defaultMoistureTicks = 25;
+    
     public static $defaultMaxMinerals = 10;
     public static $defaultMineralsAtStart = true;
+    public static $defaultMineralConcentrationMin = 1;
+    public static $defaultMineralConcentrationMax = 9;
 
     public static $defaultMaxPlants = 7;
     public static $defaultPlantsAtStart = true;
@@ -28,6 +34,7 @@ class Config {
     public static $defaultMaxCrystals = 5;
     public static $defaultCrystalHealthBonus = 50;
     public static $defaultCrystalsAtStart = true;
+    public static $defaultCrystalDepth = 5;
 
     public static $defaultMeteorTicks = 10;
     public static $defaultMeteorSpeedMin = 1;
