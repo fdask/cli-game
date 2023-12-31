@@ -955,10 +955,17 @@ class Map {
 
 		$taken = array_merge($tw, $rocks, $player);
 
+		$dirtCoords = $this->getDirtCoords();
+		$rows = $this->level->mapHeight - $this->level->skyHeight - 1;
+
+		if (count($taken) >= $rows * $this->mapWidth) {
+			return false;
+		}
+		
 		do {
 			$newX = rand($this->level->skyHeight, $this->level->mapHeight - 1);
 			$newY = rand(0, $this->level->mapWidth - 1);
-		} while (in_array([$newX, $newY], $tw));
+		} while (in_array([$newX, $newY], $taken));
 
 		$this->map[$newX][$newY]->setToxicity(rand($this->level->toxicityMin, $this->level->toxicityMax));
 	}

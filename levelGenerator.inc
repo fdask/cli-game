@@ -142,7 +142,7 @@ class levelGenerator {
 //if (!file_exists("level3.dat")) {
     $three = array(
         'name' => "testing percentages",
-        'mapWidth' => 120,
+        'mapWidth' => 50,
         'mapHeight' => 22,
         'vpWidth' => 30,
         'skyHeight' => 8,
@@ -180,5 +180,6 @@ class levelGenerator {
 
     $threeL = new Level();
     $threeL->takeArray($three);
+    $threeL->addObjective(new CollectObjective("health", "1200"));
     $threeL->saveToJSON("level3.dat");
 //}
