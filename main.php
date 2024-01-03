@@ -17,6 +17,7 @@ include 'level.inc';
 include 'objective.inc';
 include 'portal.inc';
 include 'levelGenerator.inc';
+include 'power.inc';
 
 // GAME START
 echo "\n";

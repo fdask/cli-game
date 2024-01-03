@@ -68,4 +68,10 @@ class Config {
     public static $plantColor = 'green';
     public static $enlightenedPlantColor = 'green';
 
+    // bg color
+    public static $powerSelectSelected = 'blue';
+
+    // fg
+    public static $powerSelectUnselected = 'bold_blue';
+
 }

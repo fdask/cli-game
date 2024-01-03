@@ -41,6 +41,9 @@ class Map {
 	// every level has one!
 	public $portal;
 
+	// are we in the power menu?
+	public $powerMenuOpen;
+
 	public function __construct($filename = null) {
 		if (!is_null($filename)) {
 			$this->level = new Level($filename);
@@ -52,6 +55,14 @@ class Map {
 		$this->mailbox->addInstructions();
 		
 		$this->player = new Player($this->level->skyHeight, floor($this->level->vpWidth / 2));
+
+		// during TESTING, add powers to the player
+		$this->player->addPower(new Power("teleport", "Teleport"));
+		$this->player->addPower(new Power("expand", "Expand"));
+		$this->player->addPower(new Power("contract", "Contract"));
+		$this->player->addPower(new Power("break", "Break"));
+
+		$this->powerMenuOpen = false;
 
 		$this->reset();
 		$this->gameLoop();
@@ -263,6 +274,21 @@ class Map {
 			$tick = true;
 
 			switch ($c) {
+				case ' ':
+				case '\n':
+					if ($this->powerMenuOpen) {
+						// select the current active power
+						$this->player->setActivePower($this->player->getMenuPower());
+
+						// redraw the message
+						$ps = $this->player->getPowersScreen();
+						$this->mailbox->deleteCurrentMessage();
+						$this->mailbox->addMessageToStart($ps);
+					}
+
+					$tick - false;
+					
+					break;
                 case '?':
                     // show keyboard commands
                     $this->mailbox->showKeyboardMsg();
@@ -449,8 +475,17 @@ class Map {
 					
 					break;		
 				case 'p':
-					// add a new plant
-					$this->addPlant();
+					// select power
+					$ps = $this->player->getPowersScreen();
+					$cm = $this->mailbox->readCurrentMessage();
+
+					if ($cm[1] == $ps[1]) {
+						$this->mailbox->deleteCurrentMessage();
+					} else {
+						$this->mailbox->addMessageToStart($ps);
+						$this->powerMenuOpen = true;
+					}
+
 					$tick = false;
 					
 					break;
@@ -470,17 +505,32 @@ class Map {
 				case 's':
 					// move character down
 				case 'S':
-					// grow character down
-					$newX = $this->player->getX() + 1;
-					$newY = $this->player->getY();
+					if ($this->powerMenuOpen) {
+						$mp = $this->player->getMenuPower();
 
-					// don't go below the bottom
-					if ($newX > $this->level->mapHeight - 1) {
-						$newX = $this->level->mapHeight - 1;
-					} 
-					
-					$tick = $this->playerMove($newX, $newY, true, $c == 'S');
-					
+						if (($mp + 1) < count($this->player->getPowers())) {
+							$this->player->setMenuPower($this->player->getMenuPower() + 1);
+
+							// redraw the message
+							$ps = $this->player->getPowersScreen();
+							$this->mailbox->deleteCurrentMessage();
+							$this->mailbox->addMessageToStart($ps);
+						}
+
+						$tick = false;
+					} else {
+						// grow character down
+						$newX = $this->player->getX() + 1;
+						$newY = $this->player->getY();
+
+						// don't go below the bottom
+						if ($newX > $this->level->mapHeight - 1) {
+							$newX = $this->level->mapHeight - 1;
+						} 
+						
+						$tick = $this->playerMove($newX, $newY, true, $c == 'S');
+					}
+
 					break;
 				case 't':
 					// toggle three screen
@@ -493,15 +543,28 @@ class Map {
 					// move character up
 				case 'W':
 					// grow character up
-					$newX = $this->player->getX() - 1;
-					$newY = $this->player->getY();
+					if ($this->powerMenuOpen) {
+						$this->player->setMenuPower($this->player->getMenuPower() - 1);
 
-					// character cannot go into the sky
-					if ($newX < $this->level->skyHeight) {
-						$newX = $this->level->skyHeight;
+						if ($this->player->getMenuPower() < 0) {
+							$this->player->setMenuPower(0);
+						}
+
+						// redraw the message
+						$ps = $this->player->getPowersScreen();
+						$this->mailbox->deleteCurrentMessage();
+						$this->mailbox->addMessageToStart($ps);
+					} else {
+						$newX = $this->player->getX() - 1;
+						$newY = $this->player->getY();
+
+						// character cannot go into the sky
+						if ($newX < $this->level->skyHeight) {
+							$newX = $this->level->skyHeight;
+						}
+
+						$tick = $this->playerMove($newX, $newY, true, $c == 'W');
 					}
-
-					$tick = $this->playerMove($newX, $newY, true, $c == 'W');
 
 					break;
 				case 'x':

@@ -29,6 +29,13 @@ class Player {
 	// our experience points
 	private $xp;
 
+	// holds players powers
+	private $powers;
+
+	// which power is currently active
+	private $activePower;
+	private $menuPower;
+
 	// the players stats
 	public $scoreWater;
 	public $scoreMinerals;
@@ -57,6 +64,10 @@ class Player {
 		$this->moistureMax = Config::$defaultMoistureMax;
 		$this->moistureTicks = Config::$defaultMoistureTicks;
 		$this->moistureTicker = $this->moistureTicks;
+
+		$this->powers = array();
+		$this->activePower = null;
+		$this->menuPower = 0;
 	}
 
 	public function reset($x, $y) {
@@ -98,6 +109,65 @@ class Player {
 		);
 
 		return $scoreMsg;
+	}
+
+	public function addPower($p) {
+		$this->powers[] = $p;
+	}
+
+	public function getPowers() {
+		return $this->powers;
+	}
+
+	public function getPowersScreen() {
+		$ret = array(
+			" ",
+			"Select Power:",
+			" "
+		);
+
+		// if we have a power, show it.
+		$ps = $this->getPowers();
+
+		for ($x = 0; $x < count($ps); $x++) {
+			$tmp = "  ";
+			$p = $this->powers[$x];
+
+			// if it's highlighted
+			if ($this->getMenuPower() == $x) {
+				$tmp .= "> ";
+			} else {
+				$tmp .= "  ";
+			}
+
+			if ($x == $this->activePower) {
+				$tmp .= "[X] " . $ps[$x]->getName();
+			} else {
+				$tmp .= "[ ] " . $ps[$x]->getName();
+			}
+		
+			$ret[] = $tmp;
+		}
+		
+		$ret[] = " ";
+
+		return $ret;
+	}
+
+	public function getMenuPower() {
+		return $this->menuPower;
+	}
+
+	public function setMenuPower($p) {
+		$this->menuPower = $p;
+	}
+
+	public function setActivePower($p) {
+		$this->activePower = $p;
+	}
+
+	public function getActivePower() {
+		return $this->activePower;
 	}
 
 	// every move a player makes, run some code
