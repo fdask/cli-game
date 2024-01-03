@@ -147,7 +147,8 @@ class Map {
 			// add in the rocks (up to maxRocks %)
 			$rockCount = 0;
 
-			while (($rockCount / $dirtSize) < ($this->level->maxRocks / 100)) {
+
+			while (($rockCount / $dirtSize) < ($this->level->maxRocks / $dirtSize)) {
 				$rockCount++;
 				$this->addRock();
 			}
@@ -156,7 +157,7 @@ class Map {
 		if ($this->level->enableCrystals && $this->level->crystalsAtStart) {
 			$crystalCount = 0;
 
-			while (($crystalCount / $dirtSize) < ($this->level->maxCrystals / 100)) {
+			while (($crystalCount / $dirtSize) < ($this->level->maxCrystals / $dirtSize)) {
 				$crystalCount++;
 				$this->addCrystal();
 			}
@@ -177,7 +178,7 @@ class Map {
 				// start toxicity is a percent age of the soil.
 				$twCount = 0;
 
-				while (($twCount / $dirtSize) < ($this->level->startToxicity / 100)) {
+				while (($twCount / $dirtSize) < ($this->level->startToxicity / $dirtSize)) {
 					$twCount++;
 					$this->addToxicWaste();
 				}
@@ -574,7 +575,7 @@ class Map {
 					// load it
 					$this->level = null;
 					
-					if ($nl == "generate") {
+					if ($nl == "generate" || !file_exists($nl)) {
 						$this->level = new Level();
 						$this->level->takeArray(levelGenerator::generate());
 					} else {
@@ -661,14 +662,16 @@ class Map {
 	}
 
 	public function checkPlayerMoisture() {
-		if ($this->player->getMoisture() >= ($this->player->getMoistureMax() * 2)) {
-			echo "YOU GOT TOO WET AND DIED\n";
+		if ($this->level->enableMoisture) {
+			if ($this->player->getMoisture() >= ($this->player->getMoistureMax() * 2)) {
+				echo "YOU GOT TOO WET AND DIED\n";
 
-			$this->gameOver();
-		} else if ($this->player->getMoisture() <= ($this->player->getMoistureMax() * -2)) {
-			echo "YOU DRIED OUT AND DIED\n";
+				$this->gameOver();
+			} else if ($this->player->getMoisture() <= ($this->player->getMoistureMax() * -2)) {
+				echo "YOU DRIED OUT AND DIED\n";
 
-			$this->gameOver();
+				$this->gameOver();
+			}
 		}
 	}
 
@@ -888,12 +891,13 @@ class Map {
 		$playerCoords = $this->player->getCoords();
 		$dirtCoords = $this->getDirtCoords();
 
-		if (count($rockCoords) >= count($dirtCoords)) {
+		$taken = array_merge($rockCoords, $playerCoords);
+
+		if (count($taken) >= count($dirtCoords)) {
+			// all dirt is taken!
 			return false;
 		}
 		
-		$taken = array_merge($rockCoords, $playerCoords);
-
 		do {
 			$newX = rand($this->level->skyHeight, $this->level->mapHeight - 1);
 			$newY = rand(0, $this->level->mapWidth - 1);
@@ -911,13 +915,14 @@ class Map {
 		$player = $this->player->getCoords();
 		
 		$rows = $this->level->crystalDepth;
-		$dirtSquares = $rows * $this->mapWidth;
+		$dirtSquares = $rows * $this->level->mapWidth;
 
-        if (count($cCoords) >= $dirtSquares - count($player) - count($rockCoords)) {
+		$allCoords = array_merge($cCoords, $rockCoords, $player);
+
+        if ($allCoords >= $dirtSquares) {
+			// all dirt is taken!
             return false;
-        }
-
-        $allCoords = array_merge($cCoords, $rockCoords, $player);
+        }  
 
         do {
             $newX = rand($this->level->mapHeight - $rows, $this->level->mapHeight - 1);
@@ -956,12 +961,12 @@ class Map {
 		$taken = array_merge($tw, $rocks, $player);
 
 		$dirtCoords = $this->getDirtCoords();
-		$rows = $this->level->mapHeight - $this->level->skyHeight - 1;
+		$rows = $this->level->mapHeight - $this->level->skyHeight;
 
-		if (count($taken) >= $rows * $this->mapWidth) {
+		if (count($taken) >= $rows * $this->level->mapWidth) {
 			return false;
 		}
-		
+
 		do {
 			$newX = rand($this->level->skyHeight, $this->level->mapHeight - 1);
 			$newY = rand(0, $this->level->mapWidth - 1);
@@ -1740,8 +1745,6 @@ class Map {
 					$ret .= " EOF";
 				}
             } 
-
-			echo "Sky height is {$this->level->skyHeight}\n";
 		}
 
 		$ret .= "\n";

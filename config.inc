@@ -1,8 +1,9 @@
 <?php
 class Config {
     // initial map
-    public static $defaultLevelFile = "level3.dat";
-
+    public static $defaultLevelFile = "level1.dat";
+    public static $fallbackLevelFilename = 'random.dat';
+    
     // basic map settings
     public static $defaultSkyHeight = 10;
     public static $defaultMapHeight = 25;
