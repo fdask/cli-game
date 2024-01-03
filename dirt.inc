@@ -152,12 +152,10 @@ class Dirt {
 		} else if ($viewType == 3) {
 			// plant matter (plants, crystals, toxicity) view
 			if ($this->isToxic()) {
-				// magic number
 				return Colors::fg_color(Config::$toxicWasteColor, "T");
 			} else if (!empty($this->plant)) {
 				return "{$this->plant}";
 			} else if ($this->isCrystal()) {
-				// magic number
                 return Colors::fg_color(Config::$crystalColor, "C");
             } else {
 				return $this->defaultChar;
