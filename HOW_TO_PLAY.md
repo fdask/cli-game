@@ -150,23 +150,23 @@ the exit portal, marked with a '@' to proceed.
 
 ## Keys
 
-wasd - moves your character a space
-WASD - grows your character in the given direction
-x - shrink your character by one
-t - toggle between showing three screens, or just one
-123 - when in single view, toggle which view is shown
+* wasd - moves your character a space
+* WASD - grows your character in the given direction
+* x - shrink your character by one
+* t - toggle between showing three screens, or just one
+* 123 - when in single view, toggle which view is shown
       when in triple view, toggle which view is selected
-5 - save the game
-9 - show the score screen
-q - quit the game
-zc - scroll the viewport left or right
-h - when in single view, toggles visibility of your character
+* 5 - save the game
+* 9 - show the score screen
+* q - quit the game
+* zc - scroll the viewport left or right
+* h - when in single view, toggles visibility of your character
     when in triple view, toggles visibility of your character on
     the selected screen
-j - show journal screen
-r - reverses your head and tail
-? - show help screen
-n - new game
+* j - show journal screen
+* r - reverses your head and tail
+* ? - show help screen
+* n - new game
 
 ## Views
 
