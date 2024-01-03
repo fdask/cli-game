@@ -130,7 +130,7 @@ class Map {
 		if ($this->level->enableMinerals && $this->level->mineralsAtStart) {
 			$mineralCount = 0;
 
-			while (($mineralCount / $dirtSize) < ($this->level->maxMinerals / 100)) {
+			while (($mineralCount / $dirtSize) < ($this->level->maxMinerals / $dirtSize)) {
 				$mineralCount++;
 				$this->addMineral();
 			}
@@ -159,6 +159,7 @@ class Map {
 
 			while (($crystalCount / $dirtSize) < ($this->level->maxCrystals / $dirtSize)) {
 				$crystalCount++;
+				echo "Adding a crystal\n";
 				$this->addCrystal();
 			}
 		}
@@ -913,13 +914,14 @@ class Map {
         $cCoords = $this->getCrystalCoords();
         $rockCoords = $this->getRockCoords();
 		$player = $this->player->getCoords();
+		$toxicCoords = $this->getToxicCoords();
 		
 		$rows = $this->level->crystalDepth;
 		$dirtSquares = $rows * $this->level->mapWidth;
 
-		$allCoords = array_merge($cCoords, $rockCoords, $player);
+		$allCoords = array_merge($cCoords, $rockCoords, $player, $toxicCoords);
 
-        if ($allCoords >= $dirtSquares) {
+        if (count($allCoords) >= $dirtSquares) {
 			// all dirt is taken!
             return false;
         }  
