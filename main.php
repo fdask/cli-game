@@ -18,12 +18,6 @@ include 'objective.inc';
 include 'portal.inc';
 include 'levelGenerator.inc';
 
-$ret = LevelGenerator::generate();
-
-$l = new Level();
-$l->takeArray($ret);
-$l->saveToJSON("random.dat");
-
 // GAME START
 echo "\n";
 

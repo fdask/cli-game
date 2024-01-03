@@ -65,6 +65,13 @@ class levelGenerator {
 
 // CREATE THE LEVEL FILES
 
+// GENERATE A RANDOM LEVEL
+$ret = LevelGenerator::generate();
+
+$l = new Level();
+$l->takeArray($ret);
+$l->saveToJSON("random.dat");
+
 // 1
 //if (!(file_exists("level1.dat"))) {
     // generate a default level 
@@ -74,30 +81,31 @@ class levelGenerator {
         'vpWidth' => 30,
         'skyHeight' => 8,
         'enableRocks' => true,
-        'maxRocks' => 15,
+        'maxRocks' => 25,
         'rocksAtStart' => true,
         'enableRain' => true,
         'maxRain' => 7,
         'rainStrengthMax' => 9,
         'rainStrengthMin' => 7,
         'rainAtStart' => true,
+        'enableMoisture' => false,
         'enableMinerals' => true,
         'maxMinerals' => 10,
         'mineralsAtStart' => true,
         'enablePlants' => true,
-        'maxPlants' => 8,
-        'plantsAtStart' => true,
+        'maxPlants' => 15,
+        'plantsAtStart' => false,
         'enableCrystals' => true,
-        'maxCrystals' => 15,
+        'maxCrystals' => 20,
         'crystalHealthBonus' => 50,
         'crystalsAtStart' => true,
         'enableMeteors' => true,
-        'meteorTicks' => 15,
+        'meteorTicks' => 25,
         'meteorSpeedMin' => 2,
         'meteorSpeedMax' => 3,
         'enableToxicity' => true,
         'toxicityTicks' => 20,
-        'startToxicity' => 0,
+        'startToxicity' => 20,
         'toxicityMin' => 2,
         'toxicityMax' => 4,
         'toxicityMultiplier' => 5,
@@ -131,13 +139,7 @@ class levelGenerator {
 
 // 2
 //if (!file_exists("level2.dat")) {
-    $ret = array();
-
-    $l = new Level();
-    $l->takeArray($ret);
-    $l->saveToJSON("level2.dat");
-///}
-
+//}
 // 3
 //if (!file_exists("level3.dat")) {
     $three = array(
@@ -154,8 +156,9 @@ class levelGenerator {
         'rainStrengthMax' => 9,
         'rainStrengthMin' => 7,
         'rainAtStart' => false,
+        'enableMoisture' => false,
         'enableMinerals' => true,
-        'maxMinerals' => 50,
+        'maxMinerals' => 75,
         'mineralsAtStart' => true,
         'enablePlants' => true,
         'maxPlants' => 8,
