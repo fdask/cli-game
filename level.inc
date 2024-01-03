@@ -99,15 +99,15 @@ class Level {
     public $playerStartY;
 
     public function __construct($filename = null) {
-        if (!is_null($filename)) {
-            if (file_exists($filename)) {
-                // load the json encoded level data array
-                $array = json_decode(file_get_contents($filename), true);
-
-                // now break out all the variables
-                $this->takeArray($array);
-            }
+        if (is_null($filename) || !file_exists($filename)) {   
+            $filename = Config::$fallbackLevelFilename;
         }
+        
+        // load the json encoded level data array
+        $array = json_decode(file_get_contents($filename), true);
+
+        // now break out all the variables
+        $this->takeArray($array); 
 
         $this->completed = false;
     }
