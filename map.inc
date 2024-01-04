@@ -765,7 +765,14 @@ class Map {
 		}
 
 		if ($this->level->enableCrystals) {
-			$this->addCrystal();
+			$rows = $this->level->crystalDepth;
+			$dirtSquares = $rows * $this->level->mapWidth;
+			$crystalPercentage = (count($this->getCrystalCoords()) / $dirtSquares) * 100;
+
+			// if we are below our minimum, add one in
+			if ($crystalPercentage < $this->level->minCrystals) {			
+				$this->addCrystal();
+			} 
 		}
 
 		if ($this->level->enableMeteors) {
@@ -999,17 +1006,19 @@ class Map {
             return false;
         }  
 
-		if ((count($cCoords) / $dirtSquares) * 100 >= $this->level->maxCrystals) {
+		$crystalPercentage = (count($cCoords) / $dirtSquares) * 100;
+
+		if ($crystalPercentage >= $this->level->maxCrystals) {
 			// we've passed our level limits
 			return false;
 		}
 
-        do {
-            $newX = rand($this->level->mapHeight - $rows, $this->level->mapHeight - 1);
-            $newY = rand(0, $this->level->mapWidth - 1);
-        } while(in_array([$newX, $newY], $allCoords));
+		do {
+			$newX = rand($this->level->mapHeight - $rows, $this->level->mapHeight - 1);
+			$newY = rand(0, $this->level->mapWidth - 1);
+		} while(in_array([$newX, $newY], $allCoords));
 
-        $this->map[$newX][$newY]->setCrystal(true);
+		$this->map[$newX][$newY]->setCrystal(true);
 
 		return true;
     }
@@ -1322,7 +1331,6 @@ class Map {
 				$this->map[$x][$y]->setWetness(0);
 
 				if ($this->player->onCoords($newX, $newY)) {
-					//echo "rain is moving into player char at $newX, $newY\n";
 					$this->player->setMoistureTicker($this->player->getMoistureTicks());
 					$this->player->incrMoisture($wetness);
 				} else if ($this->map[$newX][$newY] instanceof Dirt || $this->map[$newX][$newY] instanceof Sky) {
@@ -1333,11 +1341,9 @@ class Map {
 
 				// if the player is in the newX, newY,
 				// reset the moisture tick counter
-				// increase moisture by 2
 				// get all the coordinates of the character
 				if ($this->player->onCoords($newX, $newY)) {
 					// exposing variables
-					//echo "Rain is moving into player char at $newX, $newY\n";
 					$this->player->setMoistureTicker($this->player->getMoistureTicks());
 					$this->player->incrMoisture($wetness);
 
