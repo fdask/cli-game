@@ -13,7 +13,6 @@ class Config {
 
     // level environment setting defaults
     public static $defaultMaxRocks = 10;
-    public static $defaultRocksAtStart = true;
     
     public static $defaultMaxRain = 2;
     public static $defaultRainStrengthMin = 6;

@@ -154,25 +154,18 @@ class Map {
 			}
 		}
 
-		if ($this->level->enableRocks && $this->level->rocksAtStart) {
+		// rocks are always added at start.
+		if ($this->level->enableRocks) {
 			// add in the rocks (up to maxRocks %)
-			$rockCount = 0;
-
-
-			while (($rockCount / $dirtSize) < ($this->level->maxRocks / $dirtSize)) {
-				$rockCount++;
-				$this->addRock();
-			}
+			do {
+				// nothing
+			} while ($this->addRock());
 		}
 
 		if ($this->level->enableCrystals && $this->level->crystalsAtStart) {
-			$crystalCount = 0;
-
-			while (($crystalCount / $dirtSize) < ($this->level->maxCrystals / $dirtSize)) {
-				$crystalCount++;
-				echo "Adding a crystal\n";
-				$this->addCrystal();
-			}
+			do {
+				// nothing
+			} while ($this->addCrystal());
 		}
 
 		if ($this->level->enableMeteors) {
@@ -287,7 +280,7 @@ class Map {
 					}
 
 					$tick - false;
-					
+
 					break;
                 case '?':
                     // show keyboard commands
@@ -962,6 +955,10 @@ class Map {
 			return false;
 		}
 		
+		if ((count($rockCoords) / count($dirtCoords)) * 100 >= $this->level->maxRocks) {
+			return false;
+		}
+
 		do {
 			$newX = rand($this->level->skyHeight, $this->level->mapHeight - 1);
 			$newY = rand(0, $this->level->mapWidth - 1);
@@ -970,6 +967,8 @@ class Map {
 		$rock = new Rock();
 
 		$this->map[$newX][$newY] = $rock;
+
+		return true;
 	}
 
 	public function addCrystal() {
@@ -989,12 +988,19 @@ class Map {
             return false;
         }  
 
+		if ((count($cCoords) / $dirtSquares) * 100 >= $this->level->maxCrystals) {
+			// we've passed our level limits
+			return false;
+		}
+
         do {
             $newX = rand($this->level->mapHeight - $rows, $this->level->mapHeight - 1);
             $newY = rand(0, $this->level->mapWidth - 1);
         } while(in_array([$newX, $newY], $allCoords));
 
         $this->map[$newX][$newY]->setCrystal(true);
+
+		return true;
     }
 
 	public function addMeteor() {

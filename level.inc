@@ -33,7 +33,6 @@ class Level {
 
     // maximum number of rocks
     public $maxRocks;
-    public $rocksAtStart;
 
     // mineral settings
 	public $enableMinerals;
@@ -222,7 +221,6 @@ class Level {
             'skyHeight' => $this->skyHeight,
             'enableRocks' => $this->enableRocks,
             'maxRocks' => $this->maxRocks,
-            'rocksAtStart' => $this->rocksAtStart,
             'enableRain' => $this->enableRain,
             'maxRain' => $this->maxRain,
             'rainStrengthMax' => $this->rainStrengthMax,
@@ -272,7 +270,6 @@ class Level {
         $this->skyHeight = isset($array['skyHeight']) ? $array['skyHeight'] : Config::$defaultSkyHeight;
         $this->enableRocks = isset($array['enableRocks']) ? $array['enableRocks'] : false;
         $this->maxRocks = isset($array['maxRocks']) ? $array['maxRocks'] : Config::$defaultMaxRocks;
-        $this->rocksAtStart = isset($array['rocksAtStart']) ? $array['rocksAtStart'] : Config::$defaultRocksAtStart;
         $this->enableRain = isset($array['enableRain']) ? $array['enableRain'] : false;
         $this->maxRain = isset($array['maxRain']) ? $array['maxRain'] : Config::$defaultMaxRain;
         $this->rainStrengthMax = isset($array['rainStrengthMax']) ? $array['rainStrengthMax'] : Config::$defaultRainStrengthMax;
