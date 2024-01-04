@@ -66,7 +66,7 @@ class Player {
 		$this->moistureTicker = $this->moistureTicks;
 
 		$this->powers = array();
-		$this->activePower = null;
+		$this->activePower = 0;
 		$this->menuPower = 0;
 	}
 
@@ -168,6 +168,14 @@ class Player {
 
 	public function getActivePower() {
 		return $this->activePower;
+	}
+
+	public function getPower() {
+		if (!is_null($this->activePower) && isset($this->powers[$this->activePower])) {
+			return $this->powers[$this->activePower];
+		}
+
+		return false;
 	}
 
 	// every move a player makes, run some code
@@ -324,6 +332,9 @@ class Player {
 		$this->addFrontCoord($this->getX(), $y);
 	}
 
+	/**
+	 * returns the coords property (array)
+	 */
 	public function getCoords() {
 		return $this->coords;
 	}
