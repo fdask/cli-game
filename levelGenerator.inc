@@ -39,6 +39,11 @@ class levelGenerator {
         if (!$ret['enableRain']) {
             // we can't have moisture
             $ret['enableMoisture'] = false;
+        } else {
+            // rain is enabled, make sure it's not too much
+            if ($ret['maxRain'] > $ret['mapWidth']) {
+                $ret['maxRain'] = $ret['mapWidth'];
+            }
         }
 
         if ($ret['maxPlants'] > $ret['mapWidth']) {

@@ -279,7 +279,7 @@ class Map {
 						$this->mailbox->addMessageToStart($ps);
 					}
 
-					$tick - false;
+					$tick = false;
 
 					break;
                 case '?':
@@ -328,23 +328,27 @@ class Map {
 				case 'a': 
 					// move the character left
 				case 'A':
-					// grow character to the left
-					$newX = $this->player->getX();
-					$newY = $this->player->getY() - 1;
+					if (!$this->powerMenuOpen) {
+						// grow character to the left
+						$newX = $this->player->getX();
+						$newY = $this->player->getY() - 1;
 
-					if ($newY < 0) {
-						$newY = $this->level->mapWidth - 1;
-					} 
-					
-					$tick = $this->playerMove($newX, $newY, false, $c == 'D');
+						if ($newY < 0) {
+							$newY = $this->level->mapWidth - 1;
+						} 
+						
+						$tick = $this->playerMove($newX, $newY, false, $c == 'D');
 
-					// move viewport left
-					if ($tick) {
-						if ($this->vpY - 1 < 0) {
-							$this->vpY = $this->level->mapWidth - 1;
-						} else {
-							$this->vpY--;
+						// move viewport left
+						if ($tick) {
+							if ($this->vpY - 1 < 0) {
+								$this->vpY = $this->level->mapWidth - 1;
+							} else {
+								$this->vpY--;
+							}
 						}
+					} else {
+						$tick = false;
 					}
 
 					break;
@@ -382,23 +386,27 @@ class Map {
 				case 'd':
 					// move the character to the right
 				case 'D':
-					// grow the character to the right
-					$newX = $this->player->getX();
-					$newY = $this->player->getY() + 1;
+					if (!$this->powerMenuOpen) {
+						// grow the character to the right
+						$newX = $this->player->getX();
+						$newY = $this->player->getY() + 1;
 
-					if ($newY > $this->level->mapWidth - 1) {
-						$newY = 0;
-					} 
-					
-					$tick = $this->playerMove($newX, $newY, false, $c == 'D');
+						if ($newY > $this->level->mapWidth - 1) {
+							$newY = 0;
+						} 
+						
+						$tick = $this->playerMove($newX, $newY, false, $c == 'D');
 
-					if ($tick) {
-						// scroll viewprot to the right
-						if ($this->vpY + 1 >= $this->level->mapWidth) {
-							$this->vpY = 0;
-						} else {
-							$this->vpY++;
+						if ($tick) {
+							// scroll viewprot to the right
+							if ($this->vpY + 1 >= $this->level->mapWidth) {
+								$this->vpY = 0;
+							} else {
+								$this->vpY++;
+							}
 						}
+					} else {
+						$tick = false;
 					}
 
 					break;
@@ -474,6 +482,7 @@ class Map {
 
 					if ($cm[1] == $ps[1]) {
 						$this->mailbox->deleteCurrentMessage();
+						$this->powerMenuOpen = false;
 					} else {
 						$this->mailbox->addMessageToStart($ps);
 						$this->powerMenuOpen = true;
@@ -547,6 +556,8 @@ class Map {
 						$ps = $this->player->getPowersScreen();
 						$this->mailbox->deleteCurrentMessage();
 						$this->mailbox->addMessageToStart($ps);
+
+						$tick = false;
 					} else {
 						$newX = $this->player->getX() - 1;
 						$newY = $this->player->getY();
