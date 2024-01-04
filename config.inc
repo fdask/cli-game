@@ -31,6 +31,7 @@ class Config {
     public static $defaultPlantsAtStart = true;
     
     public static $defaultMaxCrystals = 5;
+    public static $defaultMinCrystals = 0;
     public static $defaultCrystalHealthBonus = 50;
     public static $defaultCrystalsAtStart = true;
     public static $defaultCrystalDepth = 5;

@@ -52,8 +52,11 @@ class Level {
     // crystal settings
 	public $enableCrystals;
 
-    // how many crystals to allow at once
+    // % of crystals to allow at once
     public $maxCrystals;
+
+    // add more if we dip below this %
+    public $minCrystals;
 
     // how much health a user gets from a crystal
     public $crystalHealthBonus;
@@ -235,6 +238,7 @@ class Level {
             'plantsAtStart' => $this->plantsAtStart,
             'enableCrystals' => $this->enableCrystals,
             'maxCrystals' => $this->maxCrystals,
+            'minCrystals' => $this->minCrystals,
             'crystalHealthBonus' => $this->crystalHealthBonus,
             'crystalsAtStart' => $this->crystalsAtStart,
             'crystalDepth' => $this->crystalDepth,
@@ -283,6 +287,7 @@ class Level {
         $this->plantsAtStart = isset($array['plantsAtStart']) ? $array['plantsAtStart'] : Config::$defaultPlantsAtStart;
         $this->enableCrystals = isset($array['enableCrystals']) ? $array['enableCrystals'] : false;
         $this->maxCrystals = isset($array['maxCrystals']) ? $array['maxCrystals'] : Config::$defaultMaxCrystals;
+        $this->minCrystals = isset($array['minCrystals']) ? $array['minCrystals'] : Config::$defaultMinCrystals;
         $this->crystalDepth = isset($array['crystalDepth']) ? $array['crystalDepth'] : Config::$defaultCrystalDepth;
         $this->crystalHealthBonus = isset($array['crystalHealthBonus']) ? $array['crystalHealthBonus'] : Config::$defaultCrystalHealthBonus;
         $this->crystalsAtStart = isset($array['crystalsAtStart']) ? $array['crystalsAtStart'] : Config::$defaultCrystalsAtStart;
