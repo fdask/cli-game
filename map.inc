@@ -124,7 +124,7 @@ class Map {
 		// fill in the sky
 		$this->fillMap(0, 0, $this->level->skyHeight, $this->level->mapWidth, "Sky");
 
-		if ($this->level->enableRain && $this->level->rainAtStart) {
+		if ($this->level->enableRain) {
 			// add in random rains up to maxRain
 			for ($x = 0; $x < $this->level->maxRain; $x++) {
 				$this->addRain();
