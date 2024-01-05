@@ -88,7 +88,11 @@ class Player {
 	}
 
 	public function calculateScore() {
-		return ($this->scoreWater * 10) + ($this->scoreMinerals * 10) + ($this->scoreMoves) + ($this->scoreCrystals * 100);
+		return \
+			($this->scoreWater * Config::$defaultScoreWater) + \
+			($this->scoreMinerals * Config::$defaultScoreMinerals) + \
+			($this->scoreMoves * Config::$defaultScoreMoves) + \
+			($this->scoreCrystals * Config::$defaultScoreCrystals);
 	}
 
 	// add a message with score, and details of

@@ -49,6 +49,11 @@ class Config {
     // player defaults
     public static $defaultPlayerHealth = 1000;
 
+    public static $defaultScoreWater = 10;
+	public static $defaultScoreMinerals = 10;
+	public static $defaultScoreMoves = 1;
+	public static $defaultScoreCrystals = 100;
+
     // color data
     public static $rainColor = 'blue';
 
