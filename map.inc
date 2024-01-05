@@ -557,7 +557,28 @@ class Map {
 	}
 
 	public function activatePowerBreak() {
+		// any rocks in radius are turned into minerals
+		$rCoords = $this->getRockCoords();
 
+		$x = $this->player->getX();
+		$y = $this->player->getY();
+
+		for ($loopX = $x - 3; $loopX <= $x + 3; $loopX++) {
+			for ($loopY = $y - 3; $loopY <= $y + 3; $loopY++) {
+				if ($loopY >= $this->level->mapWidth) {
+					$loopY = $loopY - $this->level->mapWidth;
+				}
+		
+				if ($loopY < 0) {
+					$loopY = $loopY + $this->level->mapWidth;
+				}
+		
+				if (in_array([$loopX, $loopY], $rCoords)) {
+					$this->map[$loopX][$loopY] = new Dirt;
+					$this->map[$loopX][$loopY]->setConcentration(9);
+				}
+			}
+		}
 	}
 
 	public function gameOver() {
