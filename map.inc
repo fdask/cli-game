@@ -247,6 +247,51 @@ class Map {
 		}
 	}
 
+	public function activatePowerTeleport() {
+		// what do we do with the tail
+		
+		// select a random new dirt location
+		$pCoords = $this->player->getCoords();
+
+		// make sure its not on rocks
+		$rCoords = $this->getRockCoords();
+
+		$taken = array_merge($pCoords, $rCoords);
+
+		do {
+			$newX = rand($this->level->skyHeight, $this->level->mapHeight - 1);
+			$newY = rand(0, $this->level->mapWidth - 1);
+		} while (in_array([$newX, $newY], $taken));
+
+		// transfer the player there
+		//$this->player->addFrontCoord($newX, $newY);
+		$this->player->setX($newX);
+		$this->player->setY($newY);
+		$this->player->coordPop();
+		$this->player->coordPop();
+
+
+		$newViewPortY = $newY - floor($this->level->vpWidth / 2);
+
+		if ($newViewPortY < 0) {
+			$newViewPortY = $this->level->mapWidth + $newViewPortY; //- floor($this->level->vpWidth / 2);
+		}
+
+		$this->vpY = $newViewPortY;
+	}
+
+	public function activatePowerExpand() {
+
+	}
+
+	public function activatePowerContract() {
+
+	}
+
+	public function activatePowerBreak() {
+
+	}
+
 	public function gameOver() {
 		echo "GAME OVER\n\n";
 
@@ -474,7 +519,39 @@ class Map {
 					// new.  re-initializes the map
 					$this->initialize();
 					
-					break;		
+					break;	
+				case 'o':
+					// activate selected power
+					$p = $this->player->getPower();
+					
+					if ($p && $this->player->getCrystals() > 0) {
+						// do we have enough crystals?
+						$this->player->decrCrystals();
+
+						// now do what the power tells us
+						switch ($p->getType()) {
+							case 'teleport':
+								$this->activatePowerTeleport();
+
+								break;
+							case 'expand':
+								$this->activatePowerExpand();
+
+								break;
+							case 'contract':
+								$this->activatePowerContract();
+
+								break;
+							case 'break':
+								$this->activatePowerBreak();
+
+								break;
+						}
+					}
+
+					$tick = false;
+
+					break;
 				case 'p':
 					// select power
 					$ps = $this->player->getPowersScreen();
@@ -1094,20 +1171,9 @@ class Map {
 		return $ret;
 	}
 
-	public function getToxicCoords() {
-		$ret = array();
-
-		for ($x = $this->level->skyHeight; $x < $this->level->mapHeight; $x++) {
-			for ($y = 0; $y < $this->level->mapWidth; $y++) {
-				if ($this->map[$x][$y] instanceof Dirt && $this->map[$x][$y]->isToxic()) {
-					$ret[] = array($x, $y);
-				}
-			}
-		}
-
-		return $ret;
-	}
-
+	/**
+	 * get an array of all rock locations (in the dirt)
+	 */
 	public function getRockCoords() {
 		$ret = array();
 
@@ -1122,6 +1188,9 @@ class Map {
 		return $ret;
 	}
 
+	/**
+	 * get an array of all dirt coords that have a crystal
+	 */
     public function getCrystalCoords() {
         $ret = array();
 
@@ -1136,6 +1205,9 @@ class Map {
         return $ret;
     }
 
+	/**
+	 * return coordinates of all dirt instances with a mineral concentration
+	 */
     private function getMineralCoords() {
 		$ret = array();
 
@@ -1151,6 +1223,9 @@ class Map {
 		return $ret;	
 	}
 
+	/**
+	 * return an array of all the dirt coords that have a plant
+	 */
 	private function getPlantCoords() {
 		$ret = array();
 
@@ -1165,6 +1240,9 @@ class Map {
 		return $ret;
 	}
 
+	/**
+	 * get an array of ALL coordinates that are wet (dirt and sky)
+	 */
 	private function getRainCoords() {
 		$ret = array();
 
@@ -1181,6 +1259,9 @@ class Map {
 		return $ret;
 	}
 
+	/**
+	 * get an array of all sky coords that are wet
+	 */
 	private function getSkyRainCoords() {
 		$ret = array();
 
@@ -1198,6 +1279,9 @@ class Map {
 		return $ret;
 	}
 
+	/**
+	 * get an array of meteor coordinates (in the sky)
+	 */
 	private function getMeteorCoords() {
 		if ($this->meteor && $this->meteor instanceof Meteor) {
 			$xy = $this->meteor->getXY();
@@ -1208,6 +1292,9 @@ class Map {
 		return false;
 	}
 
+	/**
+	 * add up the toxic level of every toxic dirt square
+	 */
 	private function getTotalToxicity() {
 		$ret = 0;
 		$toxic = $this->getToxicCoords();
@@ -1222,6 +1309,9 @@ class Map {
 		return $ret;
 	}
 
+	/**
+	 * how much of the dirt is made up of toxic waste?
+	 */
 	private function getToxicWastePercentage() {
 		$tt = $this->getTotalToxicity();
 		$rocks = $this->getRockCoords();
@@ -1232,6 +1322,26 @@ class Map {
 		return $ret;
 	}
 
+	/**
+	 * get every dirt coordinate that is toxic
+	 */
+	public function getToxicCoords() {
+		$ret = array();
+
+		for ($x = $this->level->skyHeight; $x < $this->level->mapHeight; $x++) {
+			for ($y = 0; $y < $this->level->mapWidth; $y++) {
+				if ($this->map[$x][$y] instanceof Dirt && $this->map[$x][$y]->isToxic()) {
+					$ret[] = array($x, $y);
+				}
+			}
+		}
+
+		return $ret;
+	}
+
+	/**
+	 * if there is a meteor, update it's position/state
+	 */
 	private function updateMeteor() {
 		// find any meteor objects in the sky
 		if (!is_null($this->meteor) && $this->meteor instanceof Meteor) {
@@ -1312,6 +1422,11 @@ class Map {
 		}
 	}
 
+	/**
+	 * hunt for tiles with wetness, and drop them down by 1.
+	 * 
+	 * if they hit a player, adjust players moisture
+	 */
 	private function updateRain() {
 		$raindrops = $this->getRainCoords();
 
@@ -1331,8 +1446,10 @@ class Map {
 				$this->map[$x][$y]->setWetness(0);
 
 				if ($this->player->onCoords($newX, $newY)) {
-					$this->player->setMoistureTicker($this->player->getMoistureTicks());
-					$this->player->incrMoisture($wetness);
+					if ($this->level->enableMoisture) {
+						$this->player->setMoistureTicker($this->player->getMoistureTicks());
+						$this->player->incrMoisture($wetness);
+					}
 				} else if ($this->map[$newX][$newY] instanceof Dirt || $this->map[$newX][$newY] instanceof Sky) {
                     $this->map[$newX][$newY]->setWetness($wetness);
                 }
@@ -1342,19 +1459,12 @@ class Map {
 				// if the player is in the newX, newY,
 				// reset the moisture tick counter
 				// get all the coordinates of the character
-				if ($this->player->onCoords($newX, $newY)) {
-					// exposing variables
-					$this->player->setMoistureTicker($this->player->getMoistureTicks());
-					$this->player->incrMoisture($wetness);
-
-					if ($this->player->getMoisture() >= ($this->player->getMoistureMax() * 2)) {
-						echo "YOU GOT TOO WET AND DIED\n";
-
-						$this->gameOver();
-					} else if ($this->player->getMoisture() <= ($this->player->getMoistureMax() * -2)) {
-						echo "YOU DRIED OUT AND DIED\n";
-
-						$this->gameOver();
+				if ($this->player->onCoords($newX, $newY)) {				
+					if ($this->level->enableMoisture) {
+						$this->player->setMoistureTicker($this->player->getMoistureTicks());
+						$this->player->incrMoisture($wetness);
+						
+						$this->checkPlayerMoisture();
 					}
 				} else if ($this->map[$newX][$newY] instanceof Dirt) {
 				    $this->map[$newX][$newY]->setWetness($wetness - 1);
@@ -1369,7 +1479,7 @@ class Map {
 
 					// space below gets a mineral
                     if ($this->map[$newX][$newY] instanceof Dirt) {
-					    $this->map[$newX][$newY]->incrConcentration();
+					    $this->map[$newX][$newY]->incrConcentration($concentration - 1);
                     }
 				} 
 			} 
