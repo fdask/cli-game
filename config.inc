@@ -17,6 +17,7 @@ class Config {
     public static $defaultMaxRain = 2;
     public static $defaultRainStrengthMin = 6;
     public static $defaultRainStrengthMax = 9;
+    public static $defaultNewRainStyle = false;
     
     public static $defaultEnableMoisture = false;
     public static $defaultMoistureMax = 5;
