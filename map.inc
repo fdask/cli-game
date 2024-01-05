@@ -301,12 +301,14 @@ class Map {
 						($loopX == $x - 1 && $loopY == $y - 2 && $passCount == 1) ||
 						($loopX == $x - 1 && $loopY == $y - 1 && $passCount == 2)) {
 							// top left corner (x - 1, y - 1)
+							echo "top left corner ($passCount)\n";
 							$dest = [$loopX - 1, $loopY - 1];
 					} else if (
 						($loopX == $x - 3 && $loopY == $y && $passCount == 0) ||
 						($loopX == $x - 2 && $loopY == $y && $passCount == 1) ||
 						($loopX == $x - 1 && $loopY == $y && $passCount == 2)) {
 							// top middle (x - 1, y)
+							echo "top middle ($passCount)\n";
 							$dest = [$loopX - 1, $loopY];
 					} else if (
 						($loopX == $x - 3 && $loopY == $y + 1 && $passCount == 0) ||
@@ -320,18 +322,21 @@ class Map {
 						($loopX == $x - 1 && $loopY == $y + 1 && $passCount == 2) ||
 						($loopX == $x - 1 && $loopY == $y + 2 && $passCount == 1)) {
 							// top right (x - 1, y + 1)
+							echo "top right ($passCount)\n";
 							$dest = [$loopX - 1, $loopY + 1];
 					} else if (
 						($loopX == $x && $loopY == $y - 3 && $passCount == 0) ||
 						($loopX == $x && $loopY == $y - 2 && $passCount == 1) ||
 						($loopX == $x && $loopY == $y - 1 && $passCount == 2)) {
 							// center line (left) (x, y - 1)
+							echo "center (left) ($passCount)\n";
 							$dest = [$loopX, $loopY - 1];
 					} else if (
 						($loopX == $x && $loopY == $y + 3 && $passCount == 0) ||
 						($loopX == $x && $loopY == $y + 1 && $passCount == 2) ||
 						($loopX == $x && $loopY == $y + 2 && $passCount == 1)) {
 							// center line (right) (x, y + 1)
+							echo "center (right) ($passCount)\n";
 							$dest = [$loopX, $loopY + 1];
 					} else if (
 						($loopX == $x + 1 && $loopY == $y - 3 && $passCount == 0) ||
@@ -344,12 +349,14 @@ class Map {
 						($loopX == $x + 2 && $loopY == $y - 2 && $passCount == 1) ||
 						($loopX == $x + 2 && $loopY == $y - 1 && $passCount == 1)) {
 							// bottom left corner (x + 1, y - 1)
+							echo "bottom left ($passCount)\n";
 							$dest = [$loopX + 1, $loopY - 1];
 					} else if (
 						($loopX == $x + 3 && $loopY == $y && $passCount == 0) ||
 						($loopX == $x + 1 && $loopY == $y && $passCount == 2) ||
 						($loopX == $x + 2 && $loopY == $y && $passCount == 1)) {
 							// bottom middle (x + 1, y)
+							echo "bottom middle ($passCount)\n";
 							$dest = [$loopX + 1, $loopY];
 					} else if (
 						($loopX == $x + 3 && $loopY == $y + 1 && $passCount == 0) ||
@@ -362,6 +369,7 @@ class Map {
 						($loopX == $x + 2 && $loopY == $y + 1 && $passCount == 1) ||
 						($loopX == $x + 2 && $loopY == $y + 2 && $passCount == 1)) {
 							// bottom right corner (x + 1, y + 1)
+							echo "bottom right ($passCount)\n";
 							$dest = [$loopX + 1, $loopY + 1];
 					}
 
@@ -457,9 +465,8 @@ class Map {
 					if (!is_null($dest)) {
 						// adjust the destination for any overflows/wraparounds
 						$this->copyDirtContents($loopX, $loopY, $dest[0], $dest[1]);
+						$this->clearDirt($loopX, $loopY);
 					}
-
-					$this->clearDirt($loopX, $loopY);
 				}
 			}
 		}
@@ -492,6 +499,14 @@ class Map {
 		$mineralCoords = $this->getMineralCoords();
 		$cCoords = $this->getCrystalCoords();
 
+		if ($destX > $this->level->mapHeight - 1) {
+			return false;
+		}
+
+		if ($destX < 0) {
+			return false;
+		}
+
 		if ($destY >= $this->level->mapWidth) {
 			$destY = $destY - $this->level->mapWidth;
 		}
@@ -503,7 +518,8 @@ class Map {
 		// if the destination exists
 		if (isset($this->map[$destX][$destY])) {
 			// and is not a rock or sky
-			if ($this->map[$destX][$destY] instanceof Dirt) {		
+			if ($this->map[$destX][$destY] instanceof Dirt) {	
+				echo "Destination $destX,$destY exists and is dirt!\n";	
 				// move the minerals there
 				if (in_array([$srcX, $srcY], $mineralCoords)) {
 					$oldConcentration = $this->map[$srcX][$srcY]->getConcentration();
@@ -536,6 +552,8 @@ class Map {
 					$this->map[$destX][$destY]->setCrystal(true);
 				}
 			}
+		} else {
+			echo "destination doesn't exist! ($destX, $destY)\n";
 		}
 	}
 
