@@ -166,6 +166,8 @@ the exit portal, marked with a '@' to proceed.
 * j - show journal screen
 * r - reverses your head and tail
 * ? - show help screen
+* p - show the powers screen
+* o - use selected power
 * n - new game
 
 ## Views
@@ -197,3 +199,28 @@ You can save your current game by pressing the '5' key.
 A savegame file will be created on disk.
 
 On startup, if a savegame file is detected, it will be loaded.
+
+## Powers
+
+Your character gains special powers from enlightened flowers.
+Use the 'p' key to show the powers screen, selecting the active
+power using space, or enter.
+
+### Teleport
+
+Teleport will transport the character to a new random spot in
+the dirt.  Good for getting yourself out of a sticky situation.
+
+### Expand
+
+Pushes dirt contents one square farther away from the player.
+This actually shifts moisture, rocks, minerals, and toxicity.
+
+### Contract
+
+The reverse of expand.  Draws dirt and rocks one closer to you.
+
+### Break
+
+Converts all nearby rocks into a high concentration mineral 
+deposit.
