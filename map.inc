@@ -1474,13 +1474,24 @@ class Map {
 				$concentration = $this->map[$x][$y]->getConcentration();
 
 				if ($concentration > 0) {
-					// current space loses a mineral
-					$this->map[$x][$y]->decrConcentration();
+					if ($this->level->newRainStyle) {
+						// minerals are washed down
+						$newConcentration = $concentration - 1;
 
-					// space below gets a mineral
-                    if ($this->map[$newX][$newY] instanceof Dirt) {
-					    $this->map[$newX][$newY]->incrConcentration($concentration - 1);
-                    }
+						$this->map[$x][$y]->decrConcentration($newConcentration);
+
+						// space below gets a mineral
+						if ($this->map[$newX][$newY] instanceof Dirt) {
+							$this->map[$newX][$newY]->incrConcentration($newConcentration);
+						}
+					} else {
+						// old rain style
+						$this->map[$x][$y]->decrConcentration();
+
+						if ($this->map[$newX][$newY] instanceof Dirt) {
+							$this->map[$newX][$newY]->incrConcentration();
+						}
+					}
 				} 
 			} 
 		}

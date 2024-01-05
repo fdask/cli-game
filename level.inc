@@ -24,6 +24,7 @@ class Level {
 	public $maxRain;
     public $rainStrengthMax;
     public $rainStrengthMin;
+    public $newRainStyle;
 
     public $enableMoisture;
 
@@ -227,6 +228,7 @@ class Level {
             'maxRain' => $this->maxRain,
             'rainStrengthMax' => $this->rainStrengthMax,
             'rainStrengthMin' => $this->rainStrengthMin,
+            'newRainStyle' => $this->newRainStyle,
             'enableMoisture' => $this->enableMoisture,
             'enableMinerals' => $this->enableMinerals,
             'maxMinerals' => $this->maxMinerals,
@@ -276,6 +278,7 @@ class Level {
         $this->maxRain = isset($array['maxRain']) ? $array['maxRain'] : Config::$defaultMaxRain;
         $this->rainStrengthMax = isset($array['rainStrengthMax']) ? $array['rainStrengthMax'] : Config::$defaultRainStrengthMax;
         $this->rainStrengthMin = isset($array['rainStrengthMin']) ? $array['rainStrengthMin'] : Config::$defaultRainStrengthMin;
+        $this->newRainStyle = isset($array['newRainStyle']) ? $array['newRainStyle'] : Config::$defaultNewRainStyle;
         $this->enableMoisture = isset($array['enableMoisture']) ? $array['enableMoisture'] : Config::$defaultEnableMoisture;
         $this->enableMinerals = isset($array['enableMinerals']) ? $array['enableMinerals'] : false;
         $this->maxMinerals = isset($array['maxMinerals']) ? $array['maxMinerals'] : Config::$defaultMaxMinerals;

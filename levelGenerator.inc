@@ -12,6 +12,7 @@ class levelGenerator {
             'maxRain' => rand(2, 15),
             'rainStrengthMax' => 9,
             'rainStrengthMin' => 7,
+            'newRainStyle' => rand(0, 1) ? true : false,
             'enableMinerals' => rand(0, 1) ? true : false,
             'maxMinerals' => rand(5, 35),
             'mineralsAtStart' => rand(0, 1) ? true : false,
@@ -80,6 +81,7 @@ $l->saveToJSON("random.dat");
 //if (!(file_exists("level1.dat"))) {
     // generate a default level 
     $ret = array(
+        'name' => "Level 1",
         'mapWidth' => 60,
         'mapHeight' => 22,
         'vpWidth' => 30,

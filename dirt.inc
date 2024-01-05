@@ -171,13 +171,21 @@ class Dirt {
 		return $this->concentration;
 	}
 
-	public function incrConcentration() {
-		$this->concentration++;
+	public function incrConcentration($c = null) {
+		if (!is_null($c)) {
+			$this->concentration = $this->concentration + $c;
+		} else {
+			$this->concentration++;
+		}
 	}
 
-	public function decrConcentration() {
+	public function decrConcentration($c = null) {
 		if ($this->concentration > 0) {
-			$this->concentration--;
+			if (!is_null($c)) {
+				$this->concentration = $this->concentration - $c;
+			} else {
+				$this->concentration--;
+			}
 		}
 	}
 
