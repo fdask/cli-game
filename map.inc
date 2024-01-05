@@ -274,7 +274,7 @@ class Map {
 		$newViewPortY = $newY - floor($this->level->vpWidth / 2);
 
 		if ($newViewPortY < 0) {
-			$newViewPortY = $this->level->mapWidth - floor($this->level->vpWidth / 2);
+			$newViewPortY = $this->level->mapWidth + $newViewPortY; //- floor($this->level->vpWidth / 2);
 		}
 
 		$this->vpY = $newViewPortY;
