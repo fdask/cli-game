@@ -282,149 +282,261 @@ class Map {
 
 	public function activatePowerExpand() {
 		// push everything one square away (except rocks, and flowers)
-
-		$toxicCoords = $this->getToxicCoords();
-		$rainCoords = $this->getDirtRainCoords();
-		$mineralCoords = $this->getMineralCoords();
-		$cCoords = $this->getCrystalCoords();
-
 		$x = $this->player->getX();
 		$y = $this->player->getY();
 
-		echo "Start X,Y is $x,$y\n";
-		for ($passCount = 0; $passCount < 2; $passCount++) {
-			for ($loopX = $x - 2; $loopX <= $x + 2; $loopX++) {
-				for ($loopY = $y - 2; $loopY <= $y + 2; $loopY++) {
+		for ($passCount = 0; $passCount < 3; $passCount++) {
+			for ($loopX = $x - 3; $loopX <= $x + 3; $loopX++) {
+				for ($loopY = $y - 3; $loopY <= $y + 3; $loopY++) {
 					$dest = null;
 
-					if 	(($loopX == $x - 2 && $loopY == $y - 2 && $passCount == 0) || 
-						($loopX == $x - 2 && $loopY == $y - 1 && $passCount == 0) ||
-						($loopX == $x - 1 && $loopY == $y - 2 && $passCount == 0) ||
-						($loopX == $x - 1 && $loopY == $y - 1 && $passcount == 1)) {
+					if 	(
+						($loopX == $x - 3 && $loopY == $y - 3 && $passCount == 0) ||
+						($loopX == $x - 3 && $loopY == $y - 2 && $passCount == 0) ||
+						($loopX == $x - 3 && $loopY == $y - 1 && $passCount == 0) ||
+						($loopX == $x - 2 && $loopY == $y - 3 && $passCount == 0) ||
+						($loopX == $x - 1 && $loopY == $y - 3 && $passCount == 0) ||
+						($loopX == $x - 2 && $loopY == $y - 2 && $passCount == 1) || 
+						($loopX == $x - 2 && $loopY == $y - 1 && $passCount == 1) ||
+						($loopX == $x - 1 && $loopY == $y - 2 && $passCount == 1) ||
+						($loopX == $x - 1 && $loopY == $y - 1 && $passCount == 2)) {
 							// top left corner (x - 1, y - 1)
-							echo "top left corner ($passCount)\n";
 							$dest = [$loopX - 1, $loopY - 1];
-					} else if (($loopX == $x - 2 && $loopY == $y && $passCount == 0) ||
-						($loopX == $x - 1 && $loopY == $y && $passCount == 1)) {
+					} else if (
+						($loopX == $x - 3 && $loopY == $y && $passCount == 0) ||
+						($loopX == $x - 2 && $loopY == $y && $passCount == 1) ||
+						($loopX == $x - 1 && $loopY == $y && $passCount == 2)) {
 							// top middle (x - 1, y)
-							echo "top middle ($passCount)\n";
 							$dest = [$loopX - 1, $loopY];
-					} else if (($loopX == $x - 2 && $loopY == $y + 1 && $passCount == 0) ||
-						($loopX == $x - 2 && $loopY == $y + 2 && $passCount == 0) ||
-						($loopX == $x - 1 && $loopY == $y + 1 && $passCount == 1) ||
-						($loopX == $x - 1 && $loopY == $y + 2 && $passCount == 0)) {
+					} else if (
+						($loopX == $x - 3 && $loopY == $y + 1 && $passCount == 0) ||
+						($loopX == $x - 3 && $loopY == $y + 2 && $passCount == 0) ||
+						($loopX == $x - 3 && $loopY == $y + 3 && $passCount == 0) ||
+						($loopX == $x - 3 && $loopY == $y + 2 && $passCount == 0) ||
+						($loopX == $x - 2 && $loopY == $y + 3 && $passCount == 0) ||
+						($loopX == $x - 1 && $loopY == $y + 3 && $passCount == 0) ||
+						($loopX == $x - 2 && $loopY == $y + 1 && $passCount == 1) ||
+						($loopX == $x - 2 && $loopY == $y + 2 && $passCount == 1) ||
+						($loopX == $x - 1 && $loopY == $y + 1 && $passCount == 2) ||
+						($loopX == $x - 1 && $loopY == $y + 2 && $passCount == 1)) {
 							// top right (x - 1, y + 1)
-							echo "top right ($passCount)\n";
 							$dest = [$loopX - 1, $loopY + 1];
-					} else if (($loopX == $x && $loopY == $y - 2 && $passCount == 0) ||
-						($loopX == $x && $loopY == $y - 1 && $passCount == 1)) {
+					} else if (
+						($loopX == $x && $loopY == $y - 3 && $passCount == 0) ||
+						($loopX == $x && $loopY == $y - 2 && $passCount == 1) ||
+						($loopX == $x && $loopY == $y - 1 && $passCount == 2)) {
 							// center line (left) (x, y - 1)
-							echo "mid line left ($passCount)\n";
 							$dest = [$loopX, $loopY - 1];
-					} else if (($loopX == $x && $loopY == $y + 1 && $passCount == 1) ||
-						($loopX == $x && $loopY == $y + 2 && $passCount == 0)) {
+					} else if (
+						($loopX == $x && $loopY == $y + 3 && $passCount == 0) ||
+						($loopX == $x && $loopY == $y + 1 && $passCount == 2) ||
+						($loopX == $x && $loopY == $y + 2 && $passCount == 1)) {
 							// center line (right) (x, y + 1)
-							echo "mid line right ($passCount)\n";
 							$dest = [$loopX, $loopY + 1];
-					} else if (($loopX == $x + 1 && $loopY == $y - 2 && $passCount == 0) ||
-						($loopX == $x + 1 && $loopY == $y - 1 && $passCount == 1) ||
-						($loopX == $x + 2 && $loopY == $y - 2 && $passCount == 0) ||
-						($loopX == $x + 2 && $loopY == $y - 1 && $passCount == 0)) {
+					} else if (
+						($loopX == $x + 1 && $loopY == $y - 3 && $passCount == 0) ||
+						($loopX == $x + 2 && $loopY == $y - 3 && $passCount == 0) ||
+						($loopX == $x + 3 && $loopY == $y - 3 && $passCount == 0) ||
+						($loopX == $x + 3 && $loopY == $y - 2 && $passCount == 0) ||
+						($loopX == $x + 3 && $loopY == $y - 1 && $passCount == 0) ||
+						($loopX == $x + 1 && $loopY == $y - 2 && $passCount == 1) ||
+						($loopX == $x + 1 && $loopY == $y - 1 && $passCount == 2) ||
+						($loopX == $x + 2 && $loopY == $y - 2 && $passCount == 1) ||
+						($loopX == $x + 2 && $loopY == $y - 1 && $passCount == 1)) {
 							// bottom left corner (x + 1, y - 1)
-							echo "bottom left corner ($passCount)\n";
 							$dest = [$loopX + 1, $loopY - 1];
-					} else if (($loopX == $x + 1 && $loopY == $y && $passCount == 1) ||
-						($loopX == $x + 2 && $loopY == $y && $passCount == 0)) {
+					} else if (
+						($loopX == $x + 3 && $loopY == $y && $passCount == 0) ||
+						($loopX == $x + 1 && $loopY == $y && $passCount == 2) ||
+						($loopX == $x + 2 && $loopY == $y && $passCount == 1)) {
 							// bottom middle (x + 1, y)
-							echo "bottom middle ($passCount)\n";
 							$dest = [$loopX + 1, $loopY];
-					} else if (($loopX == $x + 1 && $loopY == $y + 1 && $passCount == 1) ||
-						($loopX == $x + 1 && $loopY == $y + 2 && $passCount == 0) ||
-						($loopX == $x + 2 && $loopY == $y + 1 && $passCount == 0) ||
-						($loopX == $x + 2 && $loopY == $y + 2 && $passCount == 0)) {
+					} else if (
+						($loopX == $x + 3 && $loopY == $y + 1 && $passCount == 0) ||
+						($loopX == $x + 3 && $loopY == $y + 2 && $passCount == 0) ||
+						($loopX == $x + 3 && $loopY == $y + 3 && $passCount == 0) ||
+						($loopX == $x + 2 && $loopY == $y + 3 && $passCount == 0) ||
+						($loopX == $x + 1 && $loopY == $y + 3 && $passCount == 0) ||
+						($loopX == $x + 1 && $loopY == $y + 1 && $passCount == 2) ||
+						($loopX == $x + 1 && $loopY == $y + 2 && $passCount == 1) ||
+						($loopX == $x + 2 && $loopY == $y + 1 && $passCount == 1) ||
+						($loopX == $x + 2 && $loopY == $y + 2 && $passCount == 1)) {
 							// bottom right corner (x + 1, y + 1)
-							echo "bottom right corner ($passCount)\n";
 							$dest = [$loopX + 1, $loopY + 1];
 					}
 
 					if (!is_null($dest)) {
 						// adjust the destination for any overflows/wraparounds
-						if ($dest[1] >= $this->level->mapWidth) {
-							$dest[1] = $dest[1] - $this->level->mapWidth;
-						}
-
-						if ($dest[1] < 0) {
-							$dest[1] = $dest[1] + $this->level->mapWidth;
-						}
-						
-						echo "X,Y ($loopX, $loopY) moves to " . $dest[0] . ", " . $dest[1] . "\n";
-
-						// if the destination exists
-						if (isset($this->map[$dest[0]][$dest[1]])) {
-							if ($this->map[$dest[0]][$dest[1]] instanceof Dirt) {
-								// and is not a rock or sky
-								
-								// move the minerals there
-								if (in_array([$loopX, $loopY], $mineralCoords)) {
-									$oldConcentration = $this->map[$loopX][$loopY]->getConcentration();
-									$newConcentration = $this->map[$dest[0]][$dest[1]]->getConcentration();
-
-									// add to the existing minerals
-									$this->map[$dest[0]][$dest[1]]->setConcentration($oldConcentration + $newConcentration);
-								}
-
-								// move the wetness there
-								if (in_array([$loopX, $loopY], $rainCoords)) {
-									$oldWetness = $this->map[$loopX][$loopY]->getWetness();
-									$newWetness = $this->map[$dest[0]][$dest[1]]->getWetness();
-
-									// add to the existing wetness
-									$this->map[$dest[0]][$dest[1]]->setWetness($oldWetness + $newWetness);
-								}
-								
-								// move the toxic waste there
-								if (in_array([$loopX, $loopY], $toxicCoords)) {
-									$oldToxicity = $this->map[$loopX][$loopY]->getToxicity();
-									$newToxicity = $this->map[$dest[0]][$dest[1]]->getToxicity();
-
-									// add to the existing toxicity
-									$this->map[$dest[0]][$dest[1]]->setToxicity($oldToxicity + $newToxicity);
-								}
-
-								// move the crystals there
-								if (in_array([$loopX, $loopY], $cCoords)) {
-									$this->map[$dest[0]][$dest[1]]->setCrystal(true);
-								}
-							}
-						} else {
-							echo "We don't have the coordinates!  " . $dest[0] . ", " . $dest[1] . "\n";
-						}
-						
-						// whether or not we moved the squares, delete all the present values
-						
-						// minerals
-						if (isset($this->map[$loopX][$loopY]) && $this->map[$loopX][$loopY] instanceof Dirt) {
-							$this->map[$loopX][$loopY]->setConcentration(0);
-
-							// wetness
-							$this->map[$loopX][$loopY]->setWetness(0);
-
-							// toxic waste
-							$this->map[$loopX][$loopY]->setToxicity(0);
-
-							// crystals
-							$this->map[$loopX][$loopY]->setCrystal(false);
-						} else {
-							echo "Trying to access an x,y of $loopX,$loopY\n";
-						}
+						$this->copyDirtContents($loopX, $loopY, $dest[0], $dest[1]);
 					}
+
+					$this->clearDirt($loopX, $loopY);
 				}
 			}
 		}
 	}
 
 	public function activatePowerContract() {
+		// draw everything in one tile
+		$x = $this->player->getX();
+		$y = $this->player->getY();
 
+		for ($passCount = 0; $passCount < 2; $passCount++) {
+			for ($loopX = $x - 3; $loopX <= $x + 3; $loopX++) {
+				for ($loopY = $y - 3; $loopY <= $y + 3; $loopY++) {
+					$dest = null;
+
+					// if this is a square we want, set the dest!
+					if (
+						($loopX == $x - 1 && $loopY == $y - 2 && $passCount == 0) ||
+						($loopX == $x - 2 && $loopY == $y - 2 && $passCount == 0) ||
+						($loopX == $x - 2 && $loopY == $y - 1 && $passCount == 0) ||
+						($loopX == $x - 1 && $loopY == $y - 3 && $passCount == 1) ||
+						($loopX == $x - 2 && $loopY == $y - 3 && $passCount == 1) ||
+						($loopX == $x - 3 && $loopY == $y - 3 && $passCount == 1) ||
+						($loopX == $x - 3 && $loopY == $y - 2 && $passCount == 1) ||
+						($loopX == $x - 3 && $loopY == $y - 1 && $passCount == 1)) {
+							// top left corner
+							$dest = [$loopX + 1, $loopY + 1];
+					} else if (
+						($loopX == $x - 2 && $loopY == $y && $passCount == 0) ||
+						($loopX == $x - 3 && $loopY == $y && $passCount == 1)) {
+							// top middle
+							$dest = [$loopX - 1, $loopY];
+					} else if (
+						($loopX == $x - 2 && $loopY == $y + 1 && $passCount == 0) ||
+						($loopX == $x - 2 && $loopY == $y + 2 && $passCount == 0) ||
+						($loopX == $x - 1 && $loopY == $y + 2 && $passCount == 0) ||
+						($loopX == $x - 3 && $loopY == $y + 1 && $passCount == 1) ||
+						($loopX == $x - 3 && $loopY == $y + 2 && $passCount == 1) ||
+						($loopX == $x - 3 && $loopY == $y + 3 && $passCount == 1) ||
+						($loopX == $x - 2 && $loopY == $y + 3 && $passCount == 1) ||
+						($loopX == $x - 1 && $loopY == $y + 3 && $passCount == 1)) {
+							// top right
+							$dest = [$loopX + 1, $loopY - 1];
+					} else if (
+						($loopX == $x && $loopY == $y - 2 && $passCount == 0) ||
+						($loopX == $x && $loopY == $y - 3 && $passCount == 1)) {
+							// center left
+							$dest = [$loopX, $loopY + 1];
+					} else if (
+						($loopX == $x && $loopY == $y + 2 && $passCount == 0) ||
+						($loopX == $x && $loopY == $y + 3 && $passCount == 1)) {
+							// center right
+							$dest = [$loopX, $loopY - 1];
+					} else if (
+						($loopX == $x + 1 && $loopY == $y - 2 && $passCount == 0) ||
+						($loopX == $x + 2 && $loopY == $y - 2 && $passCount == 0) ||
+						($loopX == $x + 2 && $loopY == $y - 1 && $passCount == 0) ||
+						($loopX == $x + 1 && $loopY == $y - 3 && $passCount == 1) ||
+						($loopX == $x + 2 && $loopY == $y - 3 && $passCount == 1) ||
+						($loopX == $x + 3 && $loopY == $y - 3 && $passCount == 1) ||
+						($loopX == $x + 3 && $loopY == $y - 2 && $passCount == 1) ||
+						($loopX == $x + 3 && $loopY == $y - 1 && $passCount == 1)) {
+							// bottom left
+							$dest = [$loopX - 1, $loopY + 1];
+					} else if (
+						($loopX == $x + 2 && $loopY == $y && $passCount == 0) ||
+						($loopX == $x + 3 && $loopY == $y && $passCount == 1)) {
+							// bottom middle
+							$dest = [$loopX - 1, $loopY];
+					} else if (
+						($loopX == $x + 2 && $loopY == $y + 1 && $passCount == 0) ||
+						($loopX == $x + 2 && $loopY == $y + 2 && $passCount == 0) ||
+						($loopX == $x + 1 && $loopY == $y + 2 && $passCount == 0) ||
+						($loopX == $x + 3 && $loopY == $y + 1 && $passCount == 1) ||
+						($loopX == $x + 3 && $loopY == $y + 2 && $passCount == 1) ||
+						($loopX == $x + 3 && $loopY == $y + 3 && $passCount == 1) ||
+						($loopX == $x + 2 && $loopY == $y + 3 && $passCount == 1) ||
+						($loopX == $x + 1 && $loopY == $y + 3 && $passCount == 1)) {
+							// bottom right
+							$dest = [$loopX - 1, $loopY - 1];
+					}
+				
+					// if we got a dest
+					if (!is_null($dest)) {
+						// adjust the destination for any overflows/wraparounds
+						$this->copyDirtContents($loopX, $loopY, $dest[0], $dest[1]);
+					}
+
+					$this->clearDirt($loopX, $loopY);
+				}
+			}
+		}
+	}
+
+	public function clearDirt($dirtX, $dirtY) {
+		// whether or not we moved the squares, delete all the present values
+		if (isset($this->map[$dirtX][$dirtY]) && $this->map[$dirtX][$dirtY] instanceof Dirt) {
+			// minerals
+			$this->map[$dirtX][$dirtY]->setConcentration(0);
+
+			// wetness
+			$this->map[$dirtX][$dirtY]->setWetness(0);
+
+			// toxic waste
+			$this->map[$dirtX][$dirtY]->setToxicity(0);
+
+			// crystals
+			$this->map[$dirtX][$dirtY]->setCrystal(false);
+
+			return true;
+		}
+
+		return false;
+	}
+
+	public function copyDirtContents($srcX, $srcY, $destX, $destY) {
+		$toxicCoords = $this->getToxicCoords();
+		$rainCoords = $this->getDirtRainCoords();
+		$mineralCoords = $this->getMineralCoords();
+		$cCoords = $this->getCrystalCoords();
+
+		if ($destY >= $this->level->mapWidth) {
+			$destY = $destY - $this->level->mapWidth;
+		}
+
+		if ($destY < 0) {
+			$destY = $destY + $this->level->mapWidth;
+		}
+
+		// if the destination exists
+		if (isset($this->map[$destX][$destY])) {
+			// and is not a rock or sky
+			if ($this->map[$destX][$destY] instanceof Dirt) {		
+				// move the minerals there
+				if (in_array([$srcX, $srcY], $mineralCoords)) {
+					$oldConcentration = $this->map[$srcX][$srcY]->getConcentration();
+					$newConcentration = $this->map[$destX][$destY]->getConcentration();
+
+					// add to the existing minerals
+					$this->map[$destX][$destY]->setConcentration($oldConcentration + $newConcentration);
+				}
+
+				// move the wetness there
+				if (in_array([$srcX, $srcY], $rainCoords)) {
+					$oldWetness = $this->map[$srcX][$srcY]->getWetness();
+					$newWetness = $this->map[$destX][$destY]->getWetness();
+
+					// add to the existing wetness
+					$this->map[$destX][$destY]->setWetness($oldWetness + $newWetness);
+				}
+				
+				// move the toxic waste there
+				if (in_array([$srcX, $srcY], $toxicCoords)) {
+					$oldToxicity = $this->map[$srcX][$srcY]->getToxicity();
+					$newToxicity = $this->map[$destX][$destY]->getToxicity();
+
+					// add to the existing toxicity
+					$this->map[$destX][$destY]->setToxicity($oldToxicity + $newToxicity);
+				}
+
+				// move the crystals there
+				if (in_array([$srcX, $srcY], $cCoords)) {
+					$this->map[$destX][$destY]->setCrystal(true);
+				}
+			}
+		}
 	}
 
 	public function activatePowerBreak() {
@@ -1536,8 +1648,8 @@ class Map {
 					if ($this->level->enableToxicity) {
 						$target = $this->level->skyHeight + $weight;
 
-						if ($target > $this->level->mapHeight) {
-							$target = $this->level->mapHeight;
+						if ($target > $this->level->mapHeight - 1) {
+							$target = $this->level->mapHeight - 1;
 						}
 
 						for ($x = $this->level->skyHeight; $x < $target; $x++) {
