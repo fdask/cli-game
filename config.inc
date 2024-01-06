@@ -46,9 +46,14 @@ class Config {
     public static $defaultToxicityMax = 9;
     public static $defaultToxicityMultiplier = 10;
 
+    public static $defaultEnableFossils = false;
+    public static $defaultFossilQualityMin = 1;
+    public static $defaultFossilQualityMax = 99;
+    public static $defaultFossilInRockPercentage = 20;
+
     // player defaults
     public static $defaultPlayerHealth = 1000;
-
+    public static $defaultPlayerInvulnerableState = false;
     public static $defaultScoreWater = 10;
 	public static $defaultScoreMinerals = 10;
 	public static $defaultScoreMoves = 1;

@@ -86,6 +86,11 @@ class Level {
     // how much damage done to player
     public $toxicityMultiplier;
 
+    public $enableFossils;
+    public $fossilQualityMin;
+    public $fossilQualityMax;
+    public $fossilInRockPercentage;
+
     // an array of points of interest
     public $pointsOfInterest;
 
@@ -254,6 +259,10 @@ class Level {
             'toxicityMin' => $this->toxicityMin,
             'toxicityMax' => $this->toxicityMax,
             'toxicityMultiplier' => $this->toxicityMultiplier,
+            'enableFossils' => $this->enableFossils,
+            'fossilQualityMin' => $this->fossilQualityMin,
+            'fossilQualityMax' => $this->fossilQualityMax,
+            'fossilInRockPercentage' => $this->fossilInRockPercentage,
             'pointsOfInterest' => serialize($this->pointsOfInterest),
             'objectives' => serialize($this->objectives),
             'map' => $this->map
@@ -304,7 +313,10 @@ class Level {
         $this->toxicityMin = isset($array['toxicityMin']) ? $array['toxicityMin'] : Config::$defaultToxicityMin;
         $this->toxicityMax = isset($array['toxicityMax']) ? $array['toxicityMax'] : Config::$defaultToxicityMax;
         $this->toxicityMultiplier = isset($array['toxicityMultiplier']) ? $array['toxicityMultiplier'] : Config::$defaultToxicityMultiplier;
-        
+        $this->enableFossils = isset($array['enableFossils']) ? $array['enableFossils'] : Config::$defaultEnableFossils;
+        $this->fossilQualityMin = isset($array['fossilQualityMin']) ? $array['fossilQualityMin'] : Config::$defaultFossilQualityMin;
+        $this->fossilQualityMax = isset($array['fossilQualityMax']) ? $array['fossilQualityMax'] : Config::$defaultFossilQualityMax;
+        $this->fossilInRockPercentage = isset($array['fossilInRockPercentage']) ? $array['fossilInRockPercentage'] : Config::$defaultFossilInRockPercentage;
         $this->pointsOfInterest = isset($array['pointsOfInterest']) ? unserialize($array['pointsOfInterest']) : array();
         $this->objectives = isset($array['objectives']) ? unserialize($array['objectives']) : array();
 
