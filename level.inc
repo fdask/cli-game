@@ -91,6 +91,9 @@ class Level {
     public $fossilQualityMax;
     public $fossilInRockPercentage;
 
+    public $enableWorms;
+    public $maxWorms;
+
     // an array of points of interest
     public $pointsOfInterest;
 
@@ -263,6 +266,8 @@ class Level {
             'fossilQualityMin' => $this->fossilQualityMin,
             'fossilQualityMax' => $this->fossilQualityMax,
             'fossilInRockPercentage' => $this->fossilInRockPercentage,
+            'enableWorms' => $this->enableWorms,
+            'maxWorms' => $this->maxWorms,
             'pointsOfInterest' => serialize($this->pointsOfInterest),
             'objectives' => serialize($this->objectives),
             'map' => $this->map
@@ -317,6 +322,9 @@ class Level {
         $this->fossilQualityMin = isset($array['fossilQualityMin']) ? $array['fossilQualityMin'] : Config::$defaultFossilQualityMin;
         $this->fossilQualityMax = isset($array['fossilQualityMax']) ? $array['fossilQualityMax'] : Config::$defaultFossilQualityMax;
         $this->fossilInRockPercentage = isset($array['fossilInRockPercentage']) ? $array['fossilInRockPercentage'] : Config::$defaultFossilInRockPercentage;
+        $this->enableWorms = isset($array['enableWorms']) ? $array['enableWorms'] : Config::$defaultEnableWorms;
+        $this->maxWorms = isset($array['maxWorms']) ? $array['maxWorms'] : Config::$defaultMaxWorms;
+        
         $this->pointsOfInterest = isset($array['pointsOfInterest']) ? unserialize($array['pointsOfInterest']) : array();
         $this->objectives = isset($array['objectives']) ? unserialize($array['objectives']) : array();
 

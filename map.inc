@@ -44,6 +44,9 @@ class Map {
 	// are we in the power menu?
 	public $powerMenuOpen;
 
+	// an array holding all the worms
+	public $worms;
+
 	public function __construct($filename = null) {
 		if (!is_null($filename)) {
 			$this->level = new Level($filename);
@@ -74,8 +77,8 @@ class Map {
 		$this->vpY = 0;
 		$this->threeScreen = false;
 		$this->charOnScreens = array(1, 2, 3);
-
 		$this->portal = null;
+		$this->worms = array();
 
 		$this->initialize();
 	}
@@ -192,8 +195,32 @@ class Map {
 
 		// add a portal to the map
 		$this->addPortal();
+
+		// add the worms if we want them a start
+		if ($this->level->enableWorms) {
+			while (count($this->worms) < $this->level->maxWorms) {
+				$this->addWorm();
+			}
+		}
 	}
 
+	private function addWorm() {
+		$wCoords = $this->getWormCoords();
+		$dirtCoords = $this->getDirtCoords();
+
+		// find a spot thats not already taken by worms,
+		// and is Dirt.  Set the initial X/Y then.
+	}
+	
+	private function getWormCoords() {
+		$ret = array();
+
+		for ($x = 0; $x < count($this->worms); $x++) {
+			$ret = array_merge($ret, $this->worms[$x]->getCoords());
+		}
+
+		return $ret;
+	}
 	private function initializeMap() {
 		// fills the map array out with falses
 		$this->map = array();
@@ -1949,6 +1976,16 @@ class Map {
 		return $ret;		
 	}
 
+	public function onWorm($x, $y) {
+		for ($x = 0; $x < count($this->worms); $x++) {
+			if (in_array([$x, $y], $this->worms[$x]->getCoords())) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
 	public function __toString() {
 		// main display subroutine
 		$ret = "Mapwidth: {$this->level->mapWidth} Viewport Width: " . $this->level->vpWidth . " Viewport Y: {$this->vpY} ViewType: {$this->viewType}\n";
@@ -2050,6 +2087,8 @@ class Map {
 						} else {
 							$ret .= Colors::fg_color(Config::$playerTailColor, $this->player->getDefaultChar());
 						}
+					} else if ($this->onWorm($x, $ypos)) {
+						$ret .= Colors::fg_color(Config::$wormColor, "w");
 					} else if ($this->map[$x][$ypos] instanceof Dirt) {
 						$ret .= $this->map[$x][$ypos]->getView(1);
 					} else {
@@ -2258,6 +2297,8 @@ class Map {
 						} else {
 							$ret .= Colors::fg_color(Config::$playerTailColor, $this->player->getDefaultChar());
 						}
+					} else if ($this->onWorm($x, $ypos)) {
+						$ret .= Colors::fg_color(Config::$wormColor, "w");
 					} else if ($this->map[$x][$ypos] instanceof Dirt) {
 						$ret .= $this->map[$x][$ypos]->getView($this->viewType);
 					} else {
