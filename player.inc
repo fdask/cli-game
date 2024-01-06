@@ -36,6 +36,9 @@ class Player {
 	private $activePower;
 	private $menuPower;
 
+	private $invulnerable;
+	private $invulnerableDuration;
+
 	// the players stats
 	public $scoreWater;
 	public $scoreMinerals;
@@ -64,6 +67,10 @@ class Player {
 		$this->moistureMax = Config::$defaultMoistureMax;
 		$this->moistureTicks = Config::$defaultMoistureTicks;
 		$this->moistureTicker = $this->moistureTicks;
+
+		// if our default state is invulnerable, crank up the duration
+		$this->invulnerable = Config::$defaultPlayerInvulnerableState;
+		$this->invulnerableDuration = $this->invulnerable ? 999999 : 0;
 
 		$this->powers = array();
 		$this->activePower = 0;
@@ -181,6 +188,32 @@ class Player {
 		return false;
 	}
 
+	public function isInvulnerable() {
+		return $this->invulnerable;
+	}
+
+	public function setInvulnerable($v) {
+		$this->invulnerable = $v;
+	}
+
+	public function setInvulnerableDuration($d) {
+		$this->invulnerableDuration = $d;
+	}
+
+	public function getInvulnerableDuration() {
+		return $this->invulnerableDuration;
+	}
+	
+	public function decrInvulnerableDuration($d = null) {
+		if (is_null($d)) {
+			$this->invulnerableDuration--;
+		} else {
+			$this->invulerableDuration = $this->invulnerableDuration - $d;
+		}
+
+		return $this->invulnerableDuration;
+	}
+
 	// every move a player makes, run some code
 	public function tick() {
 		if ($this->moistureTicker > 0) {
@@ -258,7 +291,6 @@ class Player {
         return false;
     }
 
-	
 	public function getSize() {
 		return count($this->coords);
 	}

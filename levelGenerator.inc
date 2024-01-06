@@ -35,6 +35,10 @@ class levelGenerator {
             'toxicityMin' => rand(1, 3),
             'toxicityMax' => rand(4, 9),
             'toxicityMultiplier' => rand(5, 20),
+            'enableFossils' => rand(0, 1) ? true: false,
+            'fossilQualityMin' => rand(1, 25), 
+            'fossilQualityMax' => rand(50, 100),
+            'fossilInRockPercentage' => rand(20, 80),
             'nextLevel' => "generate"
         );
 
@@ -114,6 +118,10 @@ $l->saveToJSON("random.dat");
         'toxicityMin' => 2,
         'toxicityMax' => 4,
         'toxicityMultiplier' => 5,
+        'enableFossils' => true,
+        'fossilQualityMin' => 50,
+        'fossilQualityMax' => 100,
+        'fossilInRockPercentage' => 50,
         'map' => array(
             "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD",
             "DDDDDDDDDRRRRRDDDDDDDDDDDRRRRRRDDDDDDDDDDDDD",

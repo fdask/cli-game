@@ -124,6 +124,14 @@ concentration).
 
 As well, each crystal collected gives a large health bonus.
 
+#### Invulnerability & Fossils
+
+Use your Break power to smash rocks.  Sometimes you might find
+a fossil, represented in the h2o view as a % symbol.  Grab it
+and your health will no longer decrement when you move (for a limited time).
+You can tell you are invulnerable because your health will be 
+shown with a background gray color.
+
 ### Moistness
 
 Mycellium has specific dampness it likes to live at.  Your

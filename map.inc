@@ -573,9 +573,15 @@ class Map {
 					$loopY = $loopY + $this->level->mapWidth;
 				}
 		
+				// add a mineral, or fossil
 				if (in_array([$loopX, $loopY], $rCoords)) {
-					$this->map[$loopX][$loopY] = new Dirt;
-					$this->map[$loopX][$loopY]->setConcentration(9);
+					if ($this->level->enableFossils && rand(0, 100) < $this->level->fossilInRockPercentage) {
+						// add a fossil
+						$this->map[$loopX][$loopY] = new Fossil(rand($this->level->fossilQualityMin, $this->level->fossilQualityMax));
+					} else {
+						$this->map[$loopX][$loopY] = new Dirt;
+						$this->map[$loopX][$loopY]->setConcentration(9);
+					}
 				}
 			}
 		}
@@ -671,7 +677,7 @@ class Map {
 							$newY = $this->level->mapWidth - 1;
 						} 
 						
-						$tick = $this->playerMove($newX, $newY, false, $c == 'D');
+						$tick = $this->playerMove($newX, $newY, false, $c == 'A');
 
 						// move viewport left
 						if ($tick) {
@@ -777,6 +783,14 @@ class Map {
 					} else {
 						$this->charOnScreens[] = $this->viewType;
 					}
+
+					break;
+				case 'i':
+					// make the character invulnerable for 20 turns
+					$this->player->setInvulnerable(true);
+					$this->player->setInvulnerableDuration(20);
+
+					$tick = false;
 
 					break;
 				case 'j':
@@ -1000,6 +1014,15 @@ class Map {
 				return false;
 			}
 
+			if ($this->map[$newX][$newY] instanceof Fossil) {
+				// the user goes invulnerable for a length equal to the fossils quality
+				$this->player->setInvulnerable(true);
+				$this->player->setInvulnerableDuration($this->map[$newX][$newY]->getQuality());
+
+				// replace the square with dirt
+				$this->map[$newX][$newY] = new Dirt();
+			}
+
 			// character has landed on the portal
 			if (!is_null($this->portal) && $this->portal->getXY() == [$newX, $newY] && $this->portal->isVisible()) {
 				// load the next map
@@ -1085,8 +1108,18 @@ class Map {
 			}
 
 			// upkeep tax (health decrement)
-			if ($this->player->decrLife() < 0) {
-				$this->gameOver();
+			if ($this->player->isInvulnerable()) {
+				// decrement invulnerability
+				$this->player->decrInvulnerableDuration();
+
+				if ($this->player->getInvulnerableDuration() <= 0) {
+					$this->player->setInvulnerable(false);
+					$this->player->setInvulnerableDuration(0);
+				}
+			} else {
+				if ($this->player->decrLife() < 0) {
+					$this->gameOver();
+				}
 			}
 		} else {
 			return false;
@@ -1537,7 +1570,7 @@ class Map {
 
 		for ($x = 0; $x < $this->level->mapHeight; $x++) {
 			for ($y = 0; $y < $this->level->mapWidth; $y++) {
-				if ($this->map[$x][$y] instanceof Rock) {
+				if ($this->map[$x][$y] instanceof Rock || $this->map[$x][$y] instanceof Fossil) {
 					continue;
 				} else if ($this->map[$x][$y]->isWet()) {
 					$ret[] = [$x, $y];
@@ -1920,7 +1953,14 @@ class Map {
 		// main display subroutine
 		$ret = "Mapwidth: {$this->level->mapWidth} Viewport Width: " . $this->level->vpWidth . " Viewport Y: {$this->vpY} ViewType: {$this->viewType}\n";
 		
-		$ret .= "Player Health: " . $this->player->getLife() . " ";
+		$ret .= "Player Health: ";
+		
+		if ($this->player->isInvulnerable()) {
+			$ret .= Colors::bg_color("light_gray", $this->player->getLife());
+		} else {
+			$ret .= $this->player->getLife();
+		}
+		$ret .= " ";
 		$ret .= "X: " . $this->player->getX() . " ";
 		$ret .= "Y: " . $this->player->getY() . " ";
 
