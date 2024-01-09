@@ -146,8 +146,6 @@ class Map {
     public $map;
 
     public function __construct($array) {
-        echo "__construct array\n";
-        print_r($array);
         $keys = array_keys($array);
         $min_array = min($keys);
         $max_array = max($keys);
@@ -323,8 +321,6 @@ class PathFinding {
 
     public static function findPath($map) {
         $m = new Map($map);
-
-        echo $m;
 
         $pf = new PathFinding($m);
 
@@ -502,6 +498,6 @@ class PathFinding {
 
         $ret .= "\n";
 
-        echo $ret;
+        return $ret;
     }
 }

@@ -97,6 +97,14 @@ class Worm {
         $this->coords = $coords;
     }
 
+    public function shiftCoords() {
+        array_shift($this->coords);
+    }
+
+    public function popCoords() {
+        array_pop($this->coords);
+    }
+
     /**
      * check to see if this worm is on a specific coords
      */
@@ -115,18 +123,16 @@ class Worm {
      */
     public function tick() {
         // moves along path each tick.
-        $np = $this->getNextPath();
-        $npX = $np[0];
-        $npY = $np[1];
-        
-        $this->addCoord($npX, $npY);
+        if ($this->health > 0) {
+            $np = $this->getNextPath(); 
+            $npX = $np[0];
+            $npY = $np[1];
 
-        if ($this->visible) {
+            $this->addCoord($npX, $npY);
             $this->health--;
-            
-            if ($this->health <= 0) {
-                $this->visible = false;
-            }
+        } else {
+            // remove a coordinate
+            $this->shiftCoords();
         }
     }
 }

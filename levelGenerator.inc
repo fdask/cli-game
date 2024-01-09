@@ -126,7 +126,7 @@ $l->saveToJSON("random.dat");
         'fossilQualityMax' => 100,
         'fossilInRockPercentage' => 50,
         'enableWorms' => true,
-        'maxWorms' => 1,
+        'maxWorms' => 3,
         'wormHealth' => 25,
         'wormTicks' => 2,
         'map' => array(
