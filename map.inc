@@ -285,7 +285,7 @@ class Map {
 
 			$wormX = $wormLast[0];
 			$wormY = $wormLast[1];
-			
+
 			if ($wormX == $playerX && $wormY == $playerY) {
 				// this worm doesn't need to move, because it's reached the player
 				echo "The worm is on the player!\n";
@@ -1312,9 +1312,10 @@ class Map {
 		}
 
 		if ($this->level->enableWorms) {
+			echo "We have " . count($this->worms) . " worms out of " . $this->level->maxWorms . "\n";
 			// if the worm count is less than our worm max, add one
 			if (count($this->worms) < $this->level->maxWorms) {
-				$this->updateWorms();
+				$this->addWorm();
 			}
 		}
 
