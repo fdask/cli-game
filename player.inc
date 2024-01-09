@@ -341,6 +341,10 @@ class Player {
 		array_unshift($this->coords, array($x, $y));
 	}
 
+	public function getFrontCoord() {
+		return $this->coords[0];
+	}
+
 	public function coordPop() {
 		return array_pop($this->coords);
 	}

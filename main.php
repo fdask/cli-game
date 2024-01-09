@@ -20,6 +20,7 @@ include 'levelGenerator.inc';
 include 'power.inc';
 include 'fossil.inc';
 include 'worm.inc';
+include 'pathfinding.inc';
 
 // GAME START
 echo "\n";

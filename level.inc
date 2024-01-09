@@ -93,6 +93,9 @@ class Level {
 
     public $enableWorms;
     public $maxWorms;
+    public $wormLengthMax;
+    public $wormHealth;
+    public $wormTicks;
 
     // an array of points of interest
     public $pointsOfInterest;
@@ -268,6 +271,9 @@ class Level {
             'fossilInRockPercentage' => $this->fossilInRockPercentage,
             'enableWorms' => $this->enableWorms,
             'maxWorms' => $this->maxWorms,
+            'wormLengthMax' => $this->wormLengthMax,
+            'wormHealth' => $this->wormHealth,
+            'wormTicks' => $this->wormTicks,
             'pointsOfInterest' => serialize($this->pointsOfInterest),
             'objectives' => serialize($this->objectives),
             'map' => $this->map
@@ -324,6 +330,9 @@ class Level {
         $this->fossilInRockPercentage = isset($array['fossilInRockPercentage']) ? $array['fossilInRockPercentage'] : Config::$defaultFossilInRockPercentage;
         $this->enableWorms = isset($array['enableWorms']) ? $array['enableWorms'] : Config::$defaultEnableWorms;
         $this->maxWorms = isset($array['maxWorms']) ? $array['maxWorms'] : Config::$defaultMaxWorms;
+        $this->wormLengthMax = isset($array['wormLengthMax']) ? $array['wormLengthMax'] : Config::$defaultWormLengthMax;
+        $this->wormHealth = isset($array['wormHealth']) ? $array['wormHealth'] : Config::$defaultWormHealth;
+        $this->wormTicks = isset($array['wormTicks']) ? $array['wormTicks'] : Config::$defaultWormTicks;
         
         $this->pointsOfInterest = isset($array['pointsOfInterest']) ? unserialize($array['pointsOfInterest']) : array();
         $this->objectives = isset($array['objectives']) ? unserialize($array['objectives']) : array();

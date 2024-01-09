@@ -6,12 +6,18 @@ class Worm {
     public $visible;
     public $health;
     public $length;
+    public $path;
     public $coords;
+    public $wormTicks;
 
-    public function __construct($x, $y) {
+    public function __construct($x, $y, $health, $wormTicks) {
         $this->x = $x;
         $this->y = $y;
         $this->coords = array([$x, $y]);
+        $this->path = array();
+        $this->health = $health;
+        $this->visible = true;
+        $this->wormTicks = $wormTicks;
     }
 
     public function setLength($l) {
@@ -20,6 +26,14 @@ class Worm {
 
     public function getLength() {
         return $this->length;
+    }
+
+    public function setPath($p) {
+        $this->p = $p;
+    }
+
+    public function getPath() {
+        return $this->p;
     }
 
     public function setVisible($v) {
@@ -59,6 +73,10 @@ class Worm {
         $this->y = $y;
     }
 
+    public function getXY() {
+        return [$this->x, $this->y];
+    }
+
     public function addCoord($x, $y) {
         $this->coords[] = [$x, $y];
 
@@ -68,7 +86,11 @@ class Worm {
     }
 
     public function getCoords() {
-        return $this->coords();
+        return $this->coords;
+    }
+
+    public function getLastCoord() {
+        return end($this->coords);
     }
 
     public function setCoords($coords) {
@@ -81,6 +103,11 @@ class Worm {
     public function hasCoord($x, $y) {
         return in_array([$x, $y], $this->coords);
     }
+
+    public function getNextPath() {
+        return array_shift($this->path);
+    }
+    
     /**
      * every turn, tick down the worms health
      * 

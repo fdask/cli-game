@@ -1,4 +1,3 @@
-#!/usr/bin/php
 <?php
 namespace AStar;
 
@@ -49,7 +48,7 @@ class Node {
         $this->isPath = $p;
     }
 
-    public function getPath() {
+    public function isPath() {
         return $this->isPath;
     }
 
@@ -135,7 +134,7 @@ class Node {
             return "O";
         } else if ($this->dest) {
             return "D";
-        } else if ($this->getPath()) {
+        } else if ($this->isPath()) {
             return "*";
         } else {
             return ".";
@@ -146,7 +145,31 @@ class Node {
 class Map {
     public $map;
 
-    public function __construct($filename) {
+    public function __construct($array) {
+        echo "__construct array\n";
+        print_r($array);
+        $keys = array_keys($array);
+        $min_array = min($keys);
+        $max_array = max($keys);
+
+        for ($x = $min_array; $x < $max_array; $x++) {
+            for ($y = 0; $y < count($array[$x]); $y++) {
+                if ($array[$x][$y] == "X") {
+                    $this->map[$x][$y] = new Obstacle($x, $y);
+                } else {
+                    $this->map[$x][$y] = new Node($x, $y);
+
+                    if ($array[$x][$y] == "O") {
+                        $this->map[$x][$y]->setOrig(true);
+                    } else if ($array[$x][$y] == "D") {
+                        $this->map[$x][$y]->setDest(true);
+                    }
+                }
+            }
+        }
+    }
+
+    public function fileToMap($filename) {
         $lines = file($filename);
         $this->map = array();
 
@@ -178,9 +201,14 @@ class Map {
             $this->map[$x][$y]->setPath(true);
         }
     }
+
     public function getDest() {
-        for ($x = 0; $x < count($this->map); $x++) {
-            for ($y = 0; $y < count($this->map[0]); $y++) {
+        $keys = array_keys($this->map);
+        $min_array = min($keys);
+        $max_array = max($keys);
+
+        for ($x = $min_array; $x <= $max_array; $x++) {
+            for ($y = 0; $y < count($this->map[$x]); $y++) {
                 if ($this->map[$x][$y]->getDest()) {
                     return $this->map[$x][$y];
                 }
@@ -195,8 +223,12 @@ class Map {
     }
 
     public function getOrig() {
-        for ($x = 0; $x < count($this->map); $x++) {
-            for ($y = 0; $y < count($this->map[0]); $y++) {
+        $keys = array_keys($this->map);
+        $min_array = min($keys);
+        $max_array = max($keys);
+
+        for ($x = $min_array; $x <= $max_array; $x++) {
+            for ($y = 0; $y < count($this->map[$x]); $y++) {
                 if ($this->map[$x][$y]->getOrig()) {
                     return $this->map[$x][$y];
                 }
@@ -211,10 +243,11 @@ class Map {
     }
 
     public function getNeighbours($x, $y) {
-        $minHeight = 0;
-        $maxHeight = count($this->map) - 1;
+        $keys = array_keys($this->map);
+        $minHeight = min($keys);
+        $maxHeight = max($keys);
         $minWidth = 0;
-        $maxWidth = count($this->map[0]) - 1;
+        $maxWidth = count($this->map[$minHeight]) - 1;
         
         $ret = array();
         
@@ -222,7 +255,7 @@ class Map {
         $upX = $x - 1;
         $upY = $y;
         
-        if ($upX >= 0 && $this->map[$upX][$upY] instanceof Node) {
+        if ($upX >= $minHeight && $this->map[$upX][$upY] instanceof Node) {
             $ret[] = $this->map[$upX][$upY];
         }
         
@@ -259,9 +292,12 @@ class Map {
 
     public function __toString() {
         $ret = "";
+        $keys = array_keys($this->map);
+        $min_array = min($keys);
+        $max_array = max($keys);
 
-        for ($x = 0; $x < count($this->map); $x++) {
-            for ($y = 0; $y < count($this->map[0]); $y++) {
+        for ($x = $min_array; $x <= $max_array; $x++) {
+            for ($y = 0; $y < count($this->map[$x]); $y++) {
                 $ret .= $this->map[$x][$y];
             }
             
@@ -283,6 +319,16 @@ class PathFinding {
         $this->open = array();
         $this->closed = array();
         $this->map = $map;
+    }
+
+    public static function findPath($map) {
+        $m = new Map($map);
+
+        echo $m;
+
+        $pf = new PathFinding($m);
+
+        return $pf->pathFind();
     }
 
     public function openAdd(Node $n) {
@@ -367,7 +413,7 @@ class PathFinding {
         return array_splice($this->open, $ret, 1)[0];
     }
 
-    public function tracePath() {
+    public function getPath() {
         // starting from the end, lets trace back to the start
         $dest = $this->map->getDest();
         $orig = $this->map->getOrig();
@@ -410,7 +456,7 @@ class PathFinding {
 
             // if the square is our destination, break out of the loop
             if ($current->getX() == $dest->getX() && $current->getY() == $dest->getY()) {
-                return $this->tracePath();
+                return $this->getPath();
             }
 
             // get all the current squares neighbours
@@ -459,17 +505,3 @@ class PathFinding {
         echo $ret;
     }
 }
-
-$m = new Map("rockmap");
-
-echo $m;
-
-$pf = new PathFinding($m);
-$path = $pf->pathFind();
-
-$m->setPath($path);
-
-echo $m;
-
-exit;
-
