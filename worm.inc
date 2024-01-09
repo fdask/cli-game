@@ -29,11 +29,11 @@ class Worm {
     }
 
     public function setPath($p) {
-        $this->p = $p;
+        $this->path = $p;
     }
 
     public function getPath() {
-        return $this->p;
+        return $this->path;
     }
 
     public function setVisible($v) {
@@ -107,13 +107,20 @@ class Worm {
     public function getNextPath() {
         return array_shift($this->path);
     }
-    
+
     /**
      * every turn, tick down the worms health
      * 
      * eventually leading to it going invisible
      */
     public function tick() {
+        // moves along path each tick.
+        $np = $this->getNextPath();
+        $npX = $np[0];
+        $npY = $np[1];
+        
+        $this->addCoord($npX, $npY);
+
         if ($this->visible) {
             $this->health--;
             

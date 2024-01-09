@@ -228,8 +228,16 @@ class Map {
 
 		echo "Adding a worm at $newX, $newY\n";
 	
+		$playerX = $this->player->getX();
+		$playerY = $this->player->getY();
+
 		$x = new Worm($newX, $newY, $this->level->wormHealth, $this->level->wormTicks);
 		$x->setLength($this->level->wormLengthMax);
+		// generate a new path!
+		$am = $this->buildArrayMap($newX, $newY, $playerX, $playerY);
+		$path = \AStar\PathFinding::findPath($am);
+		$path = array_reverse($path);
+		$x->setPath($path);
 		$this->worms[] = $x;
 	}
 
@@ -347,28 +355,20 @@ class Map {
 					$am = $this->buildArrayMap($wormX, $wormY, $playerX, $playerY);
 
 					$path = \AStar\PathFinding::findPath($am);
-
-					print_r($path);
+					$path = array_reverse($path);
 					
+					echo "Path:" . "\n";
+
+					foreach ($path as $p) {
+						echo "(" . $p[0] . ", " . $p[1] . "),";
+					}
+
+					echo "\n";
+					//print_r($path);
+					
+
 					$this->worms[$x]->setPath($path);
-
 					$this->wormTicker = $this->worms[$x]->wormTicks;
-				}
-				
-				// make sure the move is sane, then add it
-				$move = $this->worms[$x]->getNextPath();
-
-				// check if the move touches the player!
-				if ($move) {
-					// newX/newY are the first element of this array
-					$newWormX = $move[0];
-					$newWormY = $move[1];
-
-					// reset worm ticker
-					$this->worms[$x]->addCoord($newWormX, $newWormY);
-				} else {
-					// worm isn't moving.  WHY?
-					echo "We have no next move\n";
 				}
 			}
 
