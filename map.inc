@@ -44,6 +44,15 @@ class Map {
 	// are we in the power menu?
 	public $powerMenuOpen;
 
+	// an array holding all the worms
+	public $worms;
+
+	// every 0 we update pathfinding
+	public $wormTicker;
+
+	// every 0, we create a new worm
+	public $betweenWormCount;
+
 	public function __construct($filename = null) {
 		if (!is_null($filename)) {
 			$this->level = new Level($filename);
@@ -74,8 +83,9 @@ class Map {
 		$this->vpY = 0;
 		$this->threeScreen = false;
 		$this->charOnScreens = array(1, 2, 3);
-
 		$this->portal = null;
+		$this->worms = array();
+		$this->betweenWormCount = $this->level->betweenWormCounter;
 
 		$this->initialize();
 	}
@@ -192,8 +202,129 @@ class Map {
 
 		// add a portal to the map
 		$this->addPortal();
+		
+		// add the worms if we want them a start
+		if ($this->level->enableWorms && count($this->worms) < $this->level->maxWorms) {
+			$this->addWorm();
+		}
 	}
 
+	private function addWorm() {
+		$wCoords = $this->getWormCoords();
+		$dirtCoords = $this->getDirtCoords();
+		$playerCoords = $this->player->getCoords();
+		$rockCoords = $this->getRockCoords();
+
+		$taken = array_merge($wCoords, $playerCoords, $rockCoords);
+
+		do {
+			// find a spot thats not already taken by worms,
+			// and is Dirt.  Set the initial X/Y then.
+			$newX = rand($this->level->skyHeight, $this->level->mapHeight - 1);
+			$newY = rand(0, $this->level->mapWidth - 1);
+		} while (in_array([$newX, $newY], $taken));
+
+		$playerX = $this->player->getX();
+		$playerY = $this->player->getY();
+
+		$x = new Worm($newX, $newY, $this->level->wormHealth, $this->level->wormTicks);
+		$x->setLength($this->level->wormLengthMax);
+		// generate a new path!
+		$am = $this->buildArrayMap($newX, $newY, $playerX, $playerY);
+		$path = \AStar\PathFinding::findPath($am);
+		$path = array_reverse($path);
+		$x->setPath($path);
+		$this->worms[] = $x;
+	}
+
+	private function sweepDeadWorms() {
+		// remove any worms with 0 health and no coords
+		for ($x = 0; $x < count($this->worms); $x++) {
+			if ($this->worms[$x]->getHealth() == 0 && empty($this->worms[$x]->getCoords())) {
+				// remove the worm
+				array_splice($this->worms, $x, 1);
+			}
+		}
+	}
+
+	/**
+	 * puts together an array representation of the map
+	 *
+	 * used for pathfinding
+	 */
+	private function buildArrayMap($origX, $origY, $destX, $destY) {
+		$ret = array();
+
+		$wCoords = $this->getWormCoords();
+
+		for ($x = $this->level->skyHeight; $x < $this->level->mapHeight; $x++) {
+			for ($y = 0; $y < $this->level->mapWidth; $y++) {
+				if ($origX == $x && $origY == $y) {
+					$ret[$x][$y] = "O";
+				} else if ($destX == $x && $destY == $y) {
+					$ret[$x][$y] = "D";
+				} else if ($this->map[$x][$y] instanceof Rock || in_array([$x, $y], $wCoords)) {
+					$ret[$x][$y] = "X";
+				} else if ($this->map[$x][$y] instanceof Dirt) {
+					$ret[$x][$y] = ".";
+				}
+			}
+		}
+
+		return $ret;
+	}
+	private function updateWorms() {
+		// every tick we need to grow any visible worms
+		$playerX = $this->player->getX();
+		$playerY = $this->player->getY();
+
+		for ($x = 0; $x < count($this->worms); $x++) {
+			// add a coord towards the player
+			$wormLast = $this->worms[$x]->getLastCoord();
+
+			if (!$wormLast) {
+				// cull the worm!
+				continue;
+			}
+
+			$wormX = $wormLast[0];
+			$wormY = $wormLast[1];
+
+			if ($wormX == $playerX && $wormY == $playerY) {
+				// this worm doesn't need to move, because it's reached the player
+				echo "The worm is on the player!\n";
+
+				$this->gameOver();
+			} else {
+				$this->wormTicker--;
+
+				if ($this->wormTicker == 0) {
+					// generate a new path!
+					$am = $this->buildArrayMap($wormX, $wormY, $playerX, $playerY);
+
+					$path = \AStar\PathFinding::findPath($am);
+					$path = array_reverse($path);		
+
+					$this->worms[$x]->setPath($path);
+					$this->wormTicker = $this->worms[$x]->wormTicks;
+				}
+			}
+
+			$this->worms[$x]->tick();
+		}
+		
+		$this->sweepDeadWorms();
+	}
+
+	private function getWormCoords() {
+		$ret = array();
+
+		for ($x = 0; $x < count($this->worms); $x++) {
+			$ret = array_merge($ret, $this->worms[$x]->getCoords());
+		}
+
+		return $ret;
+	}
 	private function initializeMap() {
 		// fills the map array out with falses
 		$this->map = array();
@@ -1149,6 +1280,10 @@ class Map {
     	$this->updateRain();
 		$this->updatePlants();
 		$this->updateMeteor();
+		
+		if ($this->level->enableWorms && count($this->worms)) {
+			$this->updateWorms();
+		}
 
 		// will only add up to the maxes
 		if ($this->level->enableRain) {
@@ -1180,6 +1315,19 @@ class Map {
 			} else {
 				$this->meteorTicker = $this->level->meteorTicks;
 				$this->addMeteor();
+			}
+		}
+
+		if ($this->level->enableWorms) {
+			// if the worm count is less than our worm max, add one
+			if (count($this->worms) < $this->level->maxWorms) {
+				$this->betweenWormCount--;
+
+				if ($this->betweenWormCount == 0) {
+					$this->betweenWormCount = $this->level->betweenWormCounter;
+
+					$this->addWorm();
+				}
 			}
 		}
 
@@ -1949,6 +2097,16 @@ class Map {
 		return $ret;		
 	}
 
+	public function onWorm($posX, $posY) {
+		for ($x = 0; $x < count($this->worms); $x++) {
+			if (in_array([$posX, $posY], $this->worms[$x]->getCoords())) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
 	public function __toString() {
 		// main display subroutine
 		$ret = "Mapwidth: {$this->level->mapWidth} Viewport Width: " . $this->level->vpWidth . " Viewport Y: {$this->vpY} ViewType: {$this->viewType}\n";
@@ -2050,6 +2208,8 @@ class Map {
 						} else {
 							$ret .= Colors::fg_color(Config::$playerTailColor, $this->player->getDefaultChar());
 						}
+					} else if ($this->onWorm($x, $ypos)) {
+						$ret .= Colors::fg_color(Config::$wormColor, "w");
 					} else if ($this->map[$x][$ypos] instanceof Dirt) {
 						$ret .= $this->map[$x][$ypos]->getView(1);
 					} else {
@@ -2258,6 +2418,8 @@ class Map {
 						} else {
 							$ret .= Colors::fg_color(Config::$playerTailColor, $this->player->getDefaultChar());
 						}
+					} else if ($this->onWorm($x, $ypos)) {
+						$ret .= Colors::fg_color(Config::$wormColor, "w");
 					} else if ($this->map[$x][$ypos] instanceof Dirt) {
 						$ret .= $this->map[$x][$ypos]->getView($this->viewType);
 					} else {

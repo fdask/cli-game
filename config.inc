@@ -51,6 +51,13 @@ class Config {
     public static $defaultFossilQualityMax = 99;
     public static $defaultFossilInRockPercentage = 20;
 
+    public static $defaultEnableWorms = false;
+    public static $defaultMaxWorms = 2;
+    public static $defaultWormLengthMax = 4;
+    public static $defaultWormHealth = 20;
+    public static $defaultWormTicks = 5;
+    public static $defaultBetweenWormCounter = 10;
+    
     // player defaults
     public static $defaultPlayerHealth = 1000;
     public static $defaultPlayerInvulnerableState = false;
@@ -61,6 +68,7 @@ class Config {
 
     // color data
     public static $rainColor = 'blue';
+    public static $wormColor = 'white';
 
     public static $mineralColor = 'brown';
     public static $strongMineralColor = 'yellow';
