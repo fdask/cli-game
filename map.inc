@@ -1320,12 +1320,12 @@ class Map {
 
 		if ($this->level->enableWorms) {
 			// if the worm count is less than our worm max, add one
-			$this->betweenWormCount--;
+			if (count($this->worms) < $this->level->maxWorms) {
+				$this->betweenWormCount--;
 
-			if ($this->betweenWormCount == 0) {
-				$this->betweenWormCount = $this->level->betweenWormCounter;
-				
-				if (count($this->worms) < $this->level->maxWorms) {
+				if ($this->betweenWormCount == 0) {
+					$this->betweenWormCount = $this->level->betweenWormCounter;
+
 					$this->addWorm();
 				}
 			}

@@ -125,10 +125,14 @@ class Worm {
         // moves along path each tick.
         if ($this->health > 0) {
             $np = $this->getNextPath(); 
-            $npX = $np[0];
-            $npY = $np[1];
 
-            $this->addCoord($npX, $npY);
+            if ($np) {
+                $npX = $np[0];
+                $npY = $np[1];
+
+                $this->addCoord($npX, $npY);
+            }
+            
             $this->health--;
         } else {
             // remove a coordinate
