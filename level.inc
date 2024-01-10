@@ -96,6 +96,7 @@ class Level {
     public $wormLengthMax;
     public $wormHealth;
     public $wormTicks;
+    public $betweenWormCounter;
 
     // an array of points of interest
     public $pointsOfInterest;
@@ -274,6 +275,7 @@ class Level {
             'wormLengthMax' => $this->wormLengthMax,
             'wormHealth' => $this->wormHealth,
             'wormTicks' => $this->wormTicks,
+            'betweenWormCounter' => $this->betweenWormCounter,
             'pointsOfInterest' => serialize($this->pointsOfInterest),
             'objectives' => serialize($this->objectives),
             'map' => $this->map
@@ -333,7 +335,8 @@ class Level {
         $this->wormLengthMax = isset($array['wormLengthMax']) ? $array['wormLengthMax'] : Config::$defaultWormLengthMax;
         $this->wormHealth = isset($array['wormHealth']) ? $array['wormHealth'] : Config::$defaultWormHealth;
         $this->wormTicks = isset($array['wormTicks']) ? $array['wormTicks'] : Config::$defaultWormTicks;
-        
+        $this->betweenWormCounter = isset($array['betweenWormCounter']) ? $array['betweenWormCounter'] : Config::$defaultBetweenWormCounter;
+
         $this->pointsOfInterest = isset($array['pointsOfInterest']) ? unserialize($array['pointsOfInterest']) : array();
         $this->objectives = isset($array['objectives']) ? unserialize($array['objectives']) : array();
 

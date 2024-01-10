@@ -56,6 +56,7 @@ class Config {
     public static $defaultWormLengthMax = 4;
     public static $defaultWormHealth = 20;
     public static $defaultWormTicks = 5;
+    public static $defaultBetweenWormCounter = 10;
     
     // player defaults
     public static $defaultPlayerHealth = 1000;

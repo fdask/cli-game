@@ -50,6 +50,9 @@ class Map {
 	// every 0 we update pathfinding
 	public $wormTicker;
 
+	// every 0, we create a new worm
+	public $betweenWormCount;
+
 	public function __construct($filename = null) {
 		if (!is_null($filename)) {
 			$this->level = new Level($filename);
@@ -82,6 +85,7 @@ class Map {
 		$this->charOnScreens = array(1, 2, 3);
 		$this->portal = null;
 		$this->worms = array();
+		$this->betweenWormCount = $this->level->betweenWormCounter;
 
 		$this->initialize();
 	}
@@ -200,10 +204,8 @@ class Map {
 		$this->addPortal();
 		
 		// add the worms if we want them a start
-		if ($this->level->enableWorms) {
-			while (count($this->worms) < $this->level->maxWorms) {
-				$this->addWorm();
-			}
+		if ($this->level->enableWorms && count($this->worms) < $this->level->maxWorms) {
+			$this->addWorm();
 		}
 	}
 
@@ -253,13 +255,15 @@ class Map {
 	private function buildArrayMap($origX, $origY, $destX, $destY) {
 		$ret = array();
 
+		$wCoords = $this->getWormCoords();
+
 		for ($x = $this->level->skyHeight; $x < $this->level->mapHeight; $x++) {
 			for ($y = 0; $y < $this->level->mapWidth; $y++) {
 				if ($origX == $x && $origY == $y) {
 					$ret[$x][$y] = "O";
 				} else if ($destX == $x && $destY == $y) {
 					$ret[$x][$y] = "D";
-				} else if ($this->map[$x][$y] instanceof Rock) {
+				} else if ($this->map[$x][$y] instanceof Rock || in_array([$x, $y], $wCoords)) {
 					$ret[$x][$y] = "X";
 				} else if ($this->map[$x][$y] instanceof Dirt) {
 					$ret[$x][$y] = ".";
@@ -1315,10 +1319,15 @@ class Map {
 		}
 
 		if ($this->level->enableWorms) {
-			echo "We have " . count($this->worms) . " worms out of " . $this->level->maxWorms . "\n";
 			// if the worm count is less than our worm max, add one
-			if (count($this->worms) < $this->level->maxWorms) {
-				$this->addWorm();
+			$this->betweenWormCount--;
+
+			if ($this->betweenWormCount == 0) {
+				$this->betweenWormCount = $this->level->betweenWormCounter;
+				
+				if (count($this->worms) < $this->level->maxWorms) {
+					$this->addWorm();
+				}
 			}
 		}
 
