@@ -1276,7 +1276,10 @@ class Map {
     	$this->updateRain();
 		$this->updatePlants();
 		$this->updateMeteor();
-		$this->updateWorms();
+		
+		if ($this->level->enableWorms && count($this->worms)) {
+			$this->updateWorms();
+		}
 
 		// will only add up to the maxes
 		if ($this->level->enableRain) {

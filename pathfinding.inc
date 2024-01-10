@@ -150,7 +150,7 @@ class Map {
         $min_array = min($keys);
         $max_array = max($keys);
 
-        for ($x = $min_array; $x < $max_array; $x++) {
+        for ($x = $min_array; $x <= $max_array; $x++) {
             for ($y = 0; $y < count($array[$x]); $y++) {
                 if ($array[$x][$y] == "X") {
                     $this->map[$x][$y] = new Obstacle($x, $y);
