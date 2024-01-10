@@ -200,6 +200,12 @@ class Map {
         }
     }
 
+    public function getWidth() {
+        $keys = array_keys($this->map);
+        
+        return max($keys) - 1;
+    }
+
     public function getDest() {
         $keys = array_keys($this->map);
         $min_array = min($keys);
@@ -269,7 +275,12 @@ class Map {
         $leftX = $x;
         $leftY = $y - 1;
         
-        if ($leftY >= 0 && $this->map[$leftX][$leftY] instanceof Node) {
+        // loop around
+        if ($leftY < $minWidth) {
+            $leftY = $maxWidth;
+        }
+
+        if ($this->map[$leftX][$leftY] instanceof Node) {
             $ret[] = $this->map[$leftX][$leftY];
         }
         
@@ -277,15 +288,28 @@ class Map {
         $rightX = $x;
         $rightY = $y + 1;
         
-        if ($rightY <= $maxWidth && $this->map[$rightX][$rightY] instanceof Node) {
+        if ($rightY > $maxWidth) {
+            $rightY = $minWidth;
+        }
+
+        if ($this->map[$rightX][$rightY] instanceof Node) {
             $ret[] = $this->map[$rightX][$rightY];
         }
         
         return $ret;
     }
 
-    public function distanceBetween($x1, $y1, $x2, $y2) {
-        return abs($x1 - $x2) + abs($y1 - $y2);
+    public function distanceBetween($width, $x1, $y1, $x2, $y2) {
+        $normal = abs($x1 - $x2) + abs($y1 - $y2);
+        $over = abs($x1 - $x2) + ($width - $y2) + $y1;
+        
+        if ($normal < $over) {
+            return $normal;
+        } else if ($normal > $over) {
+            return $over;
+        }
+
+        return $normal;
     }
 
     public function __toString() {
@@ -466,7 +490,7 @@ class PathFinding {
                 // create the f, g, and h values
                 $n = $neighbours[$x];
                 $n->setG($current->getG() + 1);
-                $n->setH($this->map->distanceBetween($n->getX(), $n->getY(), $dest->getX(), $dest->getY()));
+                $n->setH($this->map->distanceBetween($this->map->getWidth(), $n->getX(), $n->getY(), $dest->getX(), $dest->getY()));
                 $n->setF($n->getG() + $n->getH());
                 $n->setParentXY($current->getX(), $current->getY());
 
