@@ -89,6 +89,14 @@ Shown on the map as a glowing @, the portal only appears
 once all tasks for a level are complete.  See the status
 of these tasks on your journal screen 'j'.
 
+### Worms
+
+Worms are bad!  Worms are evil!  If they touch you, you die!
+They are shown on the map as a trail of 'w' characters.
+
+Worms will make a bee-line directly for the player and try
+to catch you.
+
 ## Mechanics
 
 ### Rain
@@ -184,6 +192,9 @@ the exit portal, marked with a '@' to proceed.
 
 This view shows the wetness of the earth.
 A number on a square represents the dampness of that dirt.
+
+Worms are shown in this view as a trail of 'w' characters.
+Careful!  Don't let the worms touch you!
 
 2. minerals
 

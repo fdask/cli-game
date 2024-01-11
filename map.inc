@@ -2418,7 +2418,7 @@ class Map {
 						} else {
 							$ret .= Colors::fg_color(Config::$playerTailColor, $this->player->getDefaultChar());
 						}
-					} else if ($this->onWorm($x, $ypos)) {
+					} else if ($this->onWorm($x, $ypos) && $this->viewType == 1) {
 						$ret .= Colors::fg_color(Config::$wormColor, "w");
 					} else if ($this->map[$x][$ypos] instanceof Dirt) {
 						$ret .= $this->map[$x][$ypos]->getView($this->viewType);
