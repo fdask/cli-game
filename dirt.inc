@@ -76,7 +76,7 @@ class Dirt {
 
 	public function updatePlant() {
 		if (!empty($this->plant) && $this->isWet()) {
-			$this->plant->fullLife();
+			$this->plant->water();
 		} else if (!empty($this->plant)) {
 			if ($this->plant->getLife() == 0) {
 				$maxLife = $this->plant->maxLife;
