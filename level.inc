@@ -49,6 +49,7 @@ class Level {
 	// how many plants to allow on the map at once
 	public $maxPlants;
     public $plantsAtStart;
+    public $plantTicks;
 
     // crystal settings
 	public $enableCrystals;
@@ -250,6 +251,7 @@ class Level {
             'enablePlants' => $this->enablePlants,
             'maxPlants' => $this->maxPlants,
             'plantsAtStart' => $this->plantsAtStart,
+            'plantTicks' => $this->plantTicks,
             'enableCrystals' => $this->enableCrystals,
             'maxCrystals' => $this->maxCrystals,
             'minCrystals' => $this->minCrystals,
@@ -310,6 +312,7 @@ class Level {
         $this->enablePlants = isset($array['enablePlants']) ? $array['enablePlants'] : false;
         $this->maxPlants = isset($array['maxPlants']) ? $array['maxPlants'] : Config::$defaultMaxPlants;
         $this->plantsAtStart = isset($array['plantsAtStart']) ? $array['plantsAtStart'] : Config::$defaultPlantsAtStart;
+        $this->plantTicks = isset($array['plantTicks']) ? $array['plantTicks'] : Config::$defaultPlantTicks;
         $this->enableCrystals = isset($array['enableCrystals']) ? $array['enableCrystals'] : false;
         $this->maxCrystals = isset($array['maxCrystals']) ? $array['maxCrystals'] : Config::$defaultMaxCrystals;
         $this->minCrystals = isset($array['minCrystals']) ? $array['minCrystals'] : Config::$defaultMinCrystals;

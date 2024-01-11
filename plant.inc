@@ -3,6 +3,7 @@ class Plant {
 	/**
 	 * 	the lifecycle of a plant goes from
 	 *  2 - plant
+	 *  3 - enlightened
 	 *  4 - dead plant
 	 */
 	public $stage;
@@ -19,13 +20,17 @@ class Plant {
 	// how high should the countdown be
 	private $ticks;
 
-	public function __construct() {
+	public function __construct($ticks) {
 		$this->life = rand(5, 9);
 		$this->maxLife = $this->life;
 		$this->stage = 2;
 		$this->wisdom = 0;
-		$this->ticks = 3;
+		$this->ticks = $ticks;
 		$this->ticker = $this->ticks;
+	}
+
+	public function setTicks($ticks) {
+		$this->ticks = $ticks;
 	}
 
 	public function tick() {
@@ -53,7 +58,7 @@ class Plant {
 		return $this->life;
 	}
 
-	public function fullLife() {
+	public function water() {
 		$this->wisdom++;
 		$this->life = $this->maxLife;
 	}

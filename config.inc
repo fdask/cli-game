@@ -30,6 +30,7 @@ class Config {
 
     public static $defaultMaxPlants = 7;
     public static $defaultPlantsAtStart = true;
+    public static $defaultPlantTicks = 5;
     
     public static $defaultMaxCrystals = 5;
     public static $defaultMinCrystals = 0;

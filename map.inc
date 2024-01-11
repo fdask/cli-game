@@ -1501,8 +1501,8 @@ class Map {
 			$newY = rand(0, $this->level->mapWidth - 1);
 		} while (in_array($newY, $ys) || $this->map[$this->level->skyHeight][$newY] instanceof Rock);
 
-		// create the new plan
-		$plant = new Plant();
+		// create the new plant
+		$plant = new Plant($this->level->plantTicks);
 
 		$this->map[$this->level->skyHeight][$newY]->addPlant($plant);
 	}
