@@ -97,6 +97,11 @@ They are shown on the map as a trail of 'w' characters.
 Worms will make a bee-line directly for the player and try
 to catch you.
 
+### Deer
+
+Deer wander around and eat plants.   They are shown on all
+views as 'D' characters.
+
 ## Mechanics
 
 ### Rain
