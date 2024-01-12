@@ -1997,7 +1997,7 @@ class Map {
 					$newMy = $my + $speed;
 
 					// if we are greater than the map width, loop around
-					if ($newMy > $this->level->mapWidth) {
+					if ($newMy >= $this->level->mapWidth) {
 						$newMy = $newMy - $this->level->mapWidth;
 					}
 				} else if ($dir == "L") {
