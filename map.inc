@@ -2136,10 +2136,6 @@ class Map {
 		}
 	}
 
-	private function sweepDeadPlants() {
-		
-	}
-
 	private function updatePlants() {
 		// for every plant that doesn't currently have rain,
 		// it loses 1 life.
