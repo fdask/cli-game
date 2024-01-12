@@ -318,6 +318,16 @@ class Map {
 		return [0, 0];
  	}
 
+	private function getDeerYs() {
+		$ret = array();
+
+		for ($x = 0; $x < count($this->deer); $x++) {
+			$ret[] = $this->deer[$x]->getY();
+		}
+
+		return $ret;
+	}
+
 	private function updateDeer() {
 		// get the plant y positions
 		$plantYs = $this->getPlantYs();
@@ -336,6 +346,18 @@ class Map {
 				if ($toxicity) {
 					$this->deer[$x]->addToxicity($toxicity);
 					echo "Adding $toxicity to deer\n";
+				}
+
+				// if the player has any coords at skyHeight with the Y of a deer,
+				if ($this->player->onCoords($this->level->skyHeight, $y)) {
+					// shrink the player, or damage health
+					if ($this->player->getSize() > 1) {
+						$this->player->coordPop();
+						$this->player->scoreShrink++;
+					} else {
+						// damage health
+						$this->player->decrLife($this->level->deerDamage);
+					}
 				}
 			} else {
 				if (count($plantYs)) {

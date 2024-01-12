@@ -131,6 +131,7 @@ $l->saveToJSON("random.dat");
         'wormTicks' => 2,
         'enableDeer' => true,
         'maxDeer' => 1,
+        'deerDamage' => 50,
         'map' => array(
             "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD",
             "DDDDDDDDDRRRRRDDDDDDDDDDDRRRRRRDDDDDDDDDDDDD",
