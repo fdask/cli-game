@@ -99,6 +99,9 @@ class Level {
     public $wormTicks;
     public $betweenWormCounter;
 
+    public $enableDeer;
+    public $maxDeer;
+
     // an array of points of interest
     public $pointsOfInterest;
 
@@ -278,6 +281,8 @@ class Level {
             'wormHealth' => $this->wormHealth,
             'wormTicks' => $this->wormTicks,
             'betweenWormCounter' => $this->betweenWormCounter,
+            'enableDeer' => $this->enableDeer,
+            'maxDeer' => $this->maxDeer,
             'pointsOfInterest' => serialize($this->pointsOfInterest),
             'objectives' => serialize($this->objectives),
             'map' => $this->map
@@ -339,7 +344,9 @@ class Level {
         $this->wormHealth = isset($array['wormHealth']) ? $array['wormHealth'] : Config::$defaultWormHealth;
         $this->wormTicks = isset($array['wormTicks']) ? $array['wormTicks'] : Config::$defaultWormTicks;
         $this->betweenWormCounter = isset($array['betweenWormCounter']) ? $array['betweenWormCounter'] : Config::$defaultBetweenWormCounter;
-
+        $this->enableDeer = isset($array['enableDeer']) ? $array['enableDeer'] : Config::$defaultEnableDeer;
+        $this->maxDeer = isset($array['maxDeer']) ? $array['maxDeer'] : Config::$defaultMaxDeer;
+        
         $this->pointsOfInterest = isset($array['pointsOfInterest']) ? unserialize($array['pointsOfInterest']) : array();
         $this->objectives = isset($array['objectives']) ? unserialize($array['objectives']) : array();
 

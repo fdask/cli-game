@@ -42,8 +42,12 @@ class Plant {
 		}
 	}
 
-	public function decrLife() {
-		$this->life = $this->life - 1;
+	public function decrLife($l = null) {
+		if (is_null($l)) {
+			$l = 1;
+		}
+
+		$this->life = $this->life - $l;
 
 		if ($this->life <= 0) {
 			$this->stage = 4;

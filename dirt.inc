@@ -58,6 +58,8 @@ class Dirt {
 			$this->decrToxicity();
 			$this->tticker = $this->toxicTicks;
 		}
+
+		$this->sweepDeadPlant();			
 	}
 
 	public function decrToxicity() {
@@ -74,26 +76,28 @@ class Dirt {
         $this->crystal = $bool;
     }
 
+	public function sweepDeadPlant() {
+		if (!is_null($this->plant) && $this->plant->getLife() <= 0) {
+			$maxLife = $this->plant->maxLife;
+
+			// kill the plant
+			$this->plant = null;
+
+			// add a mineral where the dead plant was
+			$this->setConcentration($this->getConcentration() + $maxLife);
+		}
+	}
+
 	public function updatePlant() {
 		if (!empty($this->plant) && $this->isWet()) {
 			$this->plant->water();
 		} else if (!empty($this->plant)) {
-			if ($this->plant->getLife() == 0) {
-				$maxLife = $this->plant->maxLife;
-
-				// kill the plant
-				$this->plant = null;
-
-				// add a mineral where the dead plant was
-				$this->setConcentration($this->getConcentration() + $maxLife);
-			} else {
-				$this->plant->tick();
-			}
+			$this->plant->tick();
 		} 
 	}
 
 	public function addPlant($plant) {
-		if (empty($this->plant)) {
+		if (is_null($this->plant)) {
 			$this->plant = $plant;
 
 			return true;
@@ -107,7 +111,7 @@ class Dirt {
 	}
 
 	public function hasPlant() {
-		if (!empty($this->plant)) {
+		if (!is_null($this->plant)) {
 			return true;
 		}
 
