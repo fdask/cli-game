@@ -329,6 +329,14 @@ class Map {
 				// eat the plant
 				$this->map[$this->level->skyHeight][$y]->plant->decrLife(2);
 				$this->map[$this->level->skyHeight][$y]->sweepDeadPlant();
+
+				// absorb any toxicity from this soil!
+				$toxicity = $this->map[$this->level->skyHeight][$y]->getToxicity();
+
+				if ($toxicity) {
+					$this->deer[$x]->addToxicity($toxicity);
+					echo "Adding $toxicity to deer\n";
+				}
 			} else {
 				if (count($plantYs)) {
 					// move closer to a plant.
@@ -2163,6 +2171,17 @@ class Map {
 
 		return $ret;
 	}
+
+	public function getDeerWithY($y) {
+		for ($x = 0; $x < count($this->deer); $x++) {
+			if ($this->deer[$x]->getY() == $y) {
+				return $x;
+			}
+		}
+
+		return false;
+	}
+
 	/**
 	 * adds header of the specified length
 	 * 
@@ -2377,7 +2396,7 @@ class Map {
 						$ret .= $this->map[$x][$ypos]->getView(1);
 					} else if ($this->level->enableDeer && in_array([$x, $ypos], $this->getDeerXYs())) {
 						// show a deer
-						$ret .= Colors::bg_color(Config::$deerColor, "D");
+						$ret .= $this->deer[$this->getDeerWithY($ypos)];
 					} else {					
 						if ($this->meteor && $this->meteor instanceof Meteor) {
 							if (array($x, $ypos) == $this->meteor->getXY()) {
@@ -2427,7 +2446,7 @@ class Map {
 						$ret .= $this->map[$x][$ypos]->getView(2);
 					} else if ($this->level->enableDeer && in_array([$x, $ypos], $this->getDeerXYs())) {
 						// show a deer
-						$ret .= Colors::bg_color(Config::$deerColor, "D");
+						$ret .= $this->deer[$this->getDeerWithY($ypos)];
 					} else {
 						if ($this->meteor && $this->meteor instanceof Meteor) {
 							if (array($x, $ypos) == $this->meteor->getXY()) {
@@ -2477,7 +2496,7 @@ class Map {
 						$ret .= $this->map[$x][$ypos]->getView(3);
 					} else if ($this->level->enableDeer && in_array([$x, $ypos], $this->getDeerXYs())) {
 						// show a deer
-						$ret .= Colors::bg_color(Config::$deerColor, "D");
+						$ret .= $this->deer[$this->getDeerWithY($ypos)];
 					} else {
 						if ($this->meteor && $this->meteor instanceof Meteor) {
 							if (array($x, $ypos) == $this->meteor->getXY()) {
@@ -2594,7 +2613,7 @@ class Map {
 						$ret .= Colors::fg_color(Config::$wormColor, "w");
 					} else if ($this->level->enableDeer && in_array([$x, $ypos], $this->getDeerXYs())) {
 						// show a deer
-						$ret .= Colors::bg_color(Config::$deerColor, "D");
+						$ret .= $this->deer[$this->getDeerWithY($ypos)];
 					} else if ($this->map[$x][$ypos] instanceof Dirt) {
 						$ret .= $this->map[$x][$ypos]->getView($this->viewType);
 					} else {
