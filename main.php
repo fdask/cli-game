@@ -21,6 +21,7 @@ include 'power.inc';
 include 'fossil.inc';
 include 'worm.inc';
 include 'pathfinding.inc';
+include 'deer.inc';
 
 // GAME START
 echo "\n";

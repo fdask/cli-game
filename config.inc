@@ -59,6 +59,10 @@ class Config {
     public static $defaultWormTicks = 5;
     public static $defaultBetweenWormCounter = 10;
     
+    public static $defaultEnableDeer = false;
+    public static $defaultDeerHeight = 2;
+    public static $defaultMaxDeer = 1;
+
     // player defaults
     public static $defaultPlayerHealth = 1000;
     public static $defaultPlayerInvulnerableState = false;
@@ -66,7 +70,7 @@ class Config {
 	public static $defaultScoreMinerals = 10;
 	public static $defaultScoreMoves = 1;
 	public static $defaultScoreCrystals = 100;
-
+  
     // color data
     public static $rainColor = 'blue';
     public static $wormColor = 'white';
@@ -89,6 +93,7 @@ class Config {
 
     // bg color
     public static $powerSelectSelected = 'blue';
+    public static $deerColor = 'green';
 
     // fg
     public static $powerSelectUnselected = 'bold_blue';

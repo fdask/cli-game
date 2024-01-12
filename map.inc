@@ -53,6 +53,8 @@ class Map {
 	// every 0, we create a new worm
 	public $betweenWormCount;
 
+	public $deer;
+
 	public function __construct($filename = null) {
 		if (!is_null($filename)) {
 			$this->level = new Level($filename);
@@ -85,6 +87,7 @@ class Map {
 		$this->charOnScreens = array(1, 2, 3);
 		$this->portal = null;
 		$this->worms = array();
+		$this->deer = array();
 		$this->betweenWormCount = $this->level->betweenWormCounter;
 
 		$this->initialize();
@@ -206,6 +209,148 @@ class Map {
 		// add the worms if we want them a start
 		if ($this->level->enableWorms && count($this->worms) < $this->level->maxWorms) {
 			$this->addWorm();
+		}
+
+		if ($this->level->enableDeer) {
+			$this->addDeer();
+		}
+	}
+
+	private function addDeer() {
+		if (count($this->deer) < $this->level->maxDeer) {
+			$yPos = rand(0, $this->level->mapWidth - 1);
+
+			$this->deer[] = new Deer($yPos);
+
+			return true;
+		}
+
+		return false;
+	}
+
+	private function getPlantYs() {
+		$ret = array();
+
+		for ($y = 0; $y < $this->level->mapWidth; $y++) {
+			if ($this->map[$this->level->skyHeight][$y]->hasPlant()) {
+				$ret[] = $y;
+			}
+		}
+
+		return $ret;
+	}
+
+	/**
+	* find the value just below, and just above, x
+	**/
+	private function getLeftAndRight($array, $x) {
+		// remove all x's from the array
+		for ($i = 0; $i < count($array); $i++) {
+	   		if ($array[$i] != $x) {
+		  		$new[] = $array[$i];
+	   		}
+		}
+ 
+		// sort
+		sort($array);
+ 
+		// knock out the first/last pos edgecases
+		if ($x < $array[0] || $x > end($array)) {
+	   		$left = end($array);
+	   		$right = $array[0];
+ 
+	   		return [$left, $right];
+		}
+ 
+		// now check every other value
+		for ($i = 1; $i < count($array); $i++) {
+	   		if ($x > $array[$i]) {
+		  		$left = $array[$i];
+		  		$right = $array[$i + 1];
+ 
+		  		return [$left, $right];
+	   		}
+		}
+ 
+		return false;
+ 	}
+
+	/**
+	* how far do we have to go to the left or the right
+	* in order to get to the closest?
+	**/
+	private function getLeftAndRightDistances($width, $array, $x) {
+		$leftAndRight = $this->getLeftAndRight($array, $x);
+
+		if ($leftAndRight) {
+			$left = $leftAndRight[0];
+			$right = $leftAndRight[1];
+	
+			$leftCount = 0;
+			$y = $x;
+	
+			do {
+				$leftCount++;
+	
+				$y--;
+	
+				if ($y < 0) {
+					$y = $width;
+				}
+			} while ($y != $left);
+	
+			$rightCount = 0;
+			$y = $x;
+	
+			do {
+				$rightCount++;
+	
+				$y++;
+	
+				if ($y > $width) {
+					$y = 0;
+				}	
+			} while ($y != $right);
+	
+			return [$leftCount, $rightCount];
+		}
+	
+		return [0, 0];
+ 	}
+
+	private function updateDeer() {
+		// get the plant y positions
+		$plantYs = $this->getPlantYs();
+
+		for ($x = 0; $x < count($this->deer); $x++) {
+			$y = $this->deer[$x]->getY();
+
+			if (in_array($y, $plantYs)) {
+				// eat the plant
+				$this->map[$this->level->skyHeight][$y]->plant->decrLife(2);
+				$this->map[$this->level->skyHeight][$y]->sweepDeadPlant();
+			} else {
+				if (count($plantYs)) {
+					// move closer to a plant.
+					$lAndR = $this->getLeftAndRightDistances($this->level->mapWidth, $plantYs, $y);
+
+					if ($lAndR[0] > $lAndR[1]) {
+						// we go right
+						$this->deer[$x]->setY($y + 1);
+
+						if ($this->deer[$x]->getY() > $this->level->mapWidth) {
+							$this->deer[$x]->setY(0);
+						}
+					} else {
+						// we go left
+						$this->deer[$x]->setY($y - 1);
+
+						if ($this->deer[$x]->getY() < 0) {
+							$this->deer[$x]->setY($this->level->mapWidth);
+						}
+					}
+				} 
+			}
 		}
 	}
 
@@ -1280,6 +1425,7 @@ class Map {
     	$this->updateRain();
 		$this->updatePlants();
 		$this->updateMeteor();
+		$this->updateDeer();
 		
 		if ($this->level->enableWorms && count($this->worms)) {
 			$this->updateWorms();
@@ -1328,6 +1474,12 @@ class Map {
 
 					$this->addWorm();
 				}
+			}
+		}
+
+		if ($this->level->enableDeer) {
+			if (count($this->deer) < $this->level->maxDeer) {
+				$this->addDeer();
 			}
 		}
 
@@ -1984,6 +2136,10 @@ class Map {
 		}
 	}
 
+	private function sweepDeadPlants() {
+		
+	}
+
 	private function updatePlants() {
 		// for every plant that doesn't currently have rain,
 		// it loses 1 life.
@@ -1997,9 +2153,20 @@ class Map {
 			$wetness = $this->map[$x][$y]->getWetness();
 
 			$this->map[$x][$y]->updatePlant($wetness);
+
+			$this->map[$x][$y]->sweepDeadPlant();
 		}
 	}
 
+	public function getDeerXYs() {
+		for ($x = $this->level->skyHeight - Config::$defaultDeerHeight; $x < $this->level->skyHeight; $x++) {
+			foreach ($this->deer as $d) {
+				$ret[] = [$x, $d->getY()];
+			}	
+		}
+
+		return $ret;
+	}
 	/**
 	 * adds header of the specified length
 	 * 
@@ -2212,7 +2379,10 @@ class Map {
 						$ret .= Colors::fg_color(Config::$wormColor, "w");
 					} else if ($this->map[$x][$ypos] instanceof Dirt) {
 						$ret .= $this->map[$x][$ypos]->getView(1);
-					} else {
+					} else if ($this->level->enableDeer && in_array([$x, $ypos], $this->getDeerXYs())) {
+						// show a deer
+						$ret .= Colors::bg_color(Config::$deerColor, "D");
+					} else {					
 						if ($this->meteor && $this->meteor instanceof Meteor) {
 							if (array($x, $ypos) == $this->meteor->getXY()) {
 								// head of the meteor
@@ -2259,6 +2429,9 @@ class Map {
 						}
 					} else if ($this->map[$x][$ypos] instanceof Dirt) {
 						$ret .= $this->map[$x][$ypos]->getView(2);
+					} else if ($this->level->enableDeer && in_array([$x, $ypos], $this->getDeerXYs())) {
+						// show a deer
+						$ret .= Colors::bg_color(Config::$deerColor, "D");
 					} else {
 						if ($this->meteor && $this->meteor instanceof Meteor) {
 							if (array($x, $ypos) == $this->meteor->getXY()) {
@@ -2306,6 +2479,9 @@ class Map {
 						}
 					} else if ($this->map[$x][$ypos] instanceof Dirt) {
 						$ret .= $this->map[$x][$ypos]->getView(3);
+					} else if ($this->level->enableDeer && in_array([$x, $ypos], $this->getDeerXYs())) {
+						// show a deer
+						$ret .= Colors::bg_color(Config::$deerColor, "D");
 					} else {
 						if ($this->meteor && $this->meteor instanceof Meteor) {
 							if (array($x, $ypos) == $this->meteor->getXY()) {
@@ -2420,6 +2596,9 @@ class Map {
 						}
 					} else if ($this->onWorm($x, $ypos) && $this->viewType == 1) {
 						$ret .= Colors::fg_color(Config::$wormColor, "w");
+					} else if ($this->level->enableDeer && in_array([$x, $ypos], $this->getDeerXYs())) {
+						// show a deer
+						$ret .= Colors::bg_color(Config::$deerColor, "D");
 					} else if ($this->map[$x][$ypos] instanceof Dirt) {
 						$ret .= $this->map[$x][$ypos]->getView($this->viewType);
 					} else {
