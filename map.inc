@@ -1479,10 +1479,10 @@ class Map {
 					if ($destX < $this->level->mapHeight && $this->map[$destX][$destY] instanceof Dirt) {
 						// copy the concentration
 						$this->map[$destX][$destY]->setConcentration($concentration + $this->map[$destX][$destY]->getConcentration());
-
-						// clear the concentration
-						$this->map[$x][$y]->setConcentration(0);
 					}
+
+					// clear the concentration
+					$this->map[$x][$y]->setConcentration(0);
 				} 
 				
 				// reset the counter
