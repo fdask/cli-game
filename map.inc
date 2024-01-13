@@ -345,7 +345,6 @@ class Map {
 
 				if ($toxicity) {
 					$this->deer[$x]->addToxicity($toxicity);
-					echo "Adding $toxicity to deer\n";
 				}
 
 				// if the player has any coords at skyHeight with the Y of a deer,
@@ -884,6 +883,11 @@ class Map {
 
 		for ($loopX = $x - 3; $loopX <= $x + 3; $loopX++) {
 			for ($loopY = $y - 3; $loopY <= $y + 3; $loopY++) {
+				
+				if ($loopX >= $this->level->mapHeight) {
+					continue;
+				}
+
 				if ($loopY >= $this->level->mapWidth) {
 					$loopY = $loopY - $this->level->mapWidth;
 				}
@@ -2129,22 +2133,26 @@ class Map {
 						for ($x = $this->level->skyHeight; $x < $target; $x++) {
 							if ($this->map[$x][$newMy] instanceof Dirt) {
 								$this->map[$x][$newMy]->setToxicity(rand($this->level->toxicityMin, $this->level->toxicityMax));
-								$this->smashSquaresAround($x, $newMy);
+							} else if ($this->map[$x][$newMy] instanceof Rock) {
+								// replace the rock with minerals
+								$this->map[$x][$newMy] = new Dirt(rand($this->level->seepTickMin, $this->level->seepTickMax));
+								$this->map[$x][$newMy]->setConcentration(9);
+								$this->map[$x][$newMy]->setToxicity(rand($this->level->toxicityMin, $this->level->toxicityMax));
+							}
 
-								if ($dir == "R") {
-									$newMy = $newMy + $speed;
+							if ($dir == "R") {
+								$newMy = $newMy + $speed;
 
-									if ($newMy >= $this->level->mapWidth) {
-										$newMy = $newMy - $this->level->mapWidth;
-									}
-								} else {
-									$newMy = $newMy - $speed;
-
-									if ($newMy < 0) {
-										$newMy = $newMy + $this->level->mapWidth;
-									}
+								if ($newMy >= $this->level->mapWidth) {
+									$newMy = $newMy - $this->level->mapWidth;
 								}
-							} 
+							} else {
+								$newMy = $newMy - $speed;
+
+								if ($newMy < 0) {
+									$newMy = $newMy + $this->level->mapWidth;
+								}
+							}
 						}
 					} 
 				} else {
