@@ -20,13 +20,17 @@ class Plant {
 	// how high should the countdown be
 	private $ticks;
 
-	public function __construct($ticks) {
+	private $enlightenedAt;
+
+	public function __construct($ticks, $eAt) {
 		$this->life = rand(5, 9);
 		$this->maxLife = $this->life;
 		$this->stage = 2;
 		$this->wisdom = 0;
 		$this->ticks = $ticks;
 		$this->ticker = $this->ticks;
+
+		$this->enlightenedAt = $eAt;
 	}
 
 	public function setTicks($ticks) {
@@ -69,7 +73,7 @@ class Plant {
 
 	public function __toString() {
 		if ($this->stage == 2) {
-			if ($this->wisdom > 2) {
+			if ($this->wisdom >= $this->enlightenedAt) {
 				if ($this->life < 10) {
 					return Colors::bg_color(Config::$enlightenedPlantColor, "{$this->life}");
 				} else {

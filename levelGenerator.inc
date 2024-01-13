@@ -109,6 +109,7 @@ $l->saveToJSON("random.dat");
         'enablePlants' => true,
         'maxPlants' => 15,
         'plantsAtStart' => false,
+        'plantEnlightenedAt' => 1,
         'enableCrystals' => true,
         'maxCrystals' => 20,
         'minCrystals' => 10,
