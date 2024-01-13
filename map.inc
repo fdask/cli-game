@@ -872,11 +872,15 @@ class Map {
 	}
 
 	public function activatePowerBreak() {
-		// any rocks in radius are turned into minerals
-		$rCoords = $this->getRockCoords();
-
 		$x = $this->player->getX();
 		$y = $this->player->getY();
+
+		$this->smashSquaresAround($x, $y);		
+	}
+
+	private function smashSquaresAround($x, $y) {
+		// any rocks in radius are turned into minerals
+		$rCoords = $this->getRockCoords();
 
 		for ($loopX = $x - 3; $loopX <= $x + 3; $loopX++) {
 			for ($loopY = $y - 3; $loopY <= $y + 3; $loopY++) {
@@ -2115,6 +2119,7 @@ class Map {
 
 					// put the trail in (if toxicity is enabled)
 					if ($this->level->enableToxicity) {
+						// target is the depth
 						$target = $this->level->skyHeight + $weight;
 
 						if ($target > $this->level->mapHeight - 1) {
@@ -2124,7 +2129,8 @@ class Map {
 						for ($x = $this->level->skyHeight; $x < $target; $x++) {
 							if ($this->map[$x][$newMy] instanceof Dirt) {
 								$this->map[$x][$newMy]->setToxicity(rand($this->level->toxicityMin, $this->level->toxicityMax));
-								
+								$this->smashSquaresAround($x, $newMy);
+
 								if ($dir == "R") {
 									$newMy = $newMy + $speed;
 
@@ -2138,7 +2144,7 @@ class Map {
 										$newMy = $newMy + $this->level->mapWidth;
 									}
 								}
-							}
+							} 
 						}
 					} 
 				} else {
