@@ -790,7 +790,7 @@ class Map {
 			$this->map[$dirtX][$dirtY]->setToxicity(0);
 
 			// crystals
-			$this->map[$dirtX][$dirtY]->setCrystal(false);
+			//$this->map[$dirtX][$dirtY]->setCrystal(false);
 
 			return true;
 		}
@@ -854,12 +854,21 @@ class Map {
 
 				// move the crystals there
 				if (in_array([$srcX, $srcY], $cCoords)) {
+					$newCrystal = $this->map[$destX][$destY]->isCrystal();
+
+					if (!$newCrystal) {
+						// we can delete this one
+						$this->map[$srcX][$srcY]->setCrystal(false);
+					}
+
 					$this->map[$destX][$destY]->setCrystal(true);
 				}
+
+				return true;
 			}
-		} else {
-			// echo "destination doesn't exist! ($destX, $destY)\n";
-		}
+		} 
+
+		return false;
 	}
 
 	public function activatePowerBreak() {
@@ -1273,7 +1282,6 @@ class Map {
 					// move viewport to the left
 					$y = $this->player->getY() + 1;
 
-					// coun 40 squares
 					// count out vpWidth spaces to the right
 					for ($i = 0; $i < $this->level->vpWidth; $i++) {
 						$realY = $i + $this->vpY;
