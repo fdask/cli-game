@@ -63,6 +63,7 @@ class Config {
     public static $defaultDeerHeight = 2;
     public static $defaultMaxDeer = 1;
     public static $defaultDeerToxicAt = 20;
+    public static $defaultDeerDamage = 25;
 
     // player defaults
     public static $defaultPlayerHealth = 1000;

@@ -306,13 +306,19 @@ class Player {
 	/**
 	 * decrement the players life
 	 */
-	public function decrLife() {
-		// for every 5 long, we had an additional life penalty
-		$additional = ceil(count($this->coords) / 5);
+	public function decrLife($amt = null) {
+		if (is_null($amt)) {
+			// for every 5 long, we had an additional life penalty
+			$additional = ceil(count($this->coords) / 5);
 
-		$this->life = $this->life - $additional;
+			$this->life = $this->life - $additional;
 
-		return $this->life;
+			return $this->life;
+		} else {
+			$this->life = $this->life - $amt;
+
+			return $this->life;
+		}
 	}
 
 	// the player object expands
