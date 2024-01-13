@@ -1328,6 +1328,11 @@ class Map {
 				return false;
 			}
 
+			// if this is an enlightened plant, player can't move
+			if ($this->map[$newX][$newY]->hasPlant() && $this->map[$newX][$newY]->plant->wisdom >= $this->level->plantEnlightenedAt) {
+				return false;
+			}
+
 			if ($this->map[$newX][$newY] instanceof Fossil) {
 				// the user goes invulnerable for a length equal to the fossils quality
 				$this->player->setInvulnerable(true);
@@ -1736,7 +1741,7 @@ class Map {
 		} while (in_array($newY, $ys) || $this->map[$this->level->skyHeight][$newY] instanceof Rock);
 
 		// create the new plant
-		$plant = new Plant($this->level->plantTicks);
+		$plant = new Plant($this->level->plantTicks, $this->level->plantEnlightenedAt);
 
 		$this->map[$this->level->skyHeight][$newY]->addPlant($plant);
 	}
