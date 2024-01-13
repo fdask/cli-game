@@ -528,7 +528,7 @@ class Map {
 					switch ($splitY[$y]) {
 						case 'D':
 							// dirt
-							$this->map[$withSkyX][$y] = new Dirt;
+							$this->map[$withSkyX][$y] = new Dirt(rand($this->level->seepTickMin, $this->level->seepTickMax));
 
 							break;
 						case 'R':
@@ -543,7 +543,7 @@ class Map {
 							break;
 						case 'T':
 							// toxic waste
-							$this->map[$withSkyX][$y] = new Dirt;
+							$this->map[$withSkyX][$y] = new Dirt(rand($this->level->seepTickMin, $this->level->seepTickMax));
 							$this->map[$withSkyX][$y]->setToxicity(rand($this->level->toxicityMin, $this->level->toxicityMax));
 
 							break;
@@ -894,7 +894,7 @@ class Map {
 						// add a fossil
 						$this->map[$loopX][$loopY] = new Fossil(rand($this->level->fossilQualityMin, $this->level->fossilQualityMax));
 					} else {
-						$this->map[$loopX][$loopY] = new Dirt;
+						$this->map[$loopX][$loopY] = new Dirt(rand($this->level->seepTickMin, $this->level->seepTickMax));
 						$this->map[$loopX][$loopY]->setConcentration(9);
 					}
 				}
@@ -1334,7 +1334,7 @@ class Map {
 				$this->player->setInvulnerableDuration($this->map[$newX][$newY]->getQuality());
 
 				// replace the square with dirt
-				$this->map[$newX][$newY] = new Dirt();
+				$this->map[$newX][$newY] = new Dirt(rand($this->level->seepTickMin, $this->level->seepTickMax));
 
 				// add to player scorekeeping
 				$this->player->scoreFossils++;
@@ -1459,6 +1459,42 @@ class Map {
 		}
 	}
 
+	private function updateSeep() {
+		// for every dirt square, check its seep.
+		$mCoords = $this->getMineralCoords();
+
+		for ($i = 0; $i < count($mCoords); $i++) {
+			$x = $mCoords[$i][0];
+			$y = $mCoords[$i][1];
+
+			if ($this->map[$x][$y]->seepTicks <= 0) {
+				// push minerals to the dirt below
+				$concentration = $this->map[$x][$y]->getConcentration();
+
+				if ($concentration) {
+					// calculate the space below
+					$destX = $x + 1;
+					$destY = $y;
+
+					if ($destX < $this->level->mapHeight && $this->map[$destX][$destY] instanceof Dirt) {
+						// copy the concentration
+						$this->map[$destX][$destY]->setConcentration($concentration + $this->map[$destX][$destY]->getConcentration());
+
+						// clear the concentration
+						$this->map[$x][$y]->setConcentration(0);
+					}
+				} 
+				
+				// reset the counter
+				$this->map[$mCoords[$i][0]][$mCoords[$i][1]]->resetSeep();
+			} else {
+				$this->map[$x][$y]->seepTicks--;
+			}
+		}
+
+		$this->map[$x][$y]->tick();
+	}
+
 	private function tick() {
 		// check for points of interest
         $this->checkPointsOfInterest();
@@ -1467,6 +1503,10 @@ class Map {
 		$this->updatePlants();
 		$this->updateMeteor();
 		$this->updateDeer();
+		
+		if ($this->level->enableSeep) {
+			$this->updateSeep();
+		}	
 		
 		if ($this->level->enableWorms && count($this->worms)) {
 			$this->updateWorms();
@@ -1611,10 +1651,11 @@ class Map {
 	public function fillMap($x1, $y1, $x2, $y2, $fillObj) {
 		for ($x = $x1; $x < $x2; $x++) {
 			for ($y = $y1; $y < $y2; $y++) {
-				$this->map[$x][$y] = new $fillObj;
-
 				if ($fillObj == "Dirt") {
+					$this->map[$x][$y] = new Dirt(rand($this->level->seepTickMin, $this->level->seepTickMax));
 					$this->map[$x][$y]->setToxicTicks($this->level->toxicityTicks);
+				} else {
+					$this->map[$x][$y] = new $fillObj;
 				}
 			}
 		}	

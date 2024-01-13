@@ -65,6 +65,10 @@ class Config {
     public static $defaultDeerToxicAt = 20;
     public static $defaultDeerDamage = 25;
 
+    public static $defaultEnableSeep = false;
+    public static $defaultSeepTickMin = 2;
+    public static $defaultSeepTickMax = 10;
+
     // player defaults
     public static $defaultPlayerHealth = 1000;
     public static $defaultPlayerInvulnerableState = false;
