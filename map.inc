@@ -1327,6 +1327,9 @@ class Map {
 
 				// replace the square with dirt
 				$this->map[$newX][$newY] = new Dirt();
+
+				// add to player scorekeeping
+				$this->player->scoreFossils++;
 			}
 
 			// character has landed on the portal
