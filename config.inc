@@ -72,6 +72,7 @@ class Config {
 	public static $defaultScoreMinerals = 10;
 	public static $defaultScoreMoves = 1;
 	public static $defaultScoreCrystals = 100;
+    public static $defaultScoreFossils = 500;
   
     // color data
     public static $rainColor = 'blue';

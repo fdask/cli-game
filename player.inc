@@ -47,6 +47,7 @@ class Player {
 	public $scoreGrow;
 	public $scoreShrink;
 	public $scoreCrystals;
+	public $scoreFossils;
 
 	public function __construct($x, $y) {
 		$this->coords[] = array($x, $y);
@@ -90,7 +91,8 @@ class Player {
 		$this->scoreMoves = 0;
 		$this->scoreGrown = 0;
 		$this->scoreShrink = 0;
-		$this->scoreCrystals = 0;
+		$this->scoreCrystals = 0;		
+		$this->scoreFossils = 0;
 		$this->xp = 0;
 	}
 
@@ -98,7 +100,8 @@ class Player {
 		return ($this->scoreWater * Config::$defaultScoreWater) + 
 			($this->scoreMinerals * Config::$defaultScoreMinerals) + 
 			($this->scoreMoves * Config::$defaultScoreMoves) + 
-			($this->scoreCrystals * Config::$defaultScoreCrystals);
+			($this->scoreCrystals * Config::$defaultScoreCrystals) + 
+			($this->scoreFossils * Config::$defaultScoreFossils);
 	}
 
 	// add a message with score, and details of
