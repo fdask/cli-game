@@ -65,7 +65,7 @@ class Map {
 		$this->mailbox = new Mailbox();
 		$this->mailbox->addInstructions();
 		
-		$this->player = new Player($this->level->skyHeight, floor($this->level->vpWidth / 2));
+		$this->player = new Player($this->level->playerStartX, $this->level->playerStartY);
 
 		// during TESTING, add powers to the player
 		$this->player->addPower(new Power("teleport", "Teleport"));
