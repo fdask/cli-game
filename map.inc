@@ -151,7 +151,7 @@ class Map {
 
 		$dirtSize = count($this->getDirtCoords());
 
-		if ($this->level->enableMinerals && $this->level->mineralsAtStart) {
+		if ($this->level->enableMinerals && $this->level->mineralsAtStart && !$this->level->newMineralsPlantsOnly) {
 			$mineralCount = 0;
 
 			while (($mineralCount / $dirtSize) < ($this->level->maxMinerals / $dirtSize)) {
@@ -1320,6 +1320,9 @@ class Map {
 		}
 	}
 
+	/**
+	 * given new coords, can the player move there?
+	 */
 	public function playerMove($newX, $newY, $setX = false, $grow = false) {
 		// character cannot pass onto itself
 		if (!$this->player->onCoords($newX, $newY)) {
@@ -1329,7 +1332,7 @@ class Map {
 			}
 
 			// if this is an enlightened plant, player can't move
-			if ($this->map[$newX][$newY]->hasPlant() && $this->map[$newX][$newY]->plant->wisdom >= $this->level->plantEnlightenedAt) {
+			if ($this->map[$newX][$newY] instanceof Dirt && $this->map[$newX][$newY]->hasPlant() && $this->map[$newX][$newY]->plant->wisdom >= $this->level->plantEnlightenedAt) {
 				return false;
 			}
 
@@ -1495,9 +1498,9 @@ class Map {
 			} else {
 				$this->map[$x][$y]->seepTicks--;
 			}
-		}
 
-		$this->map[$x][$y]->tick();
+			$this->map[$x][$y]->tick();
+		}
 	}
 
 	private function tick() {
@@ -1523,7 +1526,10 @@ class Map {
 		}
 
 		if ($this->level->enableMinerals) {
-			$this->addMineral();
+			// disable this so any mineral only comes from plants
+			if (!$this->level->newMineralsPlantsOnly) {
+				$this->addMineral();
+			}
 		}
 
 		if ($this->level->enablePlants) {
@@ -1653,6 +1659,10 @@ class Map {
 		}
 	}
 
+	/**
+	 * fill the area outlined by the coordinates
+	 * with the given object name
+	 */
 	public function fillMap($x1, $y1, $x2, $y2, $fillObj) {
 		for ($x = $x1; $x < $x2; $x++) {
 			for ($y = $y1; $y < $y2; $y++) {
@@ -2075,6 +2085,7 @@ class Map {
 				$xy = $this->meteor->getXY();
 				$mx = $xy[0];
 				$my = $xy[1];
+
 				$speed = $this->meteor->getSpeed();
 				$weight = $this->meteor->getWeight();
 				$dir = $this->meteor->getDirection();

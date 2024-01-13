@@ -106,6 +106,7 @@ $l->saveToJSON("random.dat");
         'enableMinerals' => true,
         'maxMinerals' => 10,
         'mineralsAtStart' => true,
+        'newMineralsPlantsOnly' => true,
         'enablePlants' => true,
         'maxPlants' => 15,
         'plantsAtStart' => false,
