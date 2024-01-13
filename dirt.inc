@@ -25,13 +25,19 @@ class Dirt {
 	// int level of toxicity
 	public $toxicity;
 
-	public function __construct() {
+	// seeptick
+	private $seepTicker;
+	public $seepTicks;
+
+	public function __construct($seepTicker) {
 		$this->setWetness(0);
 		$this->setConcentration(0);
 		$this->defaultChar = ".";
 		$this->plant = null;
         $this->crystal = false;
 		$this->toxicity = 0;
+		$this->seepTicker = $seepTicker;
+		$this->seepTicks = $this->seepTicker;
 	}
 
 	public function isToxic() {
@@ -51,7 +57,16 @@ class Dirt {
 		$this->tticker = $this->toxicTicks;
 	}
 
+	public function resetSeep() {
+		$this->seepTicks = $this->seepTicker;
+	}
+
 	public function tick() {
+		// seepage
+		if ($this->seepTicks > 0) {
+			$this->seepTicks--;
+		}
+
 		if ($this->tticker > 0) {
 			$this->tticker--;
 		} else {

@@ -17,6 +17,10 @@ class Level {
     // how much of the map is sky
     public $skyHeight;
 
+    public $enableSeep;
+    public $seepTickMin;
+    public $seepTickMax;
+
     // rain settings
     public $enableRain;
 
@@ -233,6 +237,9 @@ class Level {
             'mapHeight' => $this->mapHeight,
             'vpWidth' => $this->vpWidth,
             'skyHeight' => $this->skyHeight,
+            'enableSeep' => $this->enableSeep,
+            'seepTickMin' => $this->seepTickMin,
+            'seepTickMax' => $this->seepTickMax,
             'enableRocks' => $this->enableRocks,
             'maxRocks' => $this->maxRocks,
             'enableRain' => $this->enableRain,
@@ -297,6 +304,9 @@ class Level {
         $this->mapHeight = isset($array['mapHeight']) ? $array['mapHeight'] : Config::$defaultMapHeight;
         $this->vpWidth = isset($array['vpWidth']) ? $array['vpWidth'] : Config::$defaultVpWidth;
         $this->skyHeight = isset($array['skyHeight']) ? $array['skyHeight'] : Config::$defaultSkyHeight;
+        $this->enableSeep = isset($array['enableSeep']) ? $array['enableSeep'] : Config::$defaultEnableSeep;
+        $this->seepTickMin = isset($array['seepTickMin']) ? $array['seepTickMin'] : Config::$defaultSeepTickMin;
+        $this->seepTickMax = isset($array['seepTickMax']) ? $array['seepTickMax'] : Config::$defaultSeepTickMax;
         $this->enableRocks = isset($array['enableRocks']) ? $array['enableRocks'] : false;
         $this->maxRocks = isset($array['maxRocks']) ? $array['maxRocks'] : Config::$defaultMaxRocks;
         $this->enableRain = isset($array['enableRain']) ? $array['enableRain'] : false;
