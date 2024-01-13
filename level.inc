@@ -214,12 +214,6 @@ class Level {
         }
     }
 
-    public function getObjectiveScreen() {
-        $ret = array(
-
-        );
-    }
-
     public function addObjective($obj) {
         $this->objectives[] = $obj;
     }
@@ -355,8 +349,8 @@ class Level {
 
         $this->map = isset($array['map']) ? $array['map'] : null;
 
-        $this->playerStartX = isset($array['playerStartX']) ? $array['playerStartX'] : 0;
-        $this->playerStartY = isset($array['playerStartY']) ? $array['playerStartY'] : $this->skyHeight;
+        $this->playerStartX = isset($array['playerStartX']) ? $array['playerStartX'] : $this->skyHeight;
+        $this->playerStartY = isset($array['playerStartY']) ? $array['playerStartY'] : floor($this->vpWidth / 2);
     }
 
     /**
