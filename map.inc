@@ -193,7 +193,7 @@ class Map {
 
 		if ($this->level->enableToxicity) {
 			if ($this->level->startToxicity > 0) {
-				// start toxicity is a percent age of the soil.
+				// start toxicity is a percentage of the soil.
 				$twCount = 0;
 
 				while (($twCount / $dirtSize) < ($this->level->startToxicity / $dirtSize)) {
@@ -882,9 +882,8 @@ class Map {
 		$rCoords = $this->getRockCoords();
 
 		for ($loopX = $x - 3; $loopX <= $x + 3; $loopX++) {
-			for ($loopY = $y - 3; $loopY <= $y + 3; $loopY++) {
-				
-				if ($loopX >= $this->level->mapHeight) {
+			for ($loopY = $y - 3; $loopY <= $y + 3; $loopY++) {	
+				if ($loopX >= $this->level->mapHeight || $loopX < $this->level->skyHeight) {
 					continue;
 				}
 
