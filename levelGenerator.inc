@@ -161,7 +161,7 @@ $l->saveToJSON("random.dat");
 
     $l->addObjective(new CollectObjective("health", "1200"));
     $l->addObjective(new CollectObjective("crystals", 10));
-    
+    $l->addObjective(new ConnectObjective(18, 20, 20, 22));
     $l->saveToJSON("level1.dat");
 //}
 
