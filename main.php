@@ -22,16 +22,25 @@ include 'fossil.inc';
 include 'worm.inc';
 include 'pathfinding.inc';
 include 'deer.inc';
+include 'titlescreen.inc';
 
 // GAME START
 echo "\n";
 
 if (file_exists("rainsave")) {
-    $map = unserialize(file_get_contents("rainsave"));
-    
+    $map = unserialize(file_get_contents("rainsave"));    
 } else {
-    $map = new Map(Config::$defaultLevelFile);
+    // display the title screen
+    $choice = TitleScreen::run();
+
+    if ($choice == 1) {
+        // load the game
+        $map = new Map(Config::$defaultLevelFile);
+    } else if ($choice == 2) {
+        $map = new Map(Config::$defaultLevelFile);
+    }
 }
 
+// start the game
 $map->gameLoop();
 ?>
