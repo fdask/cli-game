@@ -151,7 +151,7 @@ class Map {
 
 		$dirtSize = count($this->getDirtCoords());
 
-		if ($this->level->enableMinerals && $this->level->mineralsAtStart) {
+		if ($this->level->enableMinerals && $this->level->mineralsAtStart && !$this->level->newMineralsPlantsOnly) {
 			$mineralCount = 0;
 
 			while (($mineralCount / $dirtSize) < ($this->level->maxMinerals / $dirtSize)) {
@@ -872,11 +872,15 @@ class Map {
 	}
 
 	public function activatePowerBreak() {
-		// any rocks in radius are turned into minerals
-		$rCoords = $this->getRockCoords();
-
 		$x = $this->player->getX();
 		$y = $this->player->getY();
+
+		$this->smashSquaresAround($x, $y);		
+	}
+
+	private function smashSquaresAround($x, $y) {
+		// any rocks in radius are turned into minerals
+		$rCoords = $this->getRockCoords();
 
 		for ($loopX = $x - 3; $loopX <= $x + 3; $loopX++) {
 			for ($loopY = $y - 3; $loopY <= $y + 3; $loopY++) {
@@ -1320,6 +1324,9 @@ class Map {
 		}
 	}
 
+	/**
+	 * given new coords, can the player move there?
+	 */
 	public function playerMove($newX, $newY, $setX = false, $grow = false) {
 		// character cannot pass onto itself
 		if (!$this->player->onCoords($newX, $newY)) {
@@ -1329,7 +1336,7 @@ class Map {
 			}
 
 			// if this is an enlightened plant, player can't move
-			if ($this->map[$newX][$newY]->hasPlant() && $this->map[$newX][$newY]->plant->wisdom >= $this->level->plantEnlightenedAt) {
+			if ($this->map[$newX][$newY] instanceof Dirt && $this->map[$newX][$newY]->hasPlant() && $this->map[$newX][$newY]->plant->wisdom >= $this->level->plantEnlightenedAt) {
 				return false;
 			}
 
@@ -1495,9 +1502,9 @@ class Map {
 			} else {
 				$this->map[$x][$y]->seepTicks--;
 			}
-		}
 
-		$this->map[$x][$y]->tick();
+			$this->map[$x][$y]->tick();
+		}
 	}
 
 	private function tick() {
@@ -1523,7 +1530,10 @@ class Map {
 		}
 
 		if ($this->level->enableMinerals) {
-			$this->addMineral();
+			// disable this so any mineral only comes from plants
+			if (!$this->level->newMineralsPlantsOnly) {
+				$this->addMineral();
+			}
 		}
 
 		if ($this->level->enablePlants) {
@@ -1653,6 +1663,10 @@ class Map {
 		}
 	}
 
+	/**
+	 * fill the area outlined by the coordinates
+	 * with the given object name
+	 */
 	public function fillMap($x1, $y1, $x2, $y2, $fillObj) {
 		for ($x = $x1; $x < $x2; $x++) {
 			for ($y = $y1; $y < $y2; $y++) {
@@ -2075,6 +2089,7 @@ class Map {
 				$xy = $this->meteor->getXY();
 				$mx = $xy[0];
 				$my = $xy[1];
+
 				$speed = $this->meteor->getSpeed();
 				$weight = $this->meteor->getWeight();
 				$dir = $this->meteor->getDirection();
@@ -2104,6 +2119,7 @@ class Map {
 
 					// put the trail in (if toxicity is enabled)
 					if ($this->level->enableToxicity) {
+						// target is the depth
 						$target = $this->level->skyHeight + $weight;
 
 						if ($target > $this->level->mapHeight - 1) {
@@ -2113,7 +2129,8 @@ class Map {
 						for ($x = $this->level->skyHeight; $x < $target; $x++) {
 							if ($this->map[$x][$newMy] instanceof Dirt) {
 								$this->map[$x][$newMy]->setToxicity(rand($this->level->toxicityMin, $this->level->toxicityMax));
-								
+								$this->smashSquaresAround($x, $newMy);
+
 								if ($dir == "R") {
 									$newMy = $newMy + $speed;
 
@@ -2127,7 +2144,7 @@ class Map {
 										$newMy = $newMy + $this->level->mapWidth;
 									}
 								}
-							}
+							} 
 						}
 					} 
 				} else {

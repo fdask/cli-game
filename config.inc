@@ -27,6 +27,7 @@ class Config {
     public static $defaultMineralsAtStart = true;
     public static $defaultMineralConcentrationMin = 1;
     public static $defaultMineralConcentrationMax = 9;
+    public static $defaultNewMineralsPlantsOnly = false;
 
     public static $defaultMaxPlants = 7;
     public static $defaultPlantsAtStart = true;

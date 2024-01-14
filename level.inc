@@ -43,6 +43,7 @@ class Level {
     public $mineralsAtStart;
     public $mineralConcentrationMin;
     public $mineralConcentrationMax;
+    public $newMineralsPlantsOnly;
 
 	// how many mineral spaces to allow on the map at once
 	public $maxMinerals;
@@ -254,6 +255,7 @@ class Level {
             'mineralsAtStart' => $this->mineralsAtStart,
             'mineralConcentrationMin' => $this->mineralConcentrationMin,
             'mineralConcentrationMax' => $this->mineralConcentrationMax,
+            'newMineralsPlantsOnly' => $this->newMineralsPlantsOnly,
             'enablePlants' => $this->enablePlants,
             'maxPlants' => $this->maxPlants,
             'plantsAtStart' => $this->plantsAtStart,
@@ -322,6 +324,7 @@ class Level {
         $this->mineralsAtStart = isset($array['mineralsAtStart']) ? $array['mineralsAtStart'] : Config::$defaultMineralsAtStart;
         $this->mineralConcentrationMin = isset($array['mineralConcentrationMin']) ? $array['mineralConcentrationMin'] : Config::$defaultMineralConcentrationMin;
         $this->mineralConcentrationMax = isset($array['mineralConcentrationMax']) ? $array['mineralConcentrationMax'] : Config::$defaultMineralConcentrationMax;
+        $this->newMineralsPlantsOnly = isset($array['newMineralsPlantsOnly']) ? $array['newMineralsPlantsOnly'] : Config::$defaultNewMineralsPlantsOnly;
         $this->enablePlants = isset($array['enablePlants']) ? $array['enablePlants'] : false;
         $this->maxPlants = isset($array['maxPlants']) ? $array['maxPlants'] : Config::$defaultMaxPlants;
         $this->plantsAtStart = isset($array['plantsAtStart']) ? $array['plantsAtStart'] : Config::$defaultPlantsAtStart;
