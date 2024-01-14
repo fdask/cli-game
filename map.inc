@@ -1653,6 +1653,16 @@ class Map {
 							}
 
 							break;
+						case 'ConnectObjective':
+							$pCoords = $this->player->getCoords();
+
+							if (in_array([$objective->x1, $objective->y1], $pCoords) && in_array([$objective->x2, $objective->y2], $pCoords)) {
+								$this->level->objectives[$x]->setCompleted();
+								$this->mailbox->addMessage("Objective complete! (" . $objective->getShortName() . ")");
+								$this->player->addXP($objective->getRewardXP());
+							}
+
+							break;
 					}        
 				}
 			}
