@@ -4,6 +4,15 @@
 All notable changes to this project will be documented in this file.
 <!--- END HEADER -->
 
+## [0.1.0](https://github.com/fdask/cli-game/compare/v0.0.2...v0.1.0) (2024-01-14)
+
+### Features
+
+* Added simple title screen ([405198](https://github.com/fdask/cli-game/commit/405198ad9837e1af7d02bcbabeabab4ce940ec7b))
+
+
+---
+
 ## [0.0.2](https://github.com/fdask/cli-game/compare/v0.0.1...v0.0.2) (2024-01-14)
 
 ### Bug Fixes
