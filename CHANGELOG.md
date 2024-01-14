@@ -4,6 +4,15 @@
 All notable changes to this project will be documented in this file.
 <!--- END HEADER -->
 
+## [0.0.2](https://github.com/fdask/cli-game/compare/v0.0.1...v0.0.2) (2024-01-14)
+
+### Bug Fixes
+
+* Misc code fixups ([7bd049](https://github.com/fdask/cli-game/commit/7bd04937b63ee9bf2bb279fd515b9c0ed1ff629d))
+
+
+---
+
 ## [0.0.1](https://github.com/fdask/cli-game/compare/0.0.0...v0.0.1) (2024-01-14)
 
 

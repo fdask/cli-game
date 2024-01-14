@@ -2,5 +2,5 @@
     "require-dev": {
         "marcocesarato/php-conventional-changelog": "^1.17"
     },
-    "version": "0.0.1"
+    "version": "0.0.2"
 }
