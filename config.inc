@@ -107,4 +107,13 @@ class Config {
     // fg
     public static $powerSelectUnselected = 'bold_blue';
 
+    public static function autoload($class) {
+        $file = __DIR__ . "/include/" . strtolower($class) . ".inc";
+        
+        if (file_exists($file)) {
+            require $file;
+        }
+    }
 }
+
+spl_autoload_register("Config::autoload");
