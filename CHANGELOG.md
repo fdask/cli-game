@@ -4,6 +4,25 @@
 All notable changes to this project will be documented in this file.
 <!--- END HEADER -->
 
+## [0.3.0](https://github.com/fdask/cli-game/compare/v0.2.0...v0.3.0) (2024-02-06)
+
+### Features
+
+* Added autoloader and restructured files (#49) ([6dc1c3](https://github.com/fdask/cli-game/commit/6dc1c3a78c3463f5e29dd991871d7f15c62da46f))
+* Arrow key support added (#50) ([420af8](https://github.com/fdask/cli-game/commit/420af8b66343d9ab231c0346e2fa20a789a82640))
+
+### Bug Fixes
+
+* Added treadable to fossils ([d6673c](https://github.com/fdask/cli-game/commit/d6673c60f8d6fd8279a354bbbc0542a0d03c5934))
+* Cleanup after the autoloader ([53e572](https://github.com/fdask/cli-game/commit/53e5726bcfb95bdb0fce5816520a87f9a8070c92))
+
+##### Docs
+
+* Added more specifics to instructions ([7cbd58](https://github.com/fdask/cli-game/commit/7cbd58627ddf194a0df52b8bd1bbee998262bb72))
+
+
+---
+
 ## [0.2.0](https://github.com/fdask/cli-game/compare/v0.1.0...v0.2.0) (2024-02-06)
 
 ### Features
