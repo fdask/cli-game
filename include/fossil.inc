@@ -1,5 +1,7 @@
 <?php
 class Fossil {
+    use Treadable;
+
     public $quality;
 
     public function __construct($q = null) {
@@ -8,6 +10,8 @@ class Fossil {
         } else {
             $this->quality = rand(Config::fossilQualityMin, Config::fossilQualityMax);
         }
+
+        $this->setTreadable(true);
     }
 
     public function __toString() {
