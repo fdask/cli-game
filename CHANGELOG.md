@@ -4,6 +4,25 @@
 All notable changes to this project will be documented in this file.
 <!--- END HEADER -->
 
+## [0.2.0](https://github.com/fdask/cli-game/compare/v0.1.0...v0.2.0) (2024-02-06)
+
+### Features
+
+* Added a connect objective (#47) ([4635d6](https://github.com/fdask/cli-game/commit/4635d6379dec670320a07868ec5ada53c6d3747a))
+* Added simple title screen ([405198](https://github.com/fdask/cli-game/commit/405198ad9837e1af7d02bcbabeabab4ce940ec7b))
+* Added simple title screen (#46) ([f248b1](https://github.com/fdask/cli-game/commit/f248b1a36d496abeea7ba58b88df41922dfcec24))
+
+### Bug Fixes
+
+* Added node_modules to gitignore ([f7fd9b](https://github.com/fdask/cli-game/commit/f7fd9b5432a4786602cd4d92f75df2e7de15250b))
+
+##### Docs
+
+* Added contributing file ([cfda0a](https://github.com/fdask/cli-game/commit/cfda0ab12dc0db16f57e7a28692415551ec04dec))
+
+
+---
+
 ## [0.0.2](https://github.com/fdask/cli-game/compare/v0.0.1...v0.0.2) (2024-01-14)
 
 ### Bug Fixes
