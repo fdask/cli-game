@@ -2,7 +2,7 @@
 <?php
 // define some system variables
 include 'wetable.inc';
-include 'traversible.inc';
+include 'treadable.inc';
 
 include 'dirt.inc';
 include 'mailbox.inc';

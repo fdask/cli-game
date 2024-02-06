@@ -1333,8 +1333,8 @@ class Map {
 	public function playerMove($newX, $newY, $setX = false, $grow = false) {
 		// character cannot pass onto itself
 		if (!$this->player->onCoords($newX, $newY)) {
-			// character cannot go onto non traversible terrain
-			if (!$this->map[$newX][$newY]->isTraversible()) {
+			// character cannot go onto non treadable terrain
+			if (!$this->map[$newX][$newY]->isTreadable()) {
 				return false;
 			}
 

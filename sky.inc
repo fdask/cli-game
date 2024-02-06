@@ -2,14 +2,14 @@
 class Sky {
 	// things in this region of sky are added here
 	use Wetable;
-	use Traversible;
+	use Treadable;
 
 	public $defaultChar;
 
 	public function __construct() {
 		$this->setWetness(0);
 		$this->defaultChar = "~";
-		$this->setTraversible(false);
+		$this->setTreadable(false);
 	}
 
 	public function __toString() {

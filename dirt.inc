@@ -1,7 +1,7 @@
 <?php
 class Dirt {
 	use Wetable;
-	use Traversible;
+	use Treadable;
 
 	// integer representing the concentration of minerals
 	private $concentration;
@@ -37,7 +37,7 @@ class Dirt {
 		$this->toxicity = 0;
 		$this->seepTicker = $seepTicker;
 		$this->seepTicks = $this->seepTicker;
-		$this->setTraversible(true);
+		$this->setTreadable(true);
 	}
 
 	public function isToxic() {
