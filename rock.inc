@@ -3,8 +3,10 @@
  * impassable, rock
  */
 class Rock {
-	public function __construct() {
+	use Traversible;
 
+	public function __construct() {
+		$this->setTraversible(false);
 	}
 
 	public function __toString() {
