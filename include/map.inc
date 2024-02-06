@@ -918,6 +918,25 @@ class Map {
 		exit;
 	}
 
+	public function waitForInput() {
+		$input = '';
+
+		$read = [STDIN];
+		$write = null;
+		$except = null;
+
+		readline_callback_handler_install('', function() {});
+
+		// Read characters from the command line one at a time until there aren't any more to read
+		do {
+			$input .= fgetc(STDIN);
+		} while(stream_select($read, $write, $except, 0, 1));
+
+		readline_callback_handler_remove();
+
+		return $input;
+	}
+
 	public function gameLoop() {
 		$this->term = `stty -g`;
 		system("stty -icanon -echo");
@@ -925,7 +944,10 @@ class Map {
 		echo $this;
 
 		// keypress handler
-		while ($c = fread(STDIN, 1)) {
+		//while ($c = fread(STDIN, 1)) {
+		while (1) {	
+			$c = $this->waitForInput();
+
 			$tick = true;
 
 			switch ($c) {
@@ -987,9 +1009,11 @@ class Map {
 					$tick = false;
 
 					break;
+				case Config::shiftLeftArrow():
+				case Config::leftArrow():
 				case 'a': 
-					// move the character left
 				case 'A':
+					// move the character left
 					if (!$this->powerMenuOpen) {
 						// grow character to the left
 						$newX = $this->player->getX();
@@ -999,7 +1023,7 @@ class Map {
 							$newY = $this->level->mapWidth - 1;
 						} 
 						
-						$tick = $this->playerMove($newX, $newY, false, $c == 'A');
+						$tick = $this->playerMove($newX, $newY, false, $c == 'A' || $c == Config::shiftLeftArrow());
 
 						// move viewport left
 						if ($tick) {
@@ -1045,9 +1069,11 @@ class Map {
 					$tick = false;
 
 					break;
+				case Config::rightArrow():
+				case Config::shiftRightArrow():
 				case 'd':
-					// move the character to the right
 				case 'D':
+					// move the character to the right
 					if (!$this->powerMenuOpen) {
 						// grow the character to the right
 						$newX = $this->player->getX();
@@ -1057,7 +1083,7 @@ class Map {
 							$newY = 0;
 						} 
 						
-						$tick = $this->playerMove($newX, $newY, false, $c == 'D');
+						$tick = $this->playerMove($newX, $newY, false, $c == 'D' || $c == Config::shiftRightArrow());
 
 						if ($tick) {
 							// scroll viewprot to the right
@@ -1205,10 +1231,11 @@ class Map {
 					$tick = false;
 			
 					break;
-				
+				case Config::downArrow():
+				case Config::shiftDownArrow():
 				case 's':
-					// move character down
 				case 'S':
+					// move character down
 					if ($this->powerMenuOpen) {
 						$mp = $this->player->getMenuPower();
 
@@ -1232,7 +1259,7 @@ class Map {
 							$newX = $this->level->mapHeight - 1;
 						} 
 						
-						$tick = $this->playerMove($newX, $newY, true, $c == 'S');
+						$tick = $this->playerMove($newX, $newY, true, $c == 'S' || $c == Config::shiftDownArrow());
 					}
 
 					break;
@@ -1242,7 +1269,8 @@ class Map {
 
 					$tick = false;
 					break;
-				
+				case Config::shiftUpArrow():
+				case Config::upArrow():
 				case 'w':
 					// move character up
 				case 'W':
@@ -1269,7 +1297,7 @@ class Map {
 							$newX = $this->level->skyHeight;
 						}
 
-						$tick = $this->playerMove($newX, $newY, true, $c == 'W');
+						$tick = $this->playerMove($newX, $newY, true, $c == 'W' || $c == Config::shiftUpArrow());
 					}
 
 					break;

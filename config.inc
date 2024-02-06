@@ -107,6 +107,38 @@ class Config {
     // fg
     public static $powerSelectUnselected = 'bold_blue';
 
+    public static function shiftUpArrow() {
+        return chr(27) . chr(91) . chr(49) . chr(59) . chr(50) . chr(65);
+    }
+
+    public static function upArrow() {
+        return chr(27) . chr(91) . chr(65);
+    }
+
+    public static function downArrow() {
+        return chr(27) . chr(91) . chr(66);
+    }
+
+    public static function shiftDownArrow() {
+        return chr(27) . chr(91) . chr(49) . chr(59) . chr(50) . chr(66);
+    }
+
+    public static function leftArrow() {
+        return chr(27) . chr(91) . chr(68);
+    }
+
+    public static function shiftLeftArrow() {
+        return chr(27) . chr(91) . chr(49) . chr(59) . chr(50) . chr(68);
+    }
+
+    public static function rightArrow() {
+        return chr(27) . chr(91) . chr(67);
+    }
+
+    public static function shiftRightArrow() {
+        return chr(27) . chr(91) . chr(49) . chr(59) . chr(50) . chr(67);
+    }
+
     public static function autoload($class) {
         $file = __DIR__ . "/include/" . strtolower($class) . ".inc";
         
