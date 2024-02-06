@@ -1,6 +1,9 @@
 #!/usr/bin/php
 <?php
 // define some system variables
+include 'config.inc';
+
+/*
 include 'wetable.inc';
 include 'treadable.inc';
 
@@ -25,6 +28,7 @@ include 'worm.inc';
 include 'pathfinding.inc';
 include 'deer.inc';
 include 'titlescreen.inc';
+*/
 
 // GAME START
 echo "\n";
