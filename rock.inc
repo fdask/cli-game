@@ -3,8 +3,10 @@
  * impassable, rock
  */
 class Rock {
-	public function __construct() {
+	use Treadable;
 
+	public function __construct() {
+		$this->setTreadable(false);
 	}
 
 	public function __toString() {
