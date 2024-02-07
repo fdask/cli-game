@@ -380,6 +380,13 @@ class Player {
 		$this->addFrontCoord($this->getX(), $y);
 	}
 
+	public function setXY($x, $y) {
+		$this->x = $x;
+		$this->y = $y;
+
+		$this->addFrontCoord($x, $y);
+	}
+
 	/**
 	 * returns the coords property (array)
 	 */

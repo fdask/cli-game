@@ -41,6 +41,9 @@ class Map {
 	// every level has one!
 	public $portal;
 
+	// wormholes
+	public $wormholes;
+
 	// are we in the power menu?
 	public $powerMenuOpen;
 
@@ -65,6 +68,8 @@ class Map {
 		$this->mailbox = new Mailbox();
 		$this->mailbox->addInstructions();
 		
+		$this->wormholes = $this->level->wormHoles;
+
 		$this->player = new Player($this->level->playerStartX, $this->level->playerStartY);
 
 		// during TESTING, add powers to the player
@@ -76,7 +81,24 @@ class Map {
 		$this->powerMenuOpen = false;
 
 		$this->reset();
+
+		// during testing, create a couple wormholes
+		//$this->wormholes[] = new WormHole(15, 15, 20, 40, true);
+		//$this->wormholes[] = new WormHole(25, 25, 30, 30);
+
 		$this->gameLoop();
+	}
+
+	public function centerOnPlayer() {
+		// set the vpY according to the players ypos
+		$y = $this->player->getY();
+		$vpY = $y - floor($this->level->vpWidth / 2);
+
+		if ($vpY < 0) {
+			$vpY = $this->level->mapWidth + $vpY;
+		}
+
+		$this->vpY = $vpY;
 	}
 
 	public function reset() {
@@ -125,6 +147,57 @@ class Map {
 			}
 		}
     }
+
+	public function getWormHoleDestination($srcX, $srcY) {
+		for ($x = 0; $x < count($this->wormholes); $x++) {
+			if ($this->wormholes[$x]->checkCoords($srcX, $srcY)) {
+				$src = $this->wormholes[$x]->getSrc();
+				$dest = $this->wormholes[$x]->getDest();
+					
+				if ($src == [$srcX, $srcY]) {
+					return $dest;
+				} else if ($dest == [$srcX, $srcY] && $this->wormholes[$x]->getTwoWay()) {
+					return $src;
+				}
+			}
+		}
+
+		return false;
+	}
+
+	public function getWormHoles() {
+		return $this->wormholes;
+	}
+
+	public function getWormHoleCoords() {
+		$ret = array();
+
+		for ($x = 0; $x < count($this->wormholes); $x++) {
+			$ret[] = $this->wormholes[$x]->getSrc();
+			
+			if ($this->wormholes[$x]->getTwoWay()) {
+				$ret[] = $this->wormholes[$x]->getDest();
+			}
+		}
+
+		return $ret;
+	}
+	
+	public function addWormHole(WormHole $wh) {
+		// make sure its src and dest are unique
+		$src = $wh->getSrc();
+		$dest = $wh->getDest();
+
+		$dirtCoords = $this->getDirtCoords();
+		$coords = $this->getWormHoleCoords();
+
+		// if either square is not dirt, return
+		if (in_array($src, $coords) || in_array($dest, $coords) || !in_array($src, $dirtCoords) || !in_array($dest, $dirtCoords)) {
+			return false;
+		}
+
+		$this->wormholes[] = $wh;
+	}
 
 	public function save() {
 		file_put_contents("rainsave", serialize($this));
@@ -930,7 +1003,7 @@ class Map {
 		// Read characters from the command line one at a time until there aren't any more to read
 		do {
 			$input .= fgetc(STDIN);
-		} while(stream_select($read, $write, $except, 0, 1));
+		} while (stream_select($read, $write, $except, 0, 1));
 
 		readline_callback_handler_remove();
 
@@ -1371,6 +1444,17 @@ class Map {
 				return false;
 			}
 
+			$wormholes = $this->getWormHoleCoords();
+
+			// if we have stepped onto an open wormhole
+			if (in_array([$newX, $newY], $wormholes)) {
+				// if we're on a wormhole, teleport!
+				$dest = $this->getWormHoleDestination($newX, $newY);
+				
+				$newX = $dest[0];
+				$newY = $dest[1];
+			}
+
 			if ($this->map[$newX][$newY] instanceof Fossil) {
 				// the user goes invulnerable for a length equal to the fossils quality
 				$this->player->setInvulnerable(true);
@@ -1407,9 +1491,16 @@ class Map {
 				}
 			}
 
+
 			// set the X or the Y
 			// (records a move in the player class)
-			if ($setX) {
+			$px = $this->player->getX();
+			$py = $this->player->getY();
+
+			if ($px != $newX && $py != $newY) {
+				$this->player->setXY($newX, $newY);
+				$this->centerOnPlayer();
+			} else if ($px != $newX && $py == $newY) {
 				$this->player->setX($newX);
 			} else {
 				$this->player->setY($newY);
@@ -2459,6 +2550,8 @@ class Map {
 
 		$ret .= "\n";
 
+		$wCoords = $this->getWormHoleCoords();
+
 		if ($this->threeScreen) {
 			// top border for three screens)
 			for ($x = 0; $x < 3; $x++) {
@@ -2534,7 +2627,12 @@ class Map {
 					} else if ($this->onWorm($x, $ypos)) {
 						$ret .= Colors::fg_color(Config::$wormColor, "w");
 					} else if ($this->map[$x][$ypos] instanceof Dirt) {
-						$ret .= $this->map[$x][$ypos]->getView(1);
+						if (in_array([$x, $ypos], $wCoords)) {
+							// wormhole!
+							$ret .= WormHole::$defaultChar;
+						} else {
+							$ret .= $this->map[$x][$ypos]->getView(1);
+						}
 					} else if ($this->level->enableDeer && in_array([$x, $ypos], $this->getDeerXYs())) {
 						// show a deer
 						$ret .= $this->deer[$this->getDeerWithY($ypos)];
@@ -2584,7 +2682,12 @@ class Map {
 							$ret .= Colors::fg_color(Config::$playerTailColor, $this->player->getDefaultChar());
 						}
 					} else if ($this->map[$x][$ypos] instanceof Dirt) {
-						$ret .= $this->map[$x][$ypos]->getView(2);
+						if (in_array([$x, $ypos], $wCoords)) {
+							// wormhole
+							$ret .= WormHole::$defaultChar;
+						} else {
+							$ret .= $this->map[$x][$ypos]->getView(2);
+						}
 					} else if ($this->level->enableDeer && in_array([$x, $ypos], $this->getDeerXYs())) {
 						// show a deer
 						$ret .= $this->deer[$this->getDeerWithY($ypos)];
@@ -2634,7 +2737,12 @@ class Map {
 							$ret .= Colors::fg_color(Config::$playerTailColor, $this->player->getDefaultChar());
 						}
 					} else if ($this->map[$x][$ypos] instanceof Dirt) {
-						$ret .= $this->map[$x][$ypos]->getView(3);
+						if (in_array([$x, $ypos], $wCoords)) {
+							// wormhole
+							$ret .= WormHole::$defaultChar;
+						} else {
+							$ret .= $this->map[$x][$ypos]->getView(3);
+						}
 					} else if ($this->level->enableDeer && in_array([$x, $ypos], $this->getDeerXYs())) {
 						// show a deer
 						$ret .= $this->deer[$this->getDeerWithY($ypos)];
@@ -2756,7 +2864,12 @@ class Map {
 						// show a deer
 						$ret .= $this->deer[$this->getDeerWithY($ypos)];
 					} else if ($this->map[$x][$ypos] instanceof Dirt) {
-						$ret .= $this->map[$x][$ypos]->getView($this->viewType);
+						if (in_array([$x, $ypos], $wCoords)) {
+							// wormhole
+							$ret .= WormHole::$defaultChar;
+						} else {
+							$ret .= $this->map[$x][$ypos]->getView($this->viewType);
+						}
 					} else {
 						if ($this->meteor && $this->meteor instanceof Meteor) {
 							if (array($x, $ypos) == $this->meteor->getXY()) {
