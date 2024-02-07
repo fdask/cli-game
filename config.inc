@@ -61,6 +61,8 @@ class Config {
     public static $defaultWormTicks = 5;
     public static $defaultBetweenWormCounter = 10;
     
+    public static $defaultEnableWormHoles = false;
+    
     public static $defaultEnableDeer = false;
     public static $defaultDeerHeight = 2;
     public static $defaultMaxDeer = 1;

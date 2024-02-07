@@ -3,6 +3,11 @@
 // define some system variables
 include 'config.inc';
 
+// generate level files if they don't already exist
+if (1) {
+    LevelGenerator::levelOne();
+}
+
 // GAME START
 echo "\n";
 
