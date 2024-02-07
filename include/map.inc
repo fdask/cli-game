@@ -70,7 +70,6 @@ class Map {
 		
 		$this->wormholes = $this->level->wormHoles;
 
-		print_r($this->level->wormHoles);
 		$this->player = new Player($this->level->playerStartX, $this->level->playerStartY);
 
 		// during TESTING, add powers to the player
@@ -156,10 +155,8 @@ class Map {
 				$dest = $this->wormholes[$x]->getDest();
 					
 				if ($src == [$srcX, $srcY]) {
-					echo "DEST IS " . $dest[0] . ", " . $dest[1] . "\n";
 					return $dest;
 				} else if ($dest == [$srcX, $srcY] && $this->wormholes[$x]->getTwoWay()) {
-					echo "SRC IS " . $src[0] . ", " . $src[1] . "\n";
 					return $src;
 				}
 			}
