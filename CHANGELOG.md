@@ -4,6 +4,15 @@
 All notable changes to this project will be documented in this file.
 <!--- END HEADER -->
 
+## [0.4.0](https://github.com/fdask/cli-game/compare/v0.3.0...v0.4.0) (2024-02-07)
+
+### Features
+
+* Added wormholes (#51) ([546e19](https://github.com/fdask/cli-game/commit/546e19b6b7977eeaca64486817c8b5d8f5c07a5c))
+
+
+---
+
 ## [0.3.0](https://github.com/fdask/cli-game/compare/v0.2.0...v0.3.0) (2024-02-06)
 
 ### Features
