@@ -123,6 +123,7 @@ class LevelGenerator {
             'wormHealth' => 25,
             'wormTicks' => 2,
             'enableWormHoles' => true,
+            'enableNibbits' => true,
             'enableDeer' => true,
             'maxDeer' => 1,
             'deerDamage' => 50,
@@ -155,8 +156,12 @@ class LevelGenerator {
         $l->wormHoles = array(
             new WormHole(15, 15, 20, 20, true)
         );
-        
-        echo "Adding a wormhole!\n";
+
+        $l->nibbits = array(
+            new Nibbit(9, 30),
+            new Nibbit(15, 29)
+        );
+
         $l->saveToJSON("level1.dat");
     }
 }
