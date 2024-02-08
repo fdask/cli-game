@@ -1,6 +1,6 @@
 #!/usr/bin/php
 <?php
-include 'colors.inc';
+include 'include/colors.inc';
 
 // output all our colors
 Colors::all_fg();
