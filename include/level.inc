@@ -108,6 +108,9 @@ class Level {
     public $enableWormHoles;
     public $wormHoles;
 
+    public $enableNibbits;
+    public $nibbits;
+
     public $enableDeer;
     public $maxDeer;
     public $deerDamage;
@@ -292,6 +295,8 @@ class Level {
             'betweenWormCounter' => $this->betweenWormCounter,
             'enableWormHoles' => $this->enableWormHoles,
             'wormHoles' => serialize($this->wormHoles),
+            'enableNibbits' => $this->enableNibbits,
+            'nibbits' => serialize($this->nibbits),
             'enableDeer' => $this->enableDeer,
             'maxDeer' => $this->maxDeer,
             'deerDamage' => $this->deerDamage,
@@ -363,6 +368,8 @@ class Level {
         $this->betweenWormCounter = isset($array['betweenWormCounter']) ? $array['betweenWormCounter'] : Config::$defaultBetweenWormCounter;
         $this->enableWormHoles = isset($array['enableWormHoles']) ? $array['enableWormHoles'] : Config::$defaultEnableWormHoles;
         $this->wormHoles = isset($array['wormHoles']) ? unserialize($array['wormHoles']) : array();
+        $this->enableNibbits = isset($array['enableNibbits']) ? $array['enableNibbits'] : Config::$defaultEnableNibbits;
+        $this->nibbits = isset($array['nibbits']) ? unserialize($array['nibbits']) : array();
         $this->enableDeer = isset($array['enableDeer']) ? $array['enableDeer'] : Config::$defaultEnableDeer;
         $this->maxDeer = isset($array['maxDeer']) ? $array['maxDeer'] : Config::$defaultMaxDeer;
         $this->deerDamage = isset($array['deerDamage']) ? $array['deerDamage'] : Config::$defaultDeerDamage;

@@ -58,6 +58,8 @@ class Map {
 
 	public $deer;
 
+	public $nibbits;
+
 	public function __construct($filename = null) {
 		if (!is_null($filename)) {
 			$this->level = new Level($filename);
@@ -69,6 +71,8 @@ class Map {
 		$this->mailbox->addInstructions();
 		
 		$this->wormholes = $this->level->wormHoles;
+		
+		$this->nibbits = $this->level->nibbits;
 
 		$this->player = new Player($this->level->playerStartX, $this->level->playerStartY);
 
@@ -1434,6 +1438,20 @@ class Map {
 	public function playerMove($newX, $newY, $setX = false, $grow = false) {
 		// character cannot pass onto itself
 		if (!$this->player->onCoords($newX, $newY)) {
+			// nibbits!
+			if ($this->level->enableNibbits) {
+				for ($x = 0; $x < count($this->nibbits); $x++) {
+					if ($this->nibbits[$x]->getXY() == [$newX, $newY]) {
+						$this->nibbits[$x]->turn();
+
+						// stop the player from moving if the nibbit isn't movable
+						if (!$this->nibbits[$x]->isTreadable()) {
+							return false;
+						}
+					}
+				}
+			}
+
 			// character cannot go onto non treadable terrain
 			if (!$this->map[$newX][$newY]->isTreadable()) {
 				return false;
@@ -1629,6 +1647,16 @@ class Map {
 		}
 	}
 
+	private function getNibbitCoords() {
+		$ret = array();
+
+		for ($x = 0; $x < count($this->nibbits); $x++) {
+			$ret[] = $this->nibbits[$x]->getXY();
+		}
+
+		return $ret;
+	}
+
 	private function tick() {
 		// check for points of interest
         $this->checkPointsOfInterest();
@@ -1698,6 +1726,12 @@ class Map {
 		if ($this->level->enableDeer) {
 			if (count($this->deer) < $this->level->maxDeer) {
 				$this->addDeer();
+			}
+		}
+
+		if ($this->level->enableNibbits) {
+			for ($x = 0; $x < count($this->nibbits); $x++) {
+				$this->nibbits[$x]->tick();
 			}
 		}
 
@@ -2521,6 +2555,18 @@ class Map {
 		return false;
 	}
 
+	public function getNibbit($x, $y) {
+		for ($i = 0; $i < count($this->nibbits); $i++) {
+			$nXY = $this->nibbits[$i]->getXY();
+
+			if ($nXY == [$x, $y]) {
+				return $this->nibbits[$i];
+			}
+		}
+
+		return false;
+	}
+
 	public function __toString() {
 		// main display subroutine
 		$ret = "Mapwidth: {$this->level->mapWidth} Viewport Width: " . $this->level->vpWidth . " Viewport Y: {$this->vpY} ViewType: {$this->viewType}\n";
@@ -2551,6 +2597,7 @@ class Map {
 		$ret .= "\n";
 
 		$wCoords = $this->getWormHoleCoords();
+		$nCoords = $this->getNibbitCoords();
 
 		if ($this->threeScreen) {
 			// top border for three screens)
@@ -2624,6 +2671,17 @@ class Map {
 						} else {
 							$ret .= Colors::fg_color(Config::$playerTailColor, $this->player->getDefaultChar());
 						}
+					} else if (in_array([$x, $ypos], $nCoords)) {
+						// get the nibbit
+						$n = $this->getNibbit($x, $ypos);
+
+						if ($n) {
+							if ($n->isTurned()) {
+								$ret .= Colors::fg_color(Config::$nibbitColor, Nibbit::$defaultChar);
+							} else {
+								$ret .= Colors::fg_color(Config::$turnedNibbitColor, Nibbit::$defaultChar);
+							}
+						}
 					} else if ($this->onWorm($x, $ypos)) {
 						$ret .= Colors::fg_color(Config::$wormColor, "w");
 					} else if ($this->map[$x][$ypos] instanceof Dirt) {
@@ -2681,6 +2739,17 @@ class Map {
 						} else {
 							$ret .= Colors::fg_color(Config::$playerTailColor, $this->player->getDefaultChar());
 						}
+					} else if (in_array([$x, $ypos], $nCoords)) {
+						// get the nibbit
+						$n = $this->getNibbit($x, $ypos);
+
+						if ($n) {
+							if ($n->isTurned()) {
+								$ret .= Colors::fg_color(Config::$nibbitColor, Nibbit::$defaultChar);
+							} else {
+								$ret .= Colors::fg_color(Config::$turnedNibbitColor, Nibbit::$defaultChar);
+							}
+						}
 					} else if ($this->map[$x][$ypos] instanceof Dirt) {
 						if (in_array([$x, $ypos], $wCoords)) {
 							// wormhole
@@ -2735,6 +2804,17 @@ class Map {
 							$ret .= Colors::fg_color(Config::$playerHeadColor, $this->player->getHeadChar());
 						} else {
 							$ret .= Colors::fg_color(Config::$playerTailColor, $this->player->getDefaultChar());
+						}
+					} else if (in_array([$x, $ypos], $nCoords)) {
+						// get the nibbit
+						$n = $this->getNibbit($x, $ypos);
+
+						if ($n) {
+							if ($n->isTurned()) {
+								$ret .= Colors::fg_color(Config::$nibbitColor, Nibbit::$defaultChar);
+							} else {
+								$ret .= Colors::fg_color(Config::$turnedNibbitColor, Nibbit::$defaultChar);
+							}
 						}
 					} else if ($this->map[$x][$ypos] instanceof Dirt) {
 						if (in_array([$x, $ypos], $wCoords)) {
@@ -2860,6 +2940,17 @@ class Map {
 						}
 					} else if ($this->onWorm($x, $ypos) && $this->viewType == 1) {
 						$ret .= Colors::fg_color(Config::$wormColor, "w");
+					} else if (in_array([$x, $ypos], $nCoords)) {
+						// get the nibbit
+						$n = $this->getNibbit($x, $ypos);
+
+						if ($n) {
+							if ($n->isTurned()) {
+								$ret .= Colors::fg_color(Config::$nibbitColor, Nibbit::$defaultChar);
+							} else {
+								$ret .= Colors::fg_color(Config::$turnedNibbitColor, Nibbit::$defaultChar);
+							}
+						}
 					} else if ($this->level->enableDeer && in_array([$x, $ypos], $this->getDeerXYs())) {
 						// show a deer
 						$ret .= $this->deer[$this->getDeerWithY($ypos)];

@@ -63,6 +63,8 @@ class Config {
     
     public static $defaultEnableWormHoles = false;
     
+    public static $defaultEnableNibbits = false;
+
     public static $defaultEnableDeer = false;
     public static $defaultDeerHeight = 2;
     public static $defaultMaxDeer = 1;
@@ -102,6 +104,9 @@ class Config {
     public static $plantColor = 'green';
     public static $enlightenedPlantColor = 'green';
 
+    public static $nibbitColor = 'dark_gray';
+    public static $turnedNibbitColor = 'yellow';
+    
     // bg color
     public static $powerSelectSelected = 'blue';
     public static $deerColor = 'green';
