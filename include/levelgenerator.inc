@@ -158,8 +158,9 @@ class LevelGenerator {
         );
 
         $l->nibbits = array(
-            new Nibbit(9, 30),
-            new Nibbit(15, 29)
+            new Nibbit(9, 30, 3),
+            new Nibbit(15, 29, 2),
+            new Nibbit(12, 0, 3)
         );
 
         $l->saveToJSON("level1.dat");

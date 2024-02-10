@@ -1441,13 +1441,13 @@ class Map {
 			// nibbits!
 			if ($this->level->enableNibbits) {
 				for ($x = 0; $x < count($this->nibbits); $x++) {
-					if ($this->nibbits[$x]->getXY() == [$newX, $newY]) {
+					if (in_array([$newX, $newY], $this->nibbits[$x]->getField($this->level->mapWidth))) {
 						$this->nibbits[$x]->turn();
+					}
 
-						// stop the player from moving if the nibbit isn't movable
-						if (!$this->nibbits[$x]->isTreadable()) {
-							return false;
-						}
+					// stop the player from moving if the nibbit isn't movable
+					if ($this->nibbits[$x]->getXY() == [$newX, $newY] && !$this->nibbits[$x]->isTreadable()) {
+						return false;
 					}
 				}
 			}
