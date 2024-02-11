@@ -309,7 +309,7 @@ class Map {
 		$ret = array();
 
 		for ($y = 0; $y < $this->level->mapWidth; $y++) {
-			if ($this->map[$this->level->skyHeight][$y]->hasPlant()) {
+			if ($this->map[$this->level->skyHeight][$y] instanceof Dirt && $this->map[$this->level->skyHeight][$y]->hasPlant()) {
 				$ret[] = $y;
 			}
 		}
