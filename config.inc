@@ -105,7 +105,7 @@ class Config {
     public static $enlightenedPlantColor = 'green';
 
     public static $nibbitColor = 'dark_gray';
-    public static $turnedNibbitColor = 'yellow';
+    public static $turnedNibbitColor = 'bold_red';
     
     // bg color
     public static $powerSelectSelected = 'blue';

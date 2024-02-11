@@ -646,12 +646,10 @@ class Map {
 		} while (in_array([$newX, $newY], $taken));
 
 		// transfer the player there
-		//$this->player->addFrontCoord($newX, $newY);
 		$this->player->setX($newX);
 		$this->player->setY($newY);
 		$this->player->coordPop();
 		$this->player->coordPop();
-
 
 		$newViewPortY = $newY - floor($this->level->vpWidth / 2);
 
@@ -2677,9 +2675,9 @@ class Map {
 
 						if ($n) {
 							if ($n->isTurned()) {
-								$ret .= Colors::fg_color(Config::$nibbitColor, Nibbit::$defaultChar);
-							} else {
 								$ret .= Colors::fg_color(Config::$turnedNibbitColor, Nibbit::$defaultChar);
+							} else {
+								$ret .= Colors::fg_color(Config::$nibbitColor, Nibbit::$defaultChar);
 							}
 						}
 					} else if ($this->onWorm($x, $ypos)) {
@@ -2745,9 +2743,9 @@ class Map {
 
 						if ($n) {
 							if ($n->isTurned()) {
-								$ret .= Colors::fg_color(Config::$nibbitColor, Nibbit::$defaultChar);
-							} else {
 								$ret .= Colors::fg_color(Config::$turnedNibbitColor, Nibbit::$defaultChar);
+							} else {
+								$ret .= Colors::fg_color(Config::$nibbitColor, Nibbit::$defaultChar);
 							}
 						}
 					} else if ($this->map[$x][$ypos] instanceof Dirt) {
@@ -2811,9 +2809,9 @@ class Map {
 
 						if ($n) {
 							if ($n->isTurned()) {
-								$ret .= Colors::fg_color(Config::$nibbitColor, Nibbit::$defaultChar);
-							} else {
 								$ret .= Colors::fg_color(Config::$turnedNibbitColor, Nibbit::$defaultChar);
+							} else {
+								$ret .= Colors::fg_color(Config::$nibbitColor, Nibbit::$defaultChar);
 							}
 						}
 					} else if ($this->map[$x][$ypos] instanceof Dirt) {
@@ -2946,9 +2944,9 @@ class Map {
 
 						if ($n) {
 							if ($n->isTurned()) {
-								$ret .= Colors::fg_color(Config::$nibbitColor, Nibbit::$defaultChar);
-							} else {
 								$ret .= Colors::fg_color(Config::$turnedNibbitColor, Nibbit::$defaultChar);
+							} else {
+								$ret .= Colors::fg_color(Config::$nibbitColor, Nibbit::$defaultChar);
 							}
 						}
 					} else if ($this->level->enableDeer && in_array([$x, $ypos], $this->getDeerXYs())) {
