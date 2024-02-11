@@ -1283,7 +1283,7 @@ class Map {
 					$ps = $this->player->getPowersScreen();
 					$cm = $this->mailbox->readCurrentMessage();
 
-					if ($cm[1] == $ps[1]) {
+					if ($cm && $cm[1] == $ps[1]) {
 						$this->mailbox->deleteCurrentMessage();
 						$this->powerMenuOpen = false;
 					} else {
@@ -1814,6 +1814,24 @@ class Map {
 							}
 
 							break;
+						case 'NibbitObjective':
+							$states = array();
+
+							foreach ($this->nibbits as $n) {
+								if ($n->isTurned()) {
+									$states[] = true;
+								} else {
+									$states[] = false;
+								}
+							}
+
+							if ($this->allEqualInArray($states, $objective->allInState)) {
+								$this->level->objectives[$x]->setCompleted();
+								$this->mailbox->addMessage("Object complete! (" . $objective->getShortName() . ")");
+								$this->player->addXP($objective->getRewardXP());
+							}
+
+							break;
 					}        
 				}
 			}
@@ -1825,6 +1843,16 @@ class Map {
 			$this->mailbox->addMessage("Portal has been revealed!");
 			$this->portal->setVisible();
 		}
+	}
+
+	public function allEqualInArray($array, $value) {
+		foreach ($array as $a) {
+			if ($a != $value) {
+				return false;
+			}
+		}
+
+		return true;
 	}
 
 	/**
