@@ -130,12 +130,12 @@ class Level {
     public $playerStartY;
 
     public function __construct($filename = null) {
-        if (is_null($filename) || !file_exists($filename)) {   
-            $filename = Config::$fallbackLevelFilename;
+        if ($filename) {
+            // load the json encoded level data array
+            $array = json_decode(file_get_contents($filename), true);
+        } else {
+            $array = LevelGenerator::random();
         }
-        
-        // load the json encoded level data array
-        $array = json_decode(file_get_contents($filename), true);
 
         // now break out all the variables
         $this->takeArray($array); 

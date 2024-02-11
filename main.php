@@ -21,7 +21,8 @@ if (file_exists("rainsave")) {
         // load the game
         $map = new Map(Config::$defaultLevelFile);
     } else if ($choice == 2) {
-        $map = new Map(Config::$defaultLevelFile);
+        // load an endless random level
+        $map = new Map();
     }
 }
 

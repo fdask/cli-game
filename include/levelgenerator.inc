@@ -1,6 +1,6 @@
 <?php
 class LevelGenerator {
-    public static function generate() {
+    public static function random() {
         $ret = array(
             'mapWidth' => rand(40, 200),
             'mapHeight' => rand(20, 30),
