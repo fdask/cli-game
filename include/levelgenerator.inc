@@ -129,6 +129,7 @@ class LevelGenerator {
             'enableDeer' => true,
             'maxDeer' => 1,
             'deerDamage' => 50,
+            'betweenDeerTicks' => 10,
             'map' => array(
                 "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD",
                 "DDDDDDDDDRRRRRDDDDDDDDDDDRRRRRRDDDDDDDDDDDDD",

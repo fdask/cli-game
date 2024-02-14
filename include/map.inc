@@ -57,6 +57,7 @@ class Map {
 	public $betweenWormCount;
 
 	public $deer;
+	public $betweenDeerTicker;
 
 	public $nibbits;
 
@@ -117,6 +118,7 @@ class Map {
 		$this->flood = null;
 		$this->worms = array();
 		$this->deer = array();
+		$this->betweenDeerTicker = 0;
 		$this->betweenWormCount = $this->level->betweenWormCounter;
 
 		$this->initialize();
@@ -297,24 +299,27 @@ class Map {
 	}
 
 	private function addDeer() {
-		if (count($this->deer) < $this->level->maxDeer) {
-			$floodYs = $this->getFloodYs();
+		$this->betweenDeerTicker = $this->betweenDeerTicker + 1;
 
-			echo "FloodYs are:\n";
-			print_r($floodYs);
-			// if we're completely flooded, don't add a deer
-			if (count($floodYs) >= $this->level->mapWidth) {
-				return false;
+		if ($this->betweenDeerTicker >= $this->level->betweenDeerTicks) {
+			if (count($this->deer) < $this->level->maxDeer) {
+				$floodYs = $this->getFloodYs();
+
+				// if we're completely flooded, don't add a deer
+				if (count($floodYs) >= $this->level->mapWidth) {
+					return false;
+				}
+
+				do {
+					$yPos = rand(0, $this->level->mapWidth - 1);
+				} while (in_array($yPos, $floodYs));
+
+				$this->deer[] = new Deer($yPos);
+
+				$this->betweenDeerTicker = 0;
+		
+				return true;
 			}
-
-			do {
-				$yPos = rand(0, $this->level->mapWidth - 1);
-			} while (in_array($yPos, $floodYs));
-
-			echo "Adding a deer at ypos $yPos\n";
-			$this->deer[] = new Deer($yPos);
-
-			return true;
 		}
 
 		return false;
@@ -338,7 +343,7 @@ class Map {
 	private function getLeftAndRight($array, $x) {
 		// remove all x's from the array
 		for ($i = 0; $i < count($array); $i++) {
-	   		if ($array[$i] != $x) {
+	   		if (isset($array[$i]) && $array[$i] != $x) {
 		  		$new[] = $array[$i];
 	   		}
 		}
@@ -472,7 +477,6 @@ class Map {
 
 			if (in_array($y, $floodYs)) {			
 				// destroy the deer
-				echo "Destroying a deer at $y\n";
 				$this->removeDeer($y);
 			} else if (in_array($y, $plantYs)) {
 				// eat the plant
@@ -500,24 +504,34 @@ class Map {
 			} else {
 				if (count($plantYs)) {
 					// move closer to a plant.
-					$lAndR = $this->getLeftAndRightDistances($this->level->mapWidth, $plantYs, $y);
+					// remove flood places with plants
+					$floodYs = $this->getFloodYs();
+					$floodPlantYs = array_diff($plantYs, $floodYs);
+					
+					if (count($floodPlantYs)) {
+						$lAndR = $this->getLeftAndRightDistances($this->level->mapWidth, $floodPlantYs, $y);
 
-					if ($lAndR[0] > $lAndR[1]) {
-						// we go right
-						$this->deer[$x]->setY($y + 1);
+						if ($lAndR[0] > $lAndR[1]) {
+							// we go right
+							if (!in_array($y + 1, $floodYs)) {
+								$this->deer[$x]->setY($y + 1);
 
-						if ($this->deer[$x]->getY() > $this->level->mapWidth) {
-							$this->deer[$x]->setY(0);
-						}
-					} else {
-						// we go left
-						$this->deer[$x]->setY($y - 1);
+								if ($this->deer[$x]->getY() > $this->level->mapWidth) {
+									$this->deer[$x]->setY(0);
+								}
+							} 
+						} else if ($lAndR[0] <= $lAndR[1]) {
+							// we go left
+							if (!in_array($y - 1, $floodYs)) {
+								$this->deer[$x]->setY($y - 1);
 
-						if ($this->deer[$x]->getY() < 0) {
-							$this->deer[$x]->setY($this->level->mapWidth);
-						}
-					}
-				} 
+								if ($this->deer[$x]->getY() < 0) {
+									$this->deer[$x]->setY($this->level->mapWidth);
+								}
+							}
+						} 
+					} 
+				}
 			}
 		}
 	}
@@ -526,11 +540,9 @@ class Map {
 	* removes the deer with the given ypos
 	*/
 	private function removeDeer($ypos) {
-		echo "Removing deer at $ypos\n";
 		$i = $this->getDeerWithY($ypos);
 
 		if ($i !== false) {
-			echo "Got a deer array pos of $i\n";
 			$newDeer = array();
 
 			for ($x = 0; $x < count($this->deer); $x++) {
@@ -540,8 +552,6 @@ class Map {
 			}
 
 			$this->deer = $newDeer;
-			echo "Deer array:\n";
-			print_r($this->deer);
 		}
 	}
 
@@ -2468,7 +2478,7 @@ class Map {
 						}
 
 						for ($x = $this->level->skyHeight; $x < $target; $x++) {
-							if ($this->map[$x][$newMy] instanceof Dirt) {
+							if (isset($this->map[$x][$newMy]) && $this->map[$x][$newMy] instanceof Dirt) {
 								$this->map[$x][$newMy]->setToxicity(rand($this->level->toxicityMin, $this->level->toxicityMax));
 							} else if ($this->map[$x][$newMy] instanceof Rock) {
 								// replace the rock with minerals

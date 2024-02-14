@@ -78,6 +78,7 @@ class Config {
     public static $defaultMaxDeer = 1;
     public static $defaultDeerToxicAt = 20;
     public static $defaultDeerDamage = 25;
+    public static $defaultBetweenDeerTicks = 20;
 
     public static $defaultEnableSeep = false;
     public static $defaultSeepTickMin = 2;
