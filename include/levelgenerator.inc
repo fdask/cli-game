@@ -124,6 +124,8 @@ class LevelGenerator {
             'wormTicks' => 2,
             'enableWormHoles' => true,
             'enableNibbits' => true,
+            'enableFloods' => true,
+            'floodChance' => 2,
             'enableDeer' => true,
             'maxDeer' => 1,
             'deerDamage' => 50,
