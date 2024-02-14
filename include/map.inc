@@ -298,8 +298,20 @@ class Map {
 
 	private function addDeer() {
 		if (count($this->deer) < $this->level->maxDeer) {
-			$yPos = rand(0, $this->level->mapWidth - 1);
+			$floodYs = $this->getFloodYs();
 
+			echo "FloodYs are:\n";
+			print_r($floodYs);
+			// if we're completely flooded, don't add a deer
+			if (count($floodYs) >= $this->level->mapWidth) {
+				return false;
+			}
+
+			do {
+				$yPos = rand(0, $this->level->mapWidth - 1);
+			} while (in_array($yPos, $floodYs));
+
+			echo "Adding a deer at ypos $yPos\n";
 			$this->deer[] = new Deer($yPos);
 
 			return true;
@@ -458,8 +470,9 @@ class Map {
 		for ($x = 0; $x < count($this->deer); $x++) {
 			$y = $this->deer[$x]->getY();
 
-			if (in_array($y, $floodYs)) {
+			if (in_array($y, $floodYs)) {			
 				// destroy the deer
+				echo "Destroying a deer at $y\n";
 				$this->removeDeer($y);
 			} else if (in_array($y, $plantYs)) {
 				// eat the plant
@@ -513,9 +526,11 @@ class Map {
 	* removes the deer with the given ypos
 	*/
 	private function removeDeer($ypos) {
+		echo "Removing deer at $ypos\n";
 		$i = $this->getDeerWithY($ypos);
 
 		if ($i !== false) {
+			echo "Got a deer array pos of $i\n";
 			$newDeer = array();
 
 			for ($x = 0; $x < count($this->deer); $x++) {
@@ -525,6 +540,8 @@ class Map {
 			}
 
 			$this->deer = $newDeer;
+			echo "Deer array:\n";
+			print_r($this->deer);
 		}
 	}
 
@@ -2004,19 +2021,6 @@ class Map {
 		}
 	}
 
-	private function YInFlood($checkY) {
-		for ($y = $this->flood->startY; $y < $this->flood->startY + $this->flood->width; $y++) {
-			if ($y >= $this->level->mapWidth) {
-				$y = 0;
-			}
-
-			if ($checkY == $y) {
-				return true;
-			}
-		}
-
-		return false;
-	}
 	/**
 	 * add a raindrop to the sky
 	 */
@@ -2749,6 +2753,7 @@ class Map {
 
 		$wCoords = $this->getWormHoleCoords();
 		$nCoords = $this->getNibbitCoords();
+		$floodYs = $this->getFloodYs();
 
 		if ($this->threeScreen) {
 			// top border for three screens)
@@ -2815,7 +2820,7 @@ class Map {
 					} else if ($this->portal->getXY() == [$x, $ypos] && $this->portal->isVisible()) {
 						// player is on the portal
 						$ret .= $this->portal;
-					} else if ($this->flood instanceof Flood && !$this->flood->isOver() && $x == $this->level->skyHeight && $this->YInFlood($ypos)) {
+					} else if ($this->flood instanceof Flood && !$this->flood->isOver() && $x == $this->level->skyHeight && in_array($ypos, $floodYs)) {
 						$ret .= $this->flood;
                    	} else if ($this->player->onCoords($x, $ypos) && in_array(1, $this->charOnScreens)) {
 						// if this is the x/y, get the head char
@@ -2885,7 +2890,7 @@ class Map {
 					if ($this->portal->getXY() == [$x, $ypos] && $this->portal->isVisible()) {
 						// player is on the portal
 						$ret .= $this->portal;
-					} else if ($this->flood instanceof Flood && !$this->flood->isOver() && $x == $this->level->skyHeight && $this->YInFlood($ypos)) {
+					} else if ($this->flood instanceof Flood && !$this->flood->isOver() && $x == $this->level->skyHeight && in_array($ypos, $floodYs)) {
 						$ret .= $this->flood;
                    	} else if ($this->player->onCoords($x, $ypos) && in_array(2, $this->charOnScreens)) {
 						// if this is the x/y, get the head char
@@ -2953,7 +2958,7 @@ class Map {
 					if ($this->portal->getXY() == [$x, $ypos] && $this->portal->isVisible()) {
 						// player is on the portal
 						$ret .= $this->portal;
-					} else if ($this->flood instanceof Flood && !$this->flood->isOver() && $x == $this->level->skyHeight && $this->YInFlood($ypos)) {
+					} else if ($this->flood instanceof Flood && !$this->flood->isOver() && $x == $this->level->skyHeight && in_array($ypos, $floodYs)) {
 						$ret .= $this->flood;
 					} else if ($this->player->onCoords($x, $ypos) && in_array(3, $this->charOnScreens)) {
 						// if this is the x/y, get the head char
@@ -3088,7 +3093,7 @@ class Map {
 					} else if ($this->portal->getXY() == [$x, $ypos] && $this->portal->isVisible()) {
 						// player is on the portal
 						$ret .= $this->portal;
-					} else if ($this->flood instanceof Flood && !$this->flood->isOver() && $x == $this->level->skyHeight && $this->YInFlood($ypos)) {
+					} else if ($this->flood instanceof Flood && !$this->flood->isOver() && $x == $this->level->skyHeight && in_array($ypos, $floodYs)) {
 						$ret .= $this->flood;
 					} else if ($this->player->onCoords($x, $ypos) && in_array($this->viewType, $this->charOnScreens)) {
 						// if this is the x/y, get the head char
