@@ -111,9 +111,13 @@ class Level {
     public $enableNibbits;
     public $nibbits;
 
+    public $enableFloods;
+    public $floodChance;
+
     public $enableDeer;
     public $maxDeer;
     public $deerDamage;
+    public $betweenDeerTicks;
 
     // an array of points of interest
     public $pointsOfInterest;
@@ -297,9 +301,12 @@ class Level {
             'wormHoles' => serialize($this->wormHoles),
             'enableNibbits' => $this->enableNibbits,
             'nibbits' => serialize($this->nibbits),
+            'enableFloods' => $this->enableFloods,
+            'floodChance' => $this->floodChance,
             'enableDeer' => $this->enableDeer,
             'maxDeer' => $this->maxDeer,
             'deerDamage' => $this->deerDamage,
+            'betweenDeerTicks' => $this->betweenDeerTicks,
             'pointsOfInterest' => serialize($this->pointsOfInterest),
             'objectives' => serialize($this->objectives),
             'map' => $this->map
@@ -370,10 +377,13 @@ class Level {
         $this->wormHoles = isset($array['wormHoles']) ? unserialize($array['wormHoles']) : array();
         $this->enableNibbits = isset($array['enableNibbits']) ? $array['enableNibbits'] : Config::$defaultEnableNibbits;
         $this->nibbits = isset($array['nibbits']) ? unserialize($array['nibbits']) : array();
+        $this->enableFloods = isset($array['enableFloods']) ? $array['enableFloods'] : Config::$defaultEnableFloods;
+        $this->floodChance = isset($array['floodChance']) ? $array['floodChance'] : Config::$defaultFloodChance;
         $this->enableDeer = isset($array['enableDeer']) ? $array['enableDeer'] : Config::$defaultEnableDeer;
         $this->maxDeer = isset($array['maxDeer']) ? $array['maxDeer'] : Config::$defaultMaxDeer;
         $this->deerDamage = isset($array['deerDamage']) ? $array['deerDamage'] : Config::$defaultDeerDamage;
-        
+        $this->betweenDeerTicks = isset($array['betweenDeerTicks']) ? $array['betweenDeerTicks'] : Config::$defaultBetweenDeerTicks;
+
         $this->pointsOfInterest = isset($array['pointsOfInterest']) ? unserialize($array['pointsOfInterest']) : array();
         $this->objectives = isset($array['objectives']) ? unserialize($array['objectives']) : array();
 

@@ -65,11 +65,20 @@ class Config {
     
     public static $defaultEnableNibbits = false;
 
+    public static $defaultEnableFloods = false;
+    public static $defaultFloodDurationMin = 5;
+    public static $defaultFloodDurationMax = 80;
+    public static $defaultFloodWidthMin = 50;
+    public static $defaultFloodWidthMax = 100;
+    public static $defaultFloodStrength = 25;
+    public static $defaultFloodChance = 5;
+
     public static $defaultEnableDeer = false;
     public static $defaultDeerHeight = 2;
     public static $defaultMaxDeer = 1;
     public static $defaultDeerToxicAt = 20;
     public static $defaultDeerDamage = 25;
+    public static $defaultBetweenDeerTicks = 20;
 
     public static $defaultEnableSeep = false;
     public static $defaultSeepTickMin = 2;
@@ -110,6 +119,7 @@ class Config {
     // bg color
     public static $powerSelectSelected = 'blue';
     public static $deerColor = 'green';
+    public static $floodColor = 'blue';
 
     // fg
     public static $powerSelectUnselected = 'bold_blue';

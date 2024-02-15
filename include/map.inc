@@ -57,8 +57,11 @@ class Map {
 	public $betweenWormCount;
 
 	public $deer;
+	public $betweenDeerTicker;
 
 	public $nibbits;
+
+	public $flood;
 
 	public function __construct($filename = null) {
 		if (!is_null($filename)) {
@@ -73,9 +76,9 @@ class Map {
 		$this->wormholes = $this->level->wormHoles;
 		
 		$this->nibbits = $this->level->nibbits;
-
+		
 		$this->player = new Player($this->level->playerStartX, $this->level->playerStartY);
-
+		
 		// during TESTING, add powers to the player
 		$this->player->addPower(new Power("teleport", "Teleport"));
 		$this->player->addPower(new Power("expand", "Expand"));
@@ -86,10 +89,12 @@ class Map {
 
 		$this->reset();
 
-		// during testing, create a couple wormholes
-		//$this->wormholes[] = new WormHole(15, 15, 20, 40, true);
-		//$this->wormholes[] = new WormHole(25, 25, 30, 30);
+		$this->centerOnPlayer();
 
+		// testing floods
+		$this->addFlood();
+
+		// start the game!
 		$this->gameLoop();
 	}
 
@@ -112,8 +117,10 @@ class Map {
 		$this->threeScreen = false;
 		$this->charOnScreens = array(1, 2, 3);
 		$this->portal = null;
+		$this->flood = null;
 		$this->worms = array();
 		$this->deer = array();
+		$this->betweenDeerTicker = 0;
 		$this->betweenWormCount = $this->level->betweenWormCounter;
 
 		$this->initialize();
@@ -294,12 +301,27 @@ class Map {
 	}
 
 	private function addDeer() {
-		if (count($this->deer) < $this->level->maxDeer) {
-			$yPos = rand(0, $this->level->mapWidth - 1);
+		$this->betweenDeerTicker = $this->betweenDeerTicker + 1;
 
-			$this->deer[] = new Deer($yPos);
+		if ($this->betweenDeerTicker >= $this->level->betweenDeerTicks) {
+			if (count($this->deer) < $this->level->maxDeer) {
+				$floodYs = $this->getFloodYs();
 
-			return true;
+				// if we're completely flooded, don't add a deer
+				if (count($floodYs) >= $this->level->mapWidth) {
+					return false;
+				}
+
+				do {
+					$yPos = rand(0, $this->level->mapWidth - 1);
+				} while (in_array($yPos, $floodYs));
+
+				$this->deer[] = new Deer($yPos);
+
+				$this->betweenDeerTicker = 0;
+		
+				return true;
+			}
 		}
 
 		return false;
@@ -323,7 +345,7 @@ class Map {
 	private function getLeftAndRight($array, $x) {
 		// remove all x's from the array
 		for ($i = 0; $i < count($array); $i++) {
-	   		if ($array[$i] != $x) {
+	   		if (isset($array[$i]) && $array[$i] != $x) {
 		  		$new[] = $array[$i];
 	   		}
 		}
@@ -395,6 +417,28 @@ class Map {
 		return [0, 0];
  	}
 
+	 public function getDeerXYs() {
+		$ret = array();
+
+		for ($x = $this->level->skyHeight - Config::$defaultDeerHeight; $x < $this->level->skyHeight; $x++) {
+			foreach ($this->deer as $d) {
+				$ret[] = [$x, $d->getY()];
+			}	
+		}
+
+		return $ret;
+	}
+
+	public function getDeerWithY($y) {
+		for ($x = 0; $x < count($this->deer); $x++) {
+			if ($this->deer[$x]->getY() == $y) {
+				return $x;
+			}
+		}
+
+		return false;
+	}
+
 	private function getDeerYs() {
 		$ret = array();
 
@@ -405,14 +449,38 @@ class Map {
 		return $ret;
 	}
 
+	private function getFloodYs() {
+		$ret = array();
+
+		if (!is_null($this->flood)) {
+			for ($y = $this->flood->startY; $y < $this->flood->startY + $this->flood->width; $y++) {
+				$newY = $y;
+
+				if ($newY > $this->level->mapWidth - 1) {
+					$newY = $newY - $this->level->mapWidth;
+				}
+
+				$ret[] = $newY;
+			}
+		}
+
+		return $ret;
+	}
+
 	private function updateDeer() {
+		// get a potential flood position
+		$floodYs = $this->getFloodYs();
+
 		// get the plant y positions
 		$plantYs = $this->getPlantYs();
 
 		for ($x = 0; $x < count($this->deer); $x++) {
 			$y = $this->deer[$x]->getY();
 
-			if (in_array($y, $plantYs)) {
+			if (in_array($y, $floodYs)) {			
+				// destroy the deer
+				$this->removeDeer($y);
+			} else if (in_array($y, $plantYs)) {
 				// eat the plant
 				$this->map[$this->level->skyHeight][$y]->plant->decrLife(2);
 				$this->map[$this->level->skyHeight][$y]->sweepDeadPlant();
@@ -438,25 +506,54 @@ class Map {
 			} else {
 				if (count($plantYs)) {
 					// move closer to a plant.
-					$lAndR = $this->getLeftAndRightDistances($this->level->mapWidth, $plantYs, $y);
+					// remove flood places with plants
+					$floodYs = $this->getFloodYs();
+					$floodPlantYs = array_diff($plantYs, $floodYs);
+					
+					if (count($floodPlantYs)) {
+						$lAndR = $this->getLeftAndRightDistances($this->level->mapWidth, $floodPlantYs, $y);
 
-					if ($lAndR[0] > $lAndR[1]) {
-						// we go right
-						$this->deer[$x]->setY($y + 1);
+						if ($lAndR[0] > $lAndR[1]) {
+							// we go right
+							if (!in_array($y + 1, $floodYs)) {
+								$this->deer[$x]->setY($y + 1);
 
-						if ($this->deer[$x]->getY() > $this->level->mapWidth) {
-							$this->deer[$x]->setY(0);
-						}
-					} else {
-						// we go left
-						$this->deer[$x]->setY($y - 1);
+								if ($this->deer[$x]->getY() > $this->level->mapWidth) {
+									$this->deer[$x]->setY(0);
+								}
+							} 
+						} else if ($lAndR[0] <= $lAndR[1]) {
+							// we go left
+							if (!in_array($y - 1, $floodYs)) {
+								$this->deer[$x]->setY($y - 1);
 
-						if ($this->deer[$x]->getY() < 0) {
-							$this->deer[$x]->setY($this->level->mapWidth);
-						}
-					}
-				} 
+								if ($this->deer[$x]->getY() < 0) {
+									$this->deer[$x]->setY($this->level->mapWidth);
+								}
+							}
+						} 
+					} 
+				}
 			}
+		}
+	}
+
+	/*
+	* removes the deer with the given ypos
+	*/
+	private function removeDeer($ypos) {
+		$i = $this->getDeerWithY($ypos);
+
+		if ($i !== false) {
+			$newDeer = array();
+
+			for ($x = 0; $x < count($this->deer); $x++) {
+				if ($x != $i) {
+					$newDeer[] = $this->deer[$x];
+				}
+			}
+
+			$this->deer = $newDeer;
 		}
 	}
 
@@ -1436,6 +1533,16 @@ class Map {
 	public function playerMove($newX, $newY, $setX = false, $grow = false) {
 		// character cannot pass onto itself
 		if (!$this->player->onCoords($newX, $newY)) {
+			if ($this->level->enableFloods) {
+				if ($this->flood instanceof Flood && !$this->flood->isOver()) {
+					$floodYs = $this->getFloodYs();
+					
+					if ($newX == $this->level->skyHeight && in_array($newY, $floodYs)) {
+						return false;
+					}
+				}
+			}
+			
 			// nibbits!
 			if ($this->level->enableNibbits) {
 				for ($x = 0; $x < count($this->nibbits); $x++) {
@@ -1501,6 +1608,7 @@ class Map {
 				
 					$this->reset();
 					$this->player->reset($this->level->playerStartX, $this->level->playerStartY);
+					$this->centerOnPlayer();
 				} else {
 					// we are out of levels to play
 					$this->gameOver();
@@ -1663,6 +1771,10 @@ class Map {
 		$this->updatePlants();
 		$this->updateMeteor();
 		$this->updateDeer();
+		
+		if ($this->level->enableFloods) {
+			$this->updateFlood();
+		}
 		
 		if ($this->level->enableSeep) {
 			$this->updateSeep();
@@ -1870,6 +1982,68 @@ class Map {
 				}
 			}
 		}	
+	}
+
+	/**
+	 * initiate a flood!
+	 */
+	private function addFlood() {
+		// there can only be 1.
+		if (is_null($this->flood)) {
+			// calculate the width, as a percentage of total
+			$widthPercent = Flood::getRandomWidthPercentage();
+			$width = floor(($this->level->mapWidth - 1) * ($widthPercent * 0.01));
+			$startY = rand(0, $this->level->mapWidth - 1);
+			
+			$this->flood = new Flood($width, $startY);
+
+			// if a deer is caught in the flood, wash it away
+			if ($this->level->enableDeer) {
+				for ($y = $this->flood->startY; $y < $this->flood->startY + $this->flood->width; $y++) {
+					$newY = $y;
+
+					if ($newY >= $this->level->mapWidth) {
+						$newY = $newY - $this->level->mapWidth;
+					}
+					
+					$deerYs = $this->getDeerYs();
+
+					if (in_array($newY, $deerYs)) {
+						// destroy this deer!
+						$this->removeDeer($newY);
+					}
+				}
+			}
+		}
+	}
+
+	private function updateFlood() {
+		if (!is_null($this->flood)) {
+			$this->flood->tick();
+
+			// flood can now be converted to moisture
+			if ($this->flood->isOver()) {
+				for ($y = $this->flood->startY; $y < $this->flood->startY + $this->flood->width; $y++) {
+					$newY = $y;
+
+					if ($newY >= $this->level->mapWidth) {
+						$newY = $newY - $this->level->mapWidth;
+					}
+
+					$this->map[$this->level->skyHeight][$newY]->setWetness($this->flood->strength);
+					$this->map[$this->level->skyHeight][$newY]->setConcentration(0);
+					$this->map[$this->level->skyHeight][$newY]->removePlant();
+				}
+
+				$this->flood = null;
+			}
+		} else {
+			$r = rand(0, 100);
+
+			if ($r < $this->level->floodChance) {
+				$this->addFlood();
+			}
+		}
 	}
 
 	/**
@@ -2319,7 +2493,7 @@ class Map {
 						}
 
 						for ($x = $this->level->skyHeight; $x < $target; $x++) {
-							if ($this->map[$x][$newMy] instanceof Dirt) {
+							if (isset($this->map[$x][$newMy]) && $this->map[$x][$newMy] instanceof Dirt) {
 								$this->map[$x][$newMy]->setToxicity(rand($this->level->toxicityMin, $this->level->toxicityMax));
 							} else if ($this->map[$x][$newMy] instanceof Rock) {
 								// replace the rock with minerals
@@ -2405,7 +2579,7 @@ class Map {
 						
 						$this->checkPlayerMoisture();
 					}
-				} else if ($this->map[$newX][$newY] instanceof Dirt) {
+				} else if (isset($this->map[$newX][$newY]) && $this->map[$newX][$newY] instanceof Dirt) {
 				    $this->map[$newX][$newY]->setWetness($wetness - 1);
                 }
 
@@ -2427,7 +2601,7 @@ class Map {
 						// old rain style
 						$this->map[$x][$y]->decrConcentration();
 
-						if ($this->map[$newX][$newY] instanceof Dirt) {
+						if (isset($this->map[$newX][$newY]) && $this->map[$newX][$newY] instanceof Dirt) {
 							$this->map[$newX][$newY]->incrConcentration();
 						}
 					}
@@ -2452,26 +2626,6 @@ class Map {
 
 			$this->map[$x][$y]->sweepDeadPlant();
 		}
-	}
-
-	public function getDeerXYs() {
-		for ($x = $this->level->skyHeight - Config::$defaultDeerHeight; $x < $this->level->skyHeight; $x++) {
-			foreach ($this->deer as $d) {
-				$ret[] = [$x, $d->getY()];
-			}	
-		}
-
-		return $ret;
-	}
-
-	public function getDeerWithY($y) {
-		for ($x = 0; $x < count($this->deer); $x++) {
-			if ($this->deer[$x]->getY() == $y) {
-				return $x;
-			}
-		}
-
-		return false;
 	}
 
 	/**
@@ -2624,6 +2778,7 @@ class Map {
 
 		$wCoords = $this->getWormHoleCoords();
 		$nCoords = $this->getNibbitCoords();
+		$floodYs = $this->getFloodYs();
 
 		if ($this->threeScreen) {
 			// top border for three screens)
@@ -2690,6 +2845,8 @@ class Map {
 					} else if ($this->portal->getXY() == [$x, $ypos] && $this->portal->isVisible()) {
 						// player is on the portal
 						$ret .= $this->portal;
+					} else if ($this->flood instanceof Flood && !$this->flood->isOver() && $x == $this->level->skyHeight && in_array($ypos, $floodYs)) {
+						$ret .= $this->flood;
                    	} else if ($this->player->onCoords($x, $ypos) && in_array(1, $this->charOnScreens)) {
 						// if this is the x/y, get the head char
 						if ($this->player->getX() == $x && $this->player->getY() == $ypos) {
@@ -2758,6 +2915,8 @@ class Map {
 					if ($this->portal->getXY() == [$x, $ypos] && $this->portal->isVisible()) {
 						// player is on the portal
 						$ret .= $this->portal;
+					} else if ($this->flood instanceof Flood && !$this->flood->isOver() && $x == $this->level->skyHeight && in_array($ypos, $floodYs)) {
+						$ret .= $this->flood;
                    	} else if ($this->player->onCoords($x, $ypos) && in_array(2, $this->charOnScreens)) {
 						// if this is the x/y, get the head char
 						if ($this->player->getX() == $x && $this->player->getY() == $ypos) {
@@ -2824,7 +2983,9 @@ class Map {
 					if ($this->portal->getXY() == [$x, $ypos] && $this->portal->isVisible()) {
 						// player is on the portal
 						$ret .= $this->portal;
-                   	} else if ($this->player->onCoords($x, $ypos) && in_array(3, $this->charOnScreens)) {
+					} else if ($this->flood instanceof Flood && !$this->flood->isOver() && $x == $this->level->skyHeight && in_array($ypos, $floodYs)) {
+						$ret .= $this->flood;
+					} else if ($this->player->onCoords($x, $ypos) && in_array(3, $this->charOnScreens)) {
 						// if this is the x/y, get the head char
 						if ($this->player->getX() == $x && $this->player->getY() == $ypos) {
 							$ret .= Colors::fg_color(Config::$playerHeadColor, $this->player->getHeadChar());
@@ -2957,6 +3118,8 @@ class Map {
 					} else if ($this->portal->getXY() == [$x, $ypos] && $this->portal->isVisible()) {
 						// player is on the portal
 						$ret .= $this->portal;
+					} else if ($this->flood instanceof Flood && !$this->flood->isOver() && $x == $this->level->skyHeight && in_array($ypos, $floodYs)) {
+						$ret .= $this->flood;
 					} else if ($this->player->onCoords($x, $ypos) && in_array($this->viewType, $this->charOnScreens)) {
 						// if this is the x/y, get the head char
 						if ($this->player->getX() == $x && $this->player->getY() == $ypos) {
