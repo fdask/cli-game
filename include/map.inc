@@ -78,7 +78,7 @@ class Map {
 		$this->nibbits = $this->level->nibbits;
 		
 		$this->player = new Player($this->level->playerStartX, $this->level->playerStartY);
-
+		
 		// during TESTING, add powers to the player
 		$this->player->addPower(new Power("teleport", "Teleport"));
 		$this->player->addPower(new Power("expand", "Expand"));
@@ -88,6 +88,8 @@ class Map {
 		$this->powerMenuOpen = false;
 
 		$this->reset();
+
+		$this->centerOnPlayer();
 
 		// testing floods
 		$this->addFlood();
@@ -1531,6 +1533,16 @@ class Map {
 	public function playerMove($newX, $newY, $setX = false, $grow = false) {
 		// character cannot pass onto itself
 		if (!$this->player->onCoords($newX, $newY)) {
+			if ($this->level->enableFloods) {
+				if ($this->flood instanceof Flood && !$this->flood->isOver()) {
+					$floodYs = $this->getFloodYs();
+					
+					if ($newX == $this->level->skyHeight && in_array($newY, $floodYs)) {
+						return false;
+					}
+				}
+			}
+			
 			// nibbits!
 			if ($this->level->enableNibbits) {
 				for ($x = 0; $x < count($this->nibbits); $x++) {
@@ -1596,6 +1608,7 @@ class Map {
 				
 					$this->reset();
 					$this->player->reset($this->level->playerStartX, $this->level->playerStartY);
+					$this->centerOnPlayer();
 				} else {
 					// we are out of levels to play
 					$this->gameOver();
@@ -2025,7 +2038,9 @@ class Map {
 				$this->flood = null;
 			}
 		} else {
-			if (rand(0, 100) <= $this->level->floodChance) {
+			$r = rand(0, 100);
+
+			if ($r < $this->level->floodChance) {
 				$this->addFlood();
 			}
 		}
