@@ -97,10 +97,20 @@ They are shown on the map as a trail of 'w' characters.
 Worms will make a bee-line directly for the player and try
 to catch you.
 
+### Worm Holes
+
+A 'O' indicates an opening of a wormhole.  Where will it lead?
+Go in it and find out!
+
 ### Deer
 
 Deer wander around and eat plants.   They are shown on all
 views as 'D' characters.
+
+### Nibbits
+
+Shown in all views as 'N' characters, nibbits are stateful
+organisms, either on, or off.  Toggle them by getting close!
 
 ## Mechanics
 
@@ -114,6 +124,11 @@ Rain that encounters minerals, take one mineral and washes it down to the
 next square.
 
 Rain will trickle into the earth until it reaches 0.
+
+### Floods
+
+Watch out for the occassional flood!  Floods appear on the top row, killing plants,
+deer, and dumping a pile of moisture into the ground!
 
 ### Meteors
 
