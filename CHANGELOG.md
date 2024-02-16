@@ -4,6 +4,25 @@
 All notable changes to this project will be documented in this file.
 <!--- END HEADER -->
 
+## [0.5.0](https://github.com/fdask/cli-game/compare/v0.4.0...v0.5.0) (2024-02-16)
+
+### Features
+
+* Added new objective type for nibbits (#55) ([3fb418](https://github.com/fdask/cli-game/commit/3fb41838ec2044caa3cc7b35af2edb55190c48d4))
+* Game mode selection now works (#54) ([e7172a](https://github.com/fdask/cli-game/commit/e7172a5652feb2a26e0d3552613269af34dec16d))
+* Nibbits have toggle field (#53) ([56d7a4](https://github.com/fdask/cli-game/commit/56d7a415b22e13e6b7997b2487f9145fa36924d7))
+
+### Bug Fixes
+
+* Reversed nibbit colors fixed ([1675e8](https://github.com/fdask/cli-game/commit/1675e8e48ad62246f7bf4b4a521e630662d0fb4b))
+
+##### Docs
+
+* Added nibbits and floods to docs ([bee32e](https://github.com/fdask/cli-game/commit/bee32e78a4a96611d9533c166af683ccac0e789a))
+
+
+---
+
 ## [0.4.0](https://github.com/fdask/cli-game/compare/v0.3.0...v0.4.0) (2024-02-07)
 
 ### Features
