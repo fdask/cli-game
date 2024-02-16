@@ -52,9 +52,10 @@ class Storm {
                     }
                 }
 
-                $this->thunderCycle->reset($this->distance);
                 $this->sizeTicker = $this->size;
             }
+
+            $this->thunderCycle->reset($this->distance);
         }
     }
 
@@ -87,6 +88,6 @@ class Storm {
     }
 
     public function __toString() {
-        return "| Direction: " . ((!$this->direction) ? "towards" : "away") . " Distance: " . $this->distance . " Thunder Cycles: " . $this->sizeTicker . "/" . $this->size . " " . $this->thunderCycle;
+        return "| D: " . ((!$this->direction) ? "towards" : "away") . " Distance: " . $this->distance . " Thunder Cycles: " . $this->sizeTicker . "/" . $this->size . " " . $this->thunderCycle;
     }
 }

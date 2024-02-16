@@ -50,6 +50,11 @@ class ThunderCycle {
                 $this->cycle = "FINISH";
                 
                 break;
+            case "FINISH":
+                $this->lightning = null;
+                $this->thunder = null;
+
+                break;
         }
     }
 
