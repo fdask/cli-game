@@ -114,6 +114,8 @@ class Level {
     public $enableFloods;
     public $floodChance;
 
+    public $enableLightning;
+
     public $enableDeer;
     public $maxDeer;
     public $deerDamage;
@@ -307,6 +309,7 @@ class Level {
             'maxDeer' => $this->maxDeer,
             'deerDamage' => $this->deerDamage,
             'betweenDeerTicks' => $this->betweenDeerTicks,
+            'enableLightning' => $this->enableLightning,
             'pointsOfInterest' => serialize($this->pointsOfInterest),
             'objectives' => serialize($this->objectives),
             'map' => $this->map
@@ -383,7 +386,7 @@ class Level {
         $this->maxDeer = isset($array['maxDeer']) ? $array['maxDeer'] : Config::$defaultMaxDeer;
         $this->deerDamage = isset($array['deerDamage']) ? $array['deerDamage'] : Config::$defaultDeerDamage;
         $this->betweenDeerTicks = isset($array['betweenDeerTicks']) ? $array['betweenDeerTicks'] : Config::$defaultBetweenDeerTicks;
-
+        $this->enableLightning = isset($array['enableLightning']) ? $array['enableLightning'] : Config::$defaultEnableLightning;
         $this->pointsOfInterest = isset($array['pointsOfInterest']) ? unserialize($array['pointsOfInterest']) : array();
         $this->objectives = isset($array['objectives']) ? unserialize($array['objectives']) : array();
 

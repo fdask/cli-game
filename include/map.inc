@@ -63,6 +63,8 @@ class Map {
 
 	public $flood;
 
+	public $lightning;
+
 	public function __construct($filename = null) {
 		if (!is_null($filename)) {
 			$this->level = new Level($filename);
@@ -92,10 +94,27 @@ class Map {
 		$this->centerOnPlayer();
 
 		// testing floods
-		$this->addFlood();
+		//$this->addFlood();
+
+		// testing lightning
+		$this->addLightning();
 
 		// start the game!
 		$this->gameLoop();
+	}
+
+	function addLightning() {
+		if (is_null($this->lightning)) {
+			$this->lightning = new Lightning(rand(0, $this->level->mapWidth), $this->level->skyHeight, $this->level->mapWidth);
+		}
+	}
+
+	function updateLightning() {
+		if (!is_null($this->lightning)) {
+			$this->lightning = null;
+		} else {
+			$this->addLightning();
+		}
 	}
 
 	public function centerOnPlayer() {
@@ -120,6 +139,7 @@ class Map {
 		$this->flood = null;
 		$this->worms = array();
 		$this->deer = array();
+		$this->lightning = null;
 		$this->betweenDeerTicker = 0;
 		$this->betweenWormCount = $this->level->betweenWormCounter;
 
@@ -1772,6 +1792,10 @@ class Map {
 		$this->updateMeteor();
 		$this->updateDeer();
 		
+		if ($this->level->enableLightning) {
+			$this->updateLightning();
+		}
+
 		if ($this->level->enableFloods) {
 			$this->updateFlood();
 		}
@@ -2779,6 +2803,7 @@ class Map {
 		$wCoords = $this->getWormHoleCoords();
 		$nCoords = $this->getNibbitCoords();
 		$floodYs = $this->getFloodYs();
+		$lCoords = !is_null($this->lightning) ? $this->lightning->getCoords() : array();
 
 		if ($this->threeScreen) {
 			// top border for three screens)
@@ -2845,6 +2870,8 @@ class Map {
 					} else if ($this->portal->getXY() == [$x, $ypos] && $this->portal->isVisible()) {
 						// player is on the portal
 						$ret .= $this->portal;
+					} else if (!is_null($this->lightning) && in_array([$x, $ypos], $lCoords)) {
+						$ret .= Colors::bg_color(Config::$lightningColor, $this->lightning->getChar($x, $ypos));
 					} else if ($this->flood instanceof Flood && !$this->flood->isOver() && $x == $this->level->skyHeight && in_array($ypos, $floodYs)) {
 						$ret .= $this->flood;
                    	} else if ($this->player->onCoords($x, $ypos) && in_array(1, $this->charOnScreens)) {
@@ -2915,6 +2942,8 @@ class Map {
 					if ($this->portal->getXY() == [$x, $ypos] && $this->portal->isVisible()) {
 						// player is on the portal
 						$ret .= $this->portal;
+					} else if (!is_null($this->lightning) && in_array([$x, $ypos], $lCoords)) {
+						$ret .= Colors::bg_color(Config::$lightningColor, $this->lightning->getChar($x, $ypos));
 					} else if ($this->flood instanceof Flood && !$this->flood->isOver() && $x == $this->level->skyHeight && in_array($ypos, $floodYs)) {
 						$ret .= $this->flood;
                    	} else if ($this->player->onCoords($x, $ypos) && in_array(2, $this->charOnScreens)) {
@@ -2983,6 +3012,8 @@ class Map {
 					if ($this->portal->getXY() == [$x, $ypos] && $this->portal->isVisible()) {
 						// player is on the portal
 						$ret .= $this->portal;
+					} else if (!is_null($this->lightning) && in_array([$x, $ypos], $lCoords)) {
+						$ret .= Colors::bg_color(Config::$lightningColor, $this->lightning->getChar($x, $ypos));
 					} else if ($this->flood instanceof Flood && !$this->flood->isOver() && $x == $this->level->skyHeight && in_array($ypos, $floodYs)) {
 						$ret .= $this->flood;
 					} else if ($this->player->onCoords($x, $ypos) && in_array(3, $this->charOnScreens)) {
@@ -3118,6 +3149,8 @@ class Map {
 					} else if ($this->portal->getXY() == [$x, $ypos] && $this->portal->isVisible()) {
 						// player is on the portal
 						$ret .= $this->portal;
+					} else if (!is_null($this->lightning) && in_array([$x, $ypos], $lCoords)) {
+						$ret .= Colors::bg_color(Config::$lightningColor, $this->lightning->getChar($x, $ypos));
 					} else if ($this->flood instanceof Flood && !$this->flood->isOver() && $x == $this->level->skyHeight && in_array($ypos, $floodYs)) {
 						$ret .= $this->flood;
 					} else if ($this->player->onCoords($x, $ypos) && in_array($this->viewType, $this->charOnScreens)) {
