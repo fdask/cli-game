@@ -2921,10 +2921,18 @@ class Map {
 								// part of the tail
 								$ret .= Colors::fg_color(Config::$meteorTailColor, $this->meteor->getTailChar());
 							} else {
-								$ret .= $this->map[$x][$ypos];
+								if ($this->map[$x][$ypos] instanceof Sky && !is_null($this->storm) && $this->storm->isThunder()) {
+									$ret .= Colors::bg_color(Config::$thunderColor, $this->map[$x][$ypos]);
+								} else {
+									$ret .= $this->map[$x][$ypos];
+								}
 							}
 						} else {
-							$ret .= $this->map[$x][$ypos];
+							if ($this->map[$x][$ypos] instanceof Sky && !is_null($this->storm) && $this->storm->isThunder()) {
+								$ret .= Colors::bg_color(Config::$thunderColor, $this->map[$x][$ypos]);
+							} else {
+								$ret .= $this->map[$x][$ypos];
+							}
 						}
 					} 
 				}
@@ -2991,10 +2999,18 @@ class Map {
 								// part of the tail
 								$ret .= Colors::fg_color(Config::$meteorTailColor, $this->meteor->getTailChar());
 							} else {
-								$ret .= $this->map[$x][$ypos];
+								if ($this->map[$x][$ypos] instanceof Sky && !is_null($this->storm) && $this->storm->isThunder()) {
+									$ret .= Colors::bg_color(Config::$thunderColor, $this->map[$x][$ypos]);
+								} else {
+									$ret .= $this->map[$x][$ypos];
+								}
 							}
 						} else {
-							$ret .= $this->map[$x][$ypos];
+							if ($this->map[$x][$ypos] instanceof Sky && !is_null($this->storm) && $this->storm->isThunder()) {
+								$ret .= Colors::bg_color(Config::$thunderColor, $this->map[$x][$ypos]);
+							} else {
+								$ret .= $this->map[$x][$ypos];
+							}
 						}
 					} 
 				}
@@ -3061,10 +3077,18 @@ class Map {
 								// part of the tail
 								$ret .= Colors::fg_color(Config::$meteorTailColor, $this->meteor->getTailChar());
 							} else {
-								$ret .= $this->map[$x][$ypos];
+								if ($this->map[$x][$ypos] instanceof Sky && !is_null($this->storm) && $this->storm->isThunder()) {
+									$ret .= Colors::bg_color(Config::$thunderColor, $this->map[$x][$ypos]);
+								} else {
+									$ret .= $this->map[$x][$ypos];
+								}
 							}
 						} else {
-							$ret .= $this->map[$x][$ypos];
+							if ($this->map[$x][$ypos] instanceof Sky && !is_null($this->storm) && $this->storm->isThunder()) {
+								$ret .= Colors::bg_color(Config::$thunderColor, $this->map[$x][$ypos]);
+							} else {
+								$ret .= $this->map[$x][$ypos];
+							}
 						}
 					} 
 				}
@@ -3239,13 +3263,14 @@ class Map {
 				}
             } 
 
-			// storm status bar
+			/* storm status bar
 			$ret .= "\n";
 			$ret .= "Next Storm In: " . $this->betweenStormTicker . " Storm: " . (is_null($this->storm) ? "Off" : "On");
 			
 			if (!is_null($this->storm)) {
 				$ret .= " " . $this->storm;
 			}
+			*/
 		}
 
 		$ret .= "\n";
