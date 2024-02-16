@@ -63,6 +63,9 @@ class Map {
 
 	public $flood;
 
+	public $storm;
+	public $betweenStormTicker;
+
 	public function __construct($filename = null) {
 		if (!is_null($filename)) {
 			$this->level = new Level($filename);
@@ -91,8 +94,10 @@ class Map {
 
 		$this->centerOnPlayer();
 
-		// testing floods
-		$this->addFlood();
+		// set the storm ticker
+		if ($this->level->enableStorms) {
+			$this->betweenStormTicker = rand($this->level->betweenStormsMin, $this->level->betweenStormsMax);
+		}
 
 		// start the game!
 		$this->gameLoop();
@@ -1763,6 +1768,28 @@ class Map {
 		return $ret;
 	}
 
+	private function updateStorm() {
+		// if the storm is finished, remove it
+		if ($this->level->enableStorms) {
+			if (!is_null($this->storm)) {
+				if ($this->storm->isFinished()) {
+					$this->storm = null;
+				} else {
+					$this->storm->tick();
+				}
+			} else {
+				// decrement the counter
+				$this->betweenStormTicker--;
+
+				if ($this->betweenStormTicker <= 0) {
+					$this->betweenStormTicker = rand($this->level->betweenStormsMin, $this->level->betweenStormsMax);
+
+					$this->storm = new Storm($this->level->skyHeight, $this->level->mapWidth);
+				}
+			}
+		}
+	}
+
 	private function tick() {
 		// check for points of interest
         $this->checkPointsOfInterest();
@@ -1771,7 +1798,8 @@ class Map {
 		$this->updatePlants();
 		$this->updateMeteor();
 		$this->updateDeer();
-		
+		$this->updateStorm();
+
 		if ($this->level->enableFloods) {
 			$this->updateFlood();
 		}
@@ -2779,6 +2807,11 @@ class Map {
 		$wCoords = $this->getWormHoleCoords();
 		$nCoords = $this->getNibbitCoords();
 		$floodYs = $this->getFloodYs();
+		$lCoords = array();
+
+		if (!is_null($this->storm)) {
+			$lCoords = $this->storm->isLightning() ? $this->storm->getLightningCoords() : array();
+		}
 
 		if ($this->threeScreen) {
 			// top border for three screens)
@@ -2845,6 +2878,8 @@ class Map {
 					} else if ($this->portal->getXY() == [$x, $ypos] && $this->portal->isVisible()) {
 						// player is on the portal
 						$ret .= $this->portal;
+					} else if ($this->level->enableStorms && !is_null($this->storm) && $this->storm->isLightning() && in_array([$x, $ypos], $lCoords)) {
+						$ret .= Colors::bg_color(Config::$lightningColor, $this->storm->getLightningChar($x, $ypos));
 					} else if ($this->flood instanceof Flood && !$this->flood->isOver() && $x == $this->level->skyHeight && in_array($ypos, $floodYs)) {
 						$ret .= $this->flood;
                    	} else if ($this->player->onCoords($x, $ypos) && in_array(1, $this->charOnScreens)) {
@@ -2886,10 +2921,18 @@ class Map {
 								// part of the tail
 								$ret .= Colors::fg_color(Config::$meteorTailColor, $this->meteor->getTailChar());
 							} else {
-								$ret .= $this->map[$x][$ypos];
+								if ($this->map[$x][$ypos] instanceof Sky && !is_null($this->storm) && $this->storm->isThunder()) {
+									$ret .= Colors::bg_color(Config::$thunderColor, $this->map[$x][$ypos]);
+								} else {
+									$ret .= $this->map[$x][$ypos];
+								}
 							}
 						} else {
-							$ret .= $this->map[$x][$ypos];
+							if ($this->map[$x][$ypos] instanceof Sky && !is_null($this->storm) && $this->storm->isThunder()) {
+								$ret .= Colors::bg_color(Config::$thunderColor, $this->map[$x][$ypos]);
+							} else {
+								$ret .= $this->map[$x][$ypos];
+							}
 						}
 					} 
 				}
@@ -2915,6 +2958,8 @@ class Map {
 					if ($this->portal->getXY() == [$x, $ypos] && $this->portal->isVisible()) {
 						// player is on the portal
 						$ret .= $this->portal;
+					} else if ($this->level->enableStorms && !is_null($this->storm) && $this->storm->isLightning() && in_array([$x, $ypos], $lCoords)) {
+						$ret .= Colors::bg_color(Config::$lightningColor, $this->storm->getLightningChar($x, $ypos));
 					} else if ($this->flood instanceof Flood && !$this->flood->isOver() && $x == $this->level->skyHeight && in_array($ypos, $floodYs)) {
 						$ret .= $this->flood;
                    	} else if ($this->player->onCoords($x, $ypos) && in_array(2, $this->charOnScreens)) {
@@ -2954,10 +2999,18 @@ class Map {
 								// part of the tail
 								$ret .= Colors::fg_color(Config::$meteorTailColor, $this->meteor->getTailChar());
 							} else {
-								$ret .= $this->map[$x][$ypos];
+								if ($this->map[$x][$ypos] instanceof Sky && !is_null($this->storm) && $this->storm->isThunder()) {
+									$ret .= Colors::bg_color(Config::$thunderColor, $this->map[$x][$ypos]);
+								} else {
+									$ret .= $this->map[$x][$ypos];
+								}
 							}
 						} else {
-							$ret .= $this->map[$x][$ypos];
+							if ($this->map[$x][$ypos] instanceof Sky && !is_null($this->storm) && $this->storm->isThunder()) {
+								$ret .= Colors::bg_color(Config::$thunderColor, $this->map[$x][$ypos]);
+							} else {
+								$ret .= $this->map[$x][$ypos];
+							}
 						}
 					} 
 				}
@@ -2983,6 +3036,8 @@ class Map {
 					if ($this->portal->getXY() == [$x, $ypos] && $this->portal->isVisible()) {
 						// player is on the portal
 						$ret .= $this->portal;
+					} else if ($this->level->enableStorms && !is_null($this->storm) && $this->storm->isLightning() && in_array([$x, $ypos], $lCoords)) {
+						$ret .= Colors::bg_color(Config::$lightningColor, $this->storm->getLightningChar($x, $ypos));
 					} else if ($this->flood instanceof Flood && !$this->flood->isOver() && $x == $this->level->skyHeight && in_array($ypos, $floodYs)) {
 						$ret .= $this->flood;
 					} else if ($this->player->onCoords($x, $ypos) && in_array(3, $this->charOnScreens)) {
@@ -3022,10 +3077,18 @@ class Map {
 								// part of the tail
 								$ret .= Colors::fg_color(Config::$meteorTailColor, $this->meteor->getTailChar());
 							} else {
-								$ret .= $this->map[$x][$ypos];
+								if ($this->map[$x][$ypos] instanceof Sky && !is_null($this->storm) && $this->storm->isThunder()) {
+									$ret .= Colors::bg_color(Config::$thunderColor, $this->map[$x][$ypos]);
+								} else {
+									$ret .= $this->map[$x][$ypos];
+								}
 							}
 						} else {
-							$ret .= $this->map[$x][$ypos];
+							if ($this->map[$x][$ypos] instanceof Sky && !is_null($this->storm) && $this->storm->isThunder()) {
+								$ret .= Colors::bg_color(Config::$thunderColor, $this->map[$x][$ypos]);
+							} else {
+								$ret .= $this->map[$x][$ypos];
+							}
 						}
 					} 
 				}
@@ -3106,8 +3169,7 @@ class Map {
 						$ypos = $ypos - $this->level->mapWidth;
 					}
 
-                     // if the player has a position here, draw that
-                     if (!empty($curChars) && $y <= 3) {
+                    if (!empty($curChars) && $y <= 3) {
                         $ret .= " ";
                     } else if (!empty($curChars) && $y > 3) {
                         if (isset($curChars[$y - 4])) {
@@ -3118,6 +3180,8 @@ class Map {
 					} else if ($this->portal->getXY() == [$x, $ypos] && $this->portal->isVisible()) {
 						// player is on the portal
 						$ret .= $this->portal;
+					} else if ($this->level->enableStorms && !is_null($this->storm) && $this->storm->isLightning() && in_array([$x, $ypos], $lCoords)) {
+						$ret .= Colors::bg_color(Config::$lightningColor, $this->storm->getLightningChar($x, $ypos));
 					} else if ($this->flood instanceof Flood && !$this->flood->isOver() && $x == $this->level->skyHeight && in_array($ypos, $floodYs)) {
 						$ret .= $this->flood;
 					} else if ($this->player->onCoords($x, $ypos) && in_array($this->viewType, $this->charOnScreens)) {
@@ -3159,10 +3223,18 @@ class Map {
 								// part of the tail
 								$ret .= Colors::fg_color(Config::$meteorTailColor, $this->meteor->getTailChar());
 							} else {
-								$ret .= $this->map[$x][$ypos];
+								if ($this->map[$x][$ypos] instanceof Sky && !is_null($this->storm) && $this->storm->isThunder()) {
+									$ret .= Colors::bg_color(Config::$thunderColor, $this->map[$x][$ypos]);
+								} else {
+									$ret .= $this->map[$x][$ypos];
+								}
 							}
 						} else {
-							$ret .= $this->map[$x][$ypos];
+							if ($this->map[$x][$ypos] instanceof Sky && !is_null($this->storm) && $this->storm->isThunder()) {
+								$ret .= Colors::bg_color(Config::$thunderColor, $this->map[$x][$ypos]);
+							} else {
+								$ret .= $this->map[$x][$ypos];
+							}
 						}
 					} 
 				}
@@ -3175,8 +3247,8 @@ class Map {
 
 			// bottom of the viewport
 			$ret .= $this->bottomBorder();
-
-            // little hangdown thing for messages
+            
+			// little hangdown thing for messages
 			$ret .= "\n";         
             $ret .= " " . json_decode('"\u2517"');
 
@@ -3190,6 +3262,15 @@ class Map {
 					$ret .= " EOF";
 				}
             } 
+
+			/* storm status bar
+			$ret .= "\n";
+			$ret .= "Next Storm In: " . $this->betweenStormTicker . " Storm: " . (is_null($this->storm) ? "Off" : "On");
+			
+			if (!is_null($this->storm)) {
+				$ret .= " " . $this->storm;
+			}
+			*/
 		}
 
 		$ret .= "\n";

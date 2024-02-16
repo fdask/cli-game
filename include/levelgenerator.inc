@@ -132,6 +132,7 @@ class LevelGenerator {
             'betweenDeerTicks' => 10,
             'playerStartX' => 10,
             'playerStartY' => 0,
+            'enableStorms' => true,
             'map' => array(
                 "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD",
                 "DDDDDDDDDRRRRRDDDDDDDDDDDRRRRRRDDDDDDDDDDDDD",

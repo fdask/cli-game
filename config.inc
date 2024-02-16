@@ -73,6 +73,10 @@ class Config {
     public static $defaultFloodStrength = 25;
     public static $defaultFloodChance = 5;
 
+    public static $defaultEnableStorms = false;
+    public static $defaultBetweenStormsMin = 0;
+    public static $defaultBetweenStormsMax = 100;
+
     public static $defaultEnableDeer = false;
     public static $defaultDeerHeight = 2;
     public static $defaultMaxDeer = 1;
@@ -120,6 +124,8 @@ class Config {
     public static $powerSelectSelected = 'blue';
     public static $deerColor = 'green';
     public static $floodColor = 'blue';
+    public static $lightningColor = 'yellow';
+    public static $thunderColor = 'light_gray';
 
     // fg
     public static $powerSelectUnselected = 'bold_blue';
