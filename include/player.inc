@@ -49,6 +49,8 @@ class Player {
 	public $scoreCrystals;
 	public $scoreFossils;
 
+	public $loopCount;
+
 	public function __construct($x, $y) {
 		$this->coords[] = array($x, $y);
 
@@ -93,6 +95,7 @@ class Player {
 		$this->scoreShrink = 0;
 		$this->scoreCrystals = 0;		
 		$this->scoreFossils = 0;
+		$this->loopCount = 0;
 		$this->xp = 0;
 	}
 
