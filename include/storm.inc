@@ -18,6 +18,8 @@ class Storm {
     // boolean.  is the storm over?
     private $finished;
 
+    public static $borderColor = 'black';
+
     public function __construct($height, $width) {
         // magic number
         $this->size = rand(1, 10);
