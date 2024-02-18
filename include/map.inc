@@ -1202,6 +1202,7 @@ class Map {
 
 						if ($newY < 0) {
 							$newY = $this->level->mapWidth - 1;
+							$this->player->loopCount--;
 						} 
 						
 						$tick = $this->playerMove($newX, $newY, false, $c == 'A' || $c == Config::shiftLeftArrow());
@@ -1262,6 +1263,7 @@ class Map {
 
 						if ($newY > $this->level->mapWidth - 1) {
 							$newY = 0;
+							$this->player->loopCount++;
 						} 
 						
 						$tick = $this->playerMove($newX, $newY, false, $c == 'D' || $c == Config::shiftRightArrow());
