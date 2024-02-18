@@ -119,6 +119,8 @@ class Config {
 
     public static $nibbitColor = 'dark_gray';
     public static $turnedNibbitColor = 'bold_red';
+
+    public static $defaultBorderColor = 'black';
     
     // bg color
     public static $powerSelectSelected = 'blue';

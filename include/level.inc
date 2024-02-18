@@ -137,6 +137,8 @@ class Level {
     public $playerStartX;
     public $playerStartY;
 
+    public $borderColor;
+
     public function __construct($filename = null) {
         if ($filename) {
             // load the json encoded level data array
@@ -314,6 +316,7 @@ class Level {
             'enableStorms' => $this->enableStorms,
             'betweenStormsMin' => $this->betweenStormsMin,
             'betweenStormsMax' => $this->betweenStormsMax,
+            'borderColor' => $this->borderColor,
             'pointsOfInterest' => serialize($this->pointsOfInterest),
             'objectives' => serialize($this->objectives),
             'map' => $this->map
@@ -393,6 +396,7 @@ class Level {
         $this->enableStorms = isset($array['enableStorms']) ? $array['enableStorms'] : Config::$defaultEnableStorms;
         $this->betweenStormsMin = isset($array['betweenStormsMin']) ? $array['betweenStormsMin'] : Config::$defaultBetweenStormsMin;
         $this->betweenStormsMax = isset($array['betweenStormsMax']) ? $array['betweenStormsMax'] : Config::$defaultBetweenStormsMax;
+        $this->borderColor = isset($array['borderColor']) ? $array['borderColor'] : Config::$defaultBorderColor;
         $this->pointsOfInterest = isset($array['pointsOfInterest']) ? unserialize($array['pointsOfInterest']) : array();
         $this->objectives = isset($array['objectives']) ? unserialize($array['objectives']) : array();
 
