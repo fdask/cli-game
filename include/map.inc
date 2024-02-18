@@ -1790,7 +1790,7 @@ class Map {
 					$this->betweenStormTicker = rand($this->level->betweenStormsMin, $this->level->betweenStormsMax);
 
 					$this->storm = new Storm($this->level->skyHeight, $this->level->mapWidth);
-					$this->borderColor = Storm::$borderColor;
+					$this->borderColor = $this->level->stormBorderColor;
 				}
 			}
 		}
