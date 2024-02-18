@@ -6,6 +6,10 @@ docker build . -t rain
 docker run -it rain
 ```
 ---
+
+See HOW_TO_PLAY.md for how to play.
+
+---
 ## N.A.Q. (never asked questions)
 VSCode terminal users:
 If rendering is slow try the following settings in your settings.json.
