@@ -1778,6 +1778,7 @@ class Map {
 			if (!is_null($this->storm)) {
 				if ($this->storm->isFinished()) {
 					$this->storm = null;
+					$this->resetBorderColor();
 				} else {
 					$this->storm->tick();
 				}
@@ -1789,6 +1790,7 @@ class Map {
 					$this->betweenStormTicker = rand($this->level->betweenStormsMin, $this->level->betweenStormsMax);
 
 					$this->storm = new Storm($this->level->skyHeight, $this->level->mapWidth);
+					$this->borderColor = Storm::$borderColor;
 				}
 			}
 		}
@@ -1989,6 +1991,10 @@ class Map {
 		}
 	}
 
+	public function resetBorderColor() {
+		$this->borderColor = $this->level->borderColor;
+	}
+
 	public function allEqualInArray($array, $value) {
 		foreach ($array as $a) {
 			if ($a != $value) {
@@ -2070,7 +2076,7 @@ class Map {
 				$this->flood = null;
 			}
 		} else {
-			$r = rand(0, 100);
+			$r = rand(0, 1000);
 
 			if ($r < $this->level->floodChance) {
 				$this->addFlood();
