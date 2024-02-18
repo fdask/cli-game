@@ -128,6 +128,7 @@ class Config {
     public static $floodColor = 'blue';
     public static $lightningColor = 'yellow';
     public static $thunderColor = 'light_gray';
+    public static $defaultStormBorderColor = 'black';
 
     // fg
     public static $powerSelectUnselected = 'bold_blue';
