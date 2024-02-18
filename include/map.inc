@@ -66,6 +66,8 @@ class Map {
 	public $storm;
 	public $betweenStormTicker;
 
+	public $borderColor;
+
 	public function __construct($filename = null) {
 		if (!is_null($filename)) {
 			$this->level = new Level($filename);
@@ -76,6 +78,7 @@ class Map {
 		$this->mailbox = new Mailbox();
 		$this->mailbox->addInstructions();
 		
+		$this->borderColor = $this->level->borderColor;
 		$this->wormholes = $this->level->wormHoles;
 		
 		$this->nibbits = $this->level->nibbits;
@@ -127,6 +130,7 @@ class Map {
 		$this->deer = array();
 		$this->betweenDeerTicker = 0;
 		$this->betweenWormCount = $this->level->betweenWormCounter;
+		$this->borderColor = $this->level->borderColor;
 
 		$this->initialize();
 	}
@@ -2523,7 +2527,7 @@ class Map {
 						for ($x = $this->level->skyHeight; $x < $target; $x++) {
 							if (isset($this->map[$x][$newMy]) && $this->map[$x][$newMy] instanceof Dirt) {
 								$this->map[$x][$newMy]->setToxicity(rand($this->level->toxicityMin, $this->level->toxicityMax));
-							} else if ($this->map[$x][$newMy] instanceof Rock) {
+							} else if (isset($this->map[$x][$newMy]) && $this->map[$x][$newMy] instanceof Rock) {
 								// replace the rock with minerals
 								$this->map[$x][$newMy] = new Dirt(rand($this->level->seepTickMin, $this->level->seepTickMax));
 								$this->map[$x][$newMy]->setConcentration(9);
@@ -2693,7 +2697,7 @@ class Map {
 			$ret .= json_decode('"\u2510"');
 		}
 
-		return $ret;
+		return Colors::bg_color($this->borderColor, $ret);
 	}
 
     public function bottomBorder() {
@@ -2709,7 +2713,7 @@ class Map {
     	$ret .= json_decode('"\u2518"');
 		$ret .= " ";
 
-        return $ret;
+        return Colors::bg_color($this->borderColor, $ret);
     }
 
 	public function moistureDisplay() {
@@ -2838,7 +2842,7 @@ class Map {
             // iterate the height of the map
 			for ($x = 0; $x < $this->level->mapHeight; $x++) {
 				// vertical left line
-				$ret .= json_decode('"\u2502"');
+				$ret .= Colors::bg_color($this->borderColor, json_decode('"\u2502"'));
 
                 /** MULTILINE MESSAGING **/
                 $curMsg = $this->mailbox->readCurrentMessage();
@@ -2938,12 +2942,12 @@ class Map {
 				}
 
 				// vertical right line
-				$ret .= json_decode('"\u2502"');
+				$ret .= Colors::bg_color($this->borderColor, json_decode('"\u2502"'));
 
 				$ret .= " ";
 
 				// second display start
-				$ret .= json_decode('"\u2502"');
+				$ret .= Colors::bg_color($this->borderColor, json_decode('"\u2502"'));
 
 				// iterate the width of the viewport
 				// starting at vpX and going $vpWidth characters
@@ -3016,12 +3020,12 @@ class Map {
 				}
 
 				// vertical right line
-				$ret .= json_decode('"\u2502"');
+				$ret .= Colors::bg_color($this->borderColor, json_decode('"\u2502"')); 
 
 				$ret .= " ";
 				
 				// third display start
-				$ret .= json_decode('"\u2502"');
+				$ret .= Colors::bg_color($this->borderColor, json_decode('"\u2502"'));
 
 				// iterate the width of the viewport
 				// starting at vpX and going $vpWidth characters
@@ -3094,7 +3098,7 @@ class Map {
 				}
 
 				// vertical right line
-				$ret .= json_decode('"\u2502"');
+				$ret .= Colors::bg_color($this->borderColor, json_decode('"\u2502"'));
 
 				$ret .= "\n";
 			}
@@ -3141,7 +3145,7 @@ class Map {
 			// all the map lines
 			for ($x = 0; $x < $this->level->mapHeight; $x++) {
 				// vertical left line
-				$ret .= json_decode('"\u2502"');
+				$ret .= Colors::bg_color($this->borderColor, json_decode('"\u2502"'));
 
                 /** MULTILINE MESSAGING **/
                 $curMsg = $this->mailbox->readCurrentMessage();
@@ -3240,7 +3244,7 @@ class Map {
 				}
 
 				// vertical right line
-				$ret .= json_decode('"\u2502"');
+				$ret .= Colors::bg_color($this->borderColor, json_decode('"\u2502"'));
 
 				$ret .= "\n";
 			}
