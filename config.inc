@@ -97,6 +97,12 @@ class Config {
 	public static $defaultScoreCrystals = 100;
     public static $defaultScoreFossils = 500;
   
+    public static $termReset = false;
+    public static $resetMovesCount = 100;
+
+    public static $defaultEnableCompass = true;
+    public static $compassRow = 0;
+
     // color data
     public static $rainColor = 'blue';
     public static $wormColor = 'white';
@@ -119,7 +125,7 @@ class Config {
 
     public static $nibbitColor = 'dark_gray';
     public static $turnedNibbitColor = 'bold_red';
-
+    public static $compassColor = 'black';
     public static $defaultBorderColor = 'black';
     
     // bg color

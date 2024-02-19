@@ -159,6 +159,7 @@ class LevelGenerator {
         $l->addObjective(new CollectObjective("crystals", 10));
         $l->addObjective(new ConnectObjective(18, 20, 20, 22));
         $l->addObjective(new NibbitObjective(true));
+        $l->addObjective(new CollectObjective("moves", 10));
         
         $l->wormHoles = array(
             new WormHole(15, 15, 20, 20, true)

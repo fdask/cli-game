@@ -26,6 +26,9 @@ class Map {
 	// whether we have enabled three screen view, or not.   toggles
 	private $threeScreen;
 
+	// whether the player is viewing score or not
+	private $scoreScreen;
+
     // an instance of the mailbox object
 	public $mailbox;
 
@@ -68,6 +71,8 @@ class Map {
 
 	public $borderColor;
 
+	public $compass;
+
 	public function __construct($filename = null) {
 		if (!is_null($filename)) {
 			$this->level = new Level($filename);
@@ -75,6 +80,7 @@ class Map {
 			$this->level = new Level();
 		}
 
+		$this->scoreScreen = false;
 		$this->mailbox = new Mailbox();
 		$this->mailbox->addInstructions();
 		
@@ -83,6 +89,7 @@ class Map {
 		
 		$this->nibbits = $this->level->nibbits;
 		
+		$this->compass = new Compass($this->level->vpWidth, $this->level->mapWidth);
 		$this->player = new Player($this->level->playerStartX, $this->level->playerStartY);
 		
 		// during TESTING, add powers to the player
@@ -1171,6 +1178,17 @@ class Map {
 					$tick = false;
 
 					break;
+				case '4':
+					// enable/disable compass
+					if ($this->level->enableCompass) {
+						$this->level->enableCompass = false;
+					} else {
+						$this->level->enableCompass = true;
+					}
+
+					$tick = false;
+
+					break;
 				case '5':
 					// save the game
 					$this->save();
@@ -1178,13 +1196,13 @@ class Map {
 
 					break;
 				case '9':
-					$ss = $this->player->getScoreScreen();
-					$cm = $this->mailbox->readCurrentMessage();
-
-					if ($cm[0] == $ss[0]) {
+					if ($this->scoreScreen) {
+						$this->scoreScreen = false;
 						$this->mailbox->deleteCurrentMessage();
 					} else {
+						$ss = $this->player->getScoreScreen();
 						$this->mailbox->addMessageToStart($ss);
+						$this->scoreScreen = true;
 					}
 
 					$tick = false;
@@ -1279,6 +1297,14 @@ class Map {
 					} else {
 						$tick = false;
 					}
+
+					break;
+				case 'e':
+					if ($this->level->enableCompass) {
+						$this->compass->turnClockwise();
+					}
+
+					$tick = false;
 
 					break;
 				case 'g':
@@ -1403,6 +1429,14 @@ class Map {
 					
 					break;
 				case 'q':
+					if ($this->level->enableCompass) {
+						$this->compass->turnCounterClockwise();
+					}
+
+					$tick = false;
+
+					break;
+				case 'Q':
 					// quit the game
 					system("stty $this->term");
 
@@ -1626,7 +1660,6 @@ class Map {
 				}
 			}
 
-
 			// set the X or the Y
 			// (records a move in the player class)
 			$px = $this->player->getX();
@@ -1706,6 +1739,10 @@ class Map {
 				if ($this->player->decrLife() < 0) {
 					$this->gameOver();
 				}
+			}
+
+			if (!($this->player->scoreMoves % Config::$resetMovesCount) && Config::$termReset) {
+				system("clear");
 			}
 		} else {
 			return false;
@@ -2924,6 +2961,8 @@ class Map {
 					} else if ($this->level->enableDeer && in_array([$x, $ypos], $this->getDeerXYs())) {
 						// show a deer
 						$ret .= $this->deer[$this->getDeerWithY($ypos)];
+					} else if ($this->level->enableCompass && $x == Config::$compassRow) {
+						$ret .= Colors::fg_color(Config::$compassColor, $this->compass->getChar($ypos));
 					} else {					
 						if ($this->meteor && $this->meteor instanceof Meteor) {
 							if (array($x, $ypos) == $this->meteor->getXY()) {
@@ -3226,6 +3265,8 @@ class Map {
 						} else {
 							$ret .= $this->map[$x][$ypos]->getView($this->viewType);
 						}
+					} else if ($this->level->enableCompass && $x == Config::$compassRow) {
+						$ret .= Colors::fg_color(Config::$compassColor, $this->compass->getChar($ypos));
 					} else {
 						if ($this->meteor && $this->meteor instanceof Meteor) {
 							if (array($x, $ypos) == $this->meteor->getXY()) {
@@ -3274,6 +3315,13 @@ class Map {
 					$ret .= " EOF";
 				}
             } 
+
+			/* compass status bar */
+			if ($this->level->enableCompass) {
+				$ret .= "\n";
+				$ret .= "Current direction: " . $this->compass->getDirection($this->player->getY());
+			}
+
 
 			/* storm status bar
 			$ret .= "\n";

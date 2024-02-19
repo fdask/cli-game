@@ -140,6 +140,8 @@ class Level {
     public $borderColor;
     public $stormBorderColor;
 
+    public $enableCompass;
+
     public function __construct($filename = null) {
         if ($filename) {
             // load the json encoded level data array
@@ -310,7 +312,6 @@ class Level {
             'nibbits' => serialize($this->nibbits),
             'enableFloods' => $this->enableFloods,
             'floodChance' => $this->floodChance,
-            'defaultStormBorder' => $this->defaultStormBorder,
             'enableDeer' => $this->enableDeer,
             'maxDeer' => $this->maxDeer,
             'deerDamage' => $this->deerDamage,
@@ -320,6 +321,7 @@ class Level {
             'betweenStormsMax' => $this->betweenStormsMax,
             'borderColor' => $this->borderColor,
             'stormBorderColor' => $this->stormBorderColor,
+            'enableCompass' => $this->enableCompass,
             'pointsOfInterest' => serialize($this->pointsOfInterest),
             'objectives' => serialize($this->objectives),
             'map' => $this->map
@@ -400,7 +402,8 @@ class Level {
         $this->betweenStormsMin = isset($array['betweenStormsMin']) ? $array['betweenStormsMin'] : Config::$defaultBetweenStormsMin;
         $this->betweenStormsMax = isset($array['betweenStormsMax']) ? $array['betweenStormsMax'] : Config::$defaultBetweenStormsMax;
         $this->borderColor = isset($array['borderColor']) ? $array['borderColor'] : Config::$defaultBorderColor;
-        $this->stormBorderColor = isset($arra['stormBorderColor']) ? $array['stormBorderColor'] : Config::$defaultStormBorderColor;
+        $this->stormBorderColor = isset($array['stormBorderColor']) ? $array['stormBorderColor'] : Config::$defaultStormBorderColor;
+        $this->enableCompass = isset($array['enableCompass']) ? $array['enableCompass'] : Config::$defaultEnableCompass;
         $this->pointsOfInterest = isset($array['pointsOfInterest']) ? unserialize($array['pointsOfInterest']) : array();
         $this->objectives = isset($array['objectives']) ? unserialize($array['objectives']) : array();
 
