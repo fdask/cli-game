@@ -1232,6 +1232,10 @@ class Map {
 							} else {
 								$this->vpY--;
 							}
+
+							if ($this->level->enableCompass) {
+								$this->compass->turnClockwise();
+							}
 						}
 					} else {
 						$tick = false;
@@ -1287,11 +1291,16 @@ class Map {
 						$tick = $this->playerMove($newX, $newY, false, $c == 'D' || $c == Config::shiftRightArrow());
 
 						if ($tick) {
-							// scroll viewprot to the right
+							// scroll viewport to the right
 							if ($this->vpY + 1 >= $this->level->mapWidth) {
 								$this->vpY = 0;
 							} else {
 								$this->vpY++;
+							}
+
+							// if compass, counteract movement
+							if ($this->level->enableCompass) {
+								$this->compass->turnCounterClockwise();
 							}
 						}
 					} else {
