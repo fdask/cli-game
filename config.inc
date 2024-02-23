@@ -103,6 +103,9 @@ class Config {
     public static $defaultEnableCompass = true;
     public static $compassRow = 0;
 
+    public static $defaultEnableMushrooms = false;
+    public static $defaultMushroomHealthCost = 500;
+
     // color data
     public static $rainColor = 'blue';
     public static $wormColor = 'white';
@@ -122,7 +125,7 @@ class Config {
 
     public static $plantColor = 'green';
     public static $enlightenedPlantColor = 'green';
-
+    public static $mushroomColor = 'white';
     public static $nibbitColor = 'dark_gray';
     public static $turnedNibbitColor = 'bold_red';
     public static $compassColor = 'black';

@@ -1,5 +1,5 @@
 <?php
-class Plant {
+class Plant implements PlantInterface {
 	/**
 	 * 	the lifecycle of a plant goes from
 	 *  2 - plant
@@ -9,8 +9,8 @@ class Plant {
 	public $stage;
 
 	// turns without water we can live
-	public $life;
-	public $maxLife;
+	private $life;
+	private $maxLife;
 
 	public $wisdom;
 
@@ -64,6 +64,10 @@ class Plant {
 
 	public function getLife() {
 		return $this->life;
+	}
+
+	public function getMaxLife() {
+		return $this->maxLife;
 	}
 
 	public function water() {
