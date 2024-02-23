@@ -1,5 +1,7 @@
 <?php
-class ConnectObjective extends Objective {
+namespace Objectives;
+
+class Connect extends \Objective {
     public $x1;
     public $x2;
     public $y1;

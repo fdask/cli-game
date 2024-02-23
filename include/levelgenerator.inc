@@ -68,7 +68,7 @@ class LevelGenerator {
             case 2:
             case 3:
             default:
-                $ret['objectives'] = serialize(array(new CollectObjective("health", "1200")));
+                $ret['objectives'] = serialize(array(new Objectives\Collect("health", "1200")));
         }
         
         return $ret;
@@ -158,13 +158,13 @@ class LevelGenerator {
         $l->takeArray($ret);
     
         /*
-        $l->addObjective(new CollectObjective("health", "1200"));
-        $l->addObjective(new CollectObjective("crystals", 10));
-        $l->addObjective(new ConnectObjective(18, 20, 20, 22));
-        $l->addObjective(new NibbitObjective(true));
-        $l->addObjective(new CollectObjective("moves", 10));
+        $l->addObjective(new Objectives\Collect("health", "1200"));
+        $l->addObjective(new Objectives\Collect("crystals", 10));
+        $l->addObjective(new Objectives\Connect(18, 20, 20, 22));
+        $l->addObjective(new Objectives\Nibbit(true));
+        $l->addObjective(new Objectives\Collect("moves", 10));
         */
-        $l->addObjective(new DirectionObjective("S"));
+        $l->addObjective(new Objectives\Direction("S"));
 
         $l->wormHoles = array(
             new WormHole(15, 15, 20, 20, true)
