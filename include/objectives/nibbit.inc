@@ -1,5 +1,7 @@
 <?php
-class NibbitObjective extends Objective {
+namespace Objectives;
+
+class Nibbit extends \Objective {
     public $allInState;
     
     public function __construct($allInState) {

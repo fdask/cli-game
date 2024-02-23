@@ -1,5 +1,7 @@
 <?php
-class DirectionObjective extends Objective {
+namespace Objectives;
+
+class Direction extends \Objective {
     private $direction;
 
     public function __construct($direction) {

@@ -1,5 +1,8 @@
 <?php
 class Config {
+    // turn on debugging
+    public static $debug = true;
+
     // initial map
     public static $defaultLevelFile = "level1.dat";
     public static $fallbackLevelFilename = 'random.dat';
@@ -175,10 +178,16 @@ class Config {
     }
 
     public static function autoload($class) {
-        $file = __DIR__ . "/include/" . strtolower($class) . ".inc";
+        $file = __DIR__ . "/include/" . str_replace('\\', '/', strtolower($class)) . ".inc";
         
         if (file_exists($file)) {
             require $file;
+        } else {
+            if (Config::$debug) {
+                debug_print_backtrace();
+            }
+            
+            die("Couldnt find file: $file\n");
         }
     }
 }

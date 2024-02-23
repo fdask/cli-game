@@ -1959,7 +1959,7 @@ class Map {
 
 				if (!$objective->getCompleted()) {
 					switch (get_class($objective)) {
-						case 'CollectObjective':
+						case 'Objectives\Collect':
 							$complete = false;
 
 							switch ($objective->what) {
@@ -2007,7 +2007,7 @@ class Map {
 							}
 
 							break;
-						case 'ConnectObjective':
+						case 'Objectives\Connect':
 							$pCoords = $this->player->getCoords();
 
 							if (in_array([$objective->x1, $objective->y1], $pCoords) && in_array([$objective->x2, $objective->y2], $pCoords)) {
@@ -2017,17 +2017,18 @@ class Map {
 							}
 
 							break;
-						case 'DirectionObjective':
+						case 'Objectives\Direction':
 							if ($this->level->enableCompass) {
 								if ($this->compass->getDirection($this->player->getY()) == $objective->getDirection()) {
 									$this->level->objectives[$x]->setCompleted();
 								}
 							} else {
+								// compass disabled, this objective should be skipped
 								$this->level->objectives[$x]->setCompleted();
 							}
 
 							break;
-						case 'NibbitObjective':
+						case 'Objectives\Nibbit':
 							$states = array();
 
 							foreach ($this->nibbits as $n) {
@@ -2045,6 +2046,10 @@ class Map {
 							}
 
 							break;
+						default:
+							if (Config::$debug) {
+								die("Unknown objective class: " . $objective->what . "\n");
+							}
 					}        
 				}
 			}

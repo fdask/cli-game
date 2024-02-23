@@ -1,5 +1,7 @@
 <?php
-class CollectObjective extends Objective {
+namespace Objectives;
+
+class Collect extends \Objective {
     public $what;
     public $amount;
     
