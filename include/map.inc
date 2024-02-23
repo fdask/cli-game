@@ -29,6 +29,9 @@ class Map {
 	// whether the player is viewing score or not
 	private $scoreScreen;
 
+	// are we in the power menu?
+	public $powerScreen;
+
     // an instance of the mailbox object
 	public $mailbox;
 
@@ -46,9 +49,6 @@ class Map {
 
 	// wormholes
 	public $wormholes;
-
-	// are we in the power menu?
-	public $powerMenuOpen;
 
 	// an array holding all the worms
 	public $worms;
@@ -98,7 +98,7 @@ class Map {
 		$this->player->addPower(new Power("contract", "Contract"));
 		$this->player->addPower(new Power("break", "Break"));
 
-		$this->powerMenuOpen = false;
+		$this->powerScreen = false;
 
 		$this->reset();
 
@@ -1141,7 +1141,7 @@ class Map {
 			switch ($c) {
 				case ' ':
 				case '\n':
-					if ($this->powerMenuOpen) {
+					if ($this->powerScreen) {
 						// select the current active power
 						$this->player->setActivePower($this->player->getMenuPower());
 
@@ -1213,7 +1213,7 @@ class Map {
 				case 'a': 
 				case 'A':
 					// move the character left
-					if (!$this->powerMenuOpen) {
+					if (!$this->powerScreen) {
 						// grow character to the left
 						$newX = $this->player->getX();
 						$newY = $this->player->getY() - 1;
@@ -1278,7 +1278,7 @@ class Map {
 				case 'd':
 				case 'D':
 					// move the character to the right
-					if (!$this->powerMenuOpen) {
+					if (!$this->powerScreen) {
 						// grow the character to the right
 						$newX = $this->player->getX();
 						$newY = $this->player->getY() + 1;
@@ -1437,10 +1437,10 @@ class Map {
 
 					if ($cm && $cm[1] == $ps[1]) {
 						$this->mailbox->deleteCurrentMessage();
-						$this->powerMenuOpen = false;
+						$this->powerScreen = false;
 					} else {
 						$this->mailbox->addMessageToStart($ps);
-						$this->powerMenuOpen = true;
+						$this->powerScreen = true;
 					}
 
 					$tick = false;
@@ -1471,7 +1471,7 @@ class Map {
 				case 's':
 				case 'S':
 					// move character down
-					if ($this->powerMenuOpen) {
+					if ($this->powerScreen) {
 						$mp = $this->player->getMenuPower();
 
 						if (($mp + 1) < count($this->player->getPowers())) {
@@ -1510,7 +1510,7 @@ class Map {
 					// move character up
 				case 'W':
 					// grow character up
-					if ($this->powerMenuOpen) {
+					if ($this->powerScreen) {
 						$this->player->setMenuPower($this->player->getMenuPower() - 1);
 
 						if ($this->player->getMenuPower() < 0) {

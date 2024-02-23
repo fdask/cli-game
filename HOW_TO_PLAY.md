@@ -68,6 +68,11 @@ it grows more wise.
 At a certain point, a long living plant will become enlightened.
 These plants will be shown as glowing (on the plant view).
 
+### Mushrooms
+
+At the surface layer of the earth, marked with 'M' characters.
+Sprout a mushroom by heading to the surface and using the 'f' key.
+
 ### Minerals
 
 Minerals, shown in the mineral view as a number from 1-9 representing
