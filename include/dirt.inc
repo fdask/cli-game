@@ -93,7 +93,7 @@ class Dirt {
 
 	public function sweepDeadPlant() {
 		if (!is_null($this->plant) && $this->plant->getLife() <= 0) {
-			$maxLife = $this->plant->maxLife;
+			$maxLife = $this->plant->getMaxLife();
 
 			// kill the plant
 			$this->plant = null;

@@ -126,13 +126,15 @@ class LevelGenerator {
             'enableNibbits' => true,
             'enableFloods' => true,
             'floodChance' => 2,
-            'enableDeer' => true,
+            'enableDeer' => false,
             'maxDeer' => 1,
             'deerDamage' => 50,
             'betweenDeerTicks' => 10,
             'playerStartX' => 10,
             'playerStartY' => 0,
             'enableStorms' => true,
+            'enableMushrooms' => true,
+            'enableCompass' => false,
             'map' => array(
                 "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD",
                 "DDDDDDDDDRRRRRDDDDDDDDDDDRRRRRRDDDDDDDDDDDDD",
@@ -155,12 +157,15 @@ class LevelGenerator {
         $l = new Level();
         $l->takeArray($ret);
     
+        /*
         $l->addObjective(new CollectObjective("health", "1200"));
         $l->addObjective(new CollectObjective("crystals", 10));
         $l->addObjective(new ConnectObjective(18, 20, 20, 22));
         $l->addObjective(new NibbitObjective(true));
         $l->addObjective(new CollectObjective("moves", 10));
-        
+        */
+        $l->addObjective(new DirectionObjective("S"));
+
         $l->wormHoles = array(
             new WormHole(15, 15, 20, 20, true)
         );

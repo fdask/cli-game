@@ -142,6 +142,8 @@ class Level {
 
     public $enableCompass;
 
+    public $enableMushrooms;
+
     public function __construct($filename = null) {
         if ($filename) {
             // load the json encoded level data array
@@ -322,6 +324,7 @@ class Level {
             'borderColor' => $this->borderColor,
             'stormBorderColor' => $this->stormBorderColor,
             'enableCompass' => $this->enableCompass,
+            'enableMushrooms' => $this->enableMushrooms,
             'pointsOfInterest' => serialize($this->pointsOfInterest),
             'objectives' => serialize($this->objectives),
             'map' => $this->map
@@ -404,6 +407,7 @@ class Level {
         $this->borderColor = isset($array['borderColor']) ? $array['borderColor'] : Config::$defaultBorderColor;
         $this->stormBorderColor = isset($array['stormBorderColor']) ? $array['stormBorderColor'] : Config::$defaultStormBorderColor;
         $this->enableCompass = isset($array['enableCompass']) ? $array['enableCompass'] : Config::$defaultEnableCompass;
+        $this->enableMushrooms = isset($array['enableMushrooms']) ? $array['enableMushrooms'] : Config::$defaultEnableMushrooms;
         $this->pointsOfInterest = isset($array['pointsOfInterest']) ? unserialize($array['pointsOfInterest']) : array();
         $this->objectives = isset($array['objectives']) ? unserialize($array['objectives']) : array();
 

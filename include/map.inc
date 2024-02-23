@@ -1313,7 +1313,16 @@ class Map {
 						$this->compass->turnClockwise();
 					}
 
+					//$tick = false;
+
+					break;
+				case 'f':
+					// f for fungus!
 					$tick = false;
+
+					if ($this->level->enableMushrooms) {
+						$this->addMushroom();
+					}
 
 					break;
 				case 'g':
@@ -1442,7 +1451,7 @@ class Map {
 						$this->compass->turnCounterClockwise();
 					}
 
-					$tick = false;
+					//$tick = false;
 
 					break;
 				case 'Q':
@@ -2008,6 +2017,16 @@ class Map {
 							}
 
 							break;
+						case 'DirectionObjective':
+							if ($this->level->enableCompass) {
+								if ($this->compass->getDirection($this->player->getY()) == $objective->getDirection()) {
+									$this->level->objectives[$x]->setCompleted();
+								}
+							} else {
+								$this->level->objectives[$x]->setCompleted();
+							}
+
+							break;
 						case 'NibbitObjective':
 							$states = array();
 
@@ -2186,6 +2205,38 @@ class Map {
 		} while (in_array([$mX, $mY], $existingMs));
 
 		$this->map[$mX][$mY]->setConcentration(rand($this->level->mineralConcentrationMin, $this->level->mineralConcentrationMax));
+	}
+
+	private function addMushroom() {
+		// make sure mushrooms are enabled
+		if (!$this->level->enableMushrooms) {
+			return false;
+		}
+
+		// check to make sure user is at the top
+		if ($this->player->getX() != $this->level->skyHeight) {
+			return false;
+		}
+
+		// and that there is no plant already here
+		$plantCoords = $this->getPlantCoords();
+
+		if (in_array($this->player->getXY(), $plantCoords)) {
+			return false;
+		}
+
+		// and that the user has enough health
+		if ($this->player->getLife() < Config::$defaultMushroomHealthCost) {
+			return false;
+		}
+
+		// subtract the health
+		$this->player->decrLife(Config::$defaultMushroomHealthCost);
+
+		// add the mushrooom
+		$this->map[$this->level->skyHeight][$this->player->getY()]->addPlant(new Mushroom());
+
+		return true;
 	}
 
 	private function addPlant() {
