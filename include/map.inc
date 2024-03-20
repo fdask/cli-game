@@ -73,6 +73,9 @@ class Map {
 
 	public $compass;
 
+	// running count of game ticks
+	public $ticks;
+
 	public function __construct($filename = null) {
 		if (!is_null($filename)) {
 			$this->level = new Level($filename);
@@ -136,6 +139,7 @@ class Map {
 		$this->worms = array();
 		$this->deer = array();
 		$this->betweenDeerTicker = 0;
+		$this->ticks = 0;
 		$this->betweenWormCount = $this->level->betweenWormCounter;
 		$this->borderColor = $this->level->borderColor;
 
@@ -1936,6 +1940,9 @@ class Map {
 			}
 		}
 
+		// increase the counter
+		$this->ticks++;
+		
 		// mostly for moisture, mostly
 		$this->player->tick();
 
